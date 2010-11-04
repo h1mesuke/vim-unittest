@@ -1,8 +1,8 @@
 "=============================================================================
 " File    : assert.vim
 " Author  : h1mesuke
-" Updated : 2010-10-28
-" Version : 0.1.1
+" Updated : 2010-11-04
+" Version : 0.1.2
 "
 " Licensed under the MIT license:
 " http://www.opensource.org/licenses/mit-license.php
@@ -222,22 +222,22 @@ function! assert#not_match(val, pat, ...)
 endfunction
 
 function! s:testcase()
-  return g:unittest_testcases[-1]
+  return unittest#runner().testcase
 endfunction
 
 function! s:add_assertion()
-  let testcase = s:testcase()
-  let testcase.stats.assertions += 1
+  let tc = s:testcase()
+  let tc.stats.assertions += 1
 endfunction
 
 function! s:add_failure()
-  let testcase = s:testcase()
-  let testcase.stats.failures += 1
+  let tc = s:testcase()
+  let tc.stats.failures += 1
 endfunction
 
 function! s:print_failure(test, reason, ...)
   let which = (a:0 ? a:1 : "")
-  let idx = printf('%3d', unittest#stats().failures)
+  let idx = printf('%3d', unittest#runner().stats().failures)
   echohl Error
   echomsg idx . ") Failure: " . a:test . ": " . which
   echohl None

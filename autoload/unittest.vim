@@ -2,43 +2,69 @@
 " File    : unittest.vim
 " Require : assert.vim
 " Author  : h1mesuke
-" Updated : 2010-10-27
-" Version : 0.1.0
+" Updated : 2010-11-04
+" Version : 0.1.2
 "
 " Licensed under the MIT license:
 " http://www.opensource.org/licenses/mit-license.php
 "
 "=============================================================================
 
-function! unittest#init()
-  let g:unittest_testcases = []
+function! unittest#run(...)
+  let s:test_runner = s:TestRunner.new()
+  if a:0
+    let tc_files = a:000
+  else
+    let tc_files = [expand('%:p')]
+  endif
+  for tc_file in tc_files
+    execute 'source' tc_file
+  endfor
+  call s:test_runner.run()
+  unlet s:test_runner
 endfunction
 
-function! unittest#testcase(name)
-  let testcase = {
-        \ 'name': a:name,
-        \ 'tests': [],
-        \ 'stats': { 'assertions': 0, 'failures': 0, 'errors': 0 },
-        \ }
-  call add(g:unittest_testcases, testcase)
+function! unittest#runner()
+  return s:test_runner
 endfunction
 
-function! unittest#add(testfunc)
-  call add(s:testcase().tests, a:testfunc)
+function! unittest#testcase()
+  let tc = s:TestCase.new()
+  call s:test_runner.add_testcase(tc)
+  return tc
 endfunction
 
-function! unittest#run()
+"-----------------------------------------------------------------------------
+" TestRunner
+
+let s:TestRunner = {}
+
+function! s:TestRunner.new()
+  let obj = copy(self)
+  call obj.init()
+  return obj
+endfunction
+
+function! s:TestRunner.init()
+  let self.class = s:TestRunner
+  let self.testcases = []
+endfunction
+
+function! s:TestRunner.add_testcase(tc)
+  call add(self.testcases, a:tc)
+endfunction
+
+function! s:TestRunner.run()
   let saved_pos = getpos(".")
-  for testcase in g:unittest_testcases
-    call s:print_header(1, testcase.name)
-    for Testfunc in testcase.tests
-      let funcname = matchstr(string(Testfunc), '<SNR>\d\+_\zs\w\+')
-      call s:print_header(2, funcname)
+  for tc in self.testcases
+    let self.testcase = tc
+    for test in tc.tests()
+      call s:print_header(2, test)
       try
-        call Testfunc()
+        call tc[test]()
       catch
-        call s:add_error()
-        let idx = printf('%3d', unittest#stats().errors)
+        call tc.add_error()
+        let idx = printf('%3d', unittest#runner().stats().errors)
         echohl Error
         echomsg idx . ") Error: " . v:throwpoint
         echomsg v:exception
@@ -50,13 +76,20 @@ function! unittest#run()
   call setpos(".", saved_pos)
 endfunction
 
-function! s:testcase()
-  return g:unittest_testcases[-1]
-endfunction
-
-function! s:add_error()
-  let testcase = s:testcase()
-  let testcase.stats.errors += 1
+function! s:TestRunner.stats()
+  let stats = {
+        \ 'tests'     : 0,
+        \ 'assertions': 0,
+        \ 'failures'  : 0,
+        \ 'errors'    : 0,
+        \ }
+  for tc in self.testcases
+    let stats.tests      += len(tc.tests())
+    let stats.assertions += tc.stats.assertions
+    let stats.failures   += tc.stats.failures
+    let stats.errors     += tc.stats.errors
+  endfor
+  return stats
 endfunction
 
 function! s:print_header(level, title)
@@ -72,31 +105,41 @@ function! s:print_header(level, title)
   endif
 endfunction
 
-function! unittest#stats()
-  let stats = {
-        \ 'tests'     : 0,
-        \ 'assertions': 0,
-        \ 'failures'  : 0,
-        \ 'errors'    : 0,
-        \ }
-  for testcase in g:unittest_testcases
-    let stats.tests      += len(testcase.tests)
-    let stats.assertions += testcase.stats.assertions
-    let stats.failures   += testcase.stats.failures
-    let stats.errors     += testcase.stats.errors
-  endfor
-  return stats
-endfunction
-
 function! s:print_stats()
   call s:print_header(2, '')
-  let stats = unittest#stats()
+  let stats = unittest#runner().stats()
   if stats.failures > 0 || stats.errors > 0
     echohl Error
   endif
   echomsg stats.tests . " tests, " . stats.assertions . " assertions, " .
         \ stats.failures . " failures, " . stats.errors . " errors"
   echohl None
+endfunction
+
+"-----------------------------------------------------------------------------
+" TestCase
+
+let s:TestCase = {}
+
+function! s:TestCase.new()
+  let obj = copy(self)
+  call obj.init()
+  return obj
+endfunction
+
+function! s:TestCase.init()
+  let self.class = s:TestCase
+  let self.path = expand('<sfile>:p')
+  let self.name = 'testcase'
+  let self.stats = { 'assertions': 0, 'failures': 0, 'errors': 0 }
+endfunction
+
+function! s:TestCase.tests()
+  return filter(keys(self), "v:val =~# '^test_'")
+endfunction
+
+function! s:TestCase.add_error()
+  let self.stats.errors += 1
 endfunction
 
 " vim: filetype=vim
