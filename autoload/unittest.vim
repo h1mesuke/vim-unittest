@@ -2,8 +2,8 @@
 " File    : unittest.vim
 " Require : assert.vim
 " Author  : h1mesuke
-" Updated : 2010-11-04
-" Version : 0.1.2
+" Updated : 2010-11-05
+" Version : 0.1.3
 "
 " Licensed under the MIT license:
 " http://www.opensource.org/licenses/mit-license.php
@@ -28,8 +28,12 @@ function! unittest#runner()
   return s:test_runner
 endfunction
 
-function! unittest#testcase()
-  let tc = s:TestCase.new()
+function! unittest#results()
+  return s:test_runner.results
+endfunction
+
+function! unittest#testcase(tc_path)
+  let tc = s:TestCase.new(a:tc_path)
   call s:test_runner.add_testcase(tc)
   return tc
 endfunction
@@ -41,13 +45,11 @@ let s:TestRunner = {}
 
 function! s:TestRunner.new()
   let obj = copy(self)
-  call obj.init()
+  let obj.class = s:TestRunner
+  let obj.testcases = []
+  let obj.context = {}
+  let obj.results = s:TestResults.new()
   return obj
-endfunction
-
-function! s:TestRunner.init()
-  let self.class = s:TestRunner
-  let self.testcases = []
 endfunction
 
 function! s:TestRunner.add_testcase(tc)
@@ -55,65 +57,27 @@ function! s:TestRunner.add_testcase(tc)
 endfunction
 
 function! s:TestRunner.run()
+  call self.results.open_window()
   let saved_pos = getpos(".")
   for tc in self.testcases
-    let self.testcase = tc
+    let self.context.testcase = tc
+    call self.results.print_header(1, tc.name)
+    call self.results.puts()
     for test in tc.tests()
-      call s:print_header(2, test)
+      let self.context.test = test
+      call self.results.count_test()
+      call self.results.print_header(2, test)
+      call self.results.append(" => ")
       try
         call tc[test]()
       catch
-        call tc.add_error()
-        let idx = printf('%3d', unittest#runner().stats().errors)
-        echohl Error
-        echomsg idx . ") Error: " . v:throwpoint
-        echomsg v:exception
-        echohl None
+        call self.results.add_error()
       endtry
+      call self.results.flush()
     endfor
   endfor
-  call s:print_stats()
+  call self.results.print_stats()
   call setpos(".", saved_pos)
-endfunction
-
-function! s:TestRunner.stats()
-  let stats = {
-        \ 'tests'     : 0,
-        \ 'assertions': 0,
-        \ 'failures'  : 0,
-        \ 'errors'    : 0,
-        \ }
-  for tc in self.testcases
-    let stats.tests      += len(tc.tests())
-    let stats.assertions += tc.stats.assertions
-    let stats.failures   += tc.stats.failures
-    let stats.errors     += tc.stats.errors
-  endfor
-  return stats
-endfunction
-
-function! s:print_header(level, title)
-  let now = strftime("%Y-%m-%d %H:%M:%S")
-  if a:level == 1
-    echomsg "=======================================================[" . now . "]"
-    echomsg toupper(substitute(a:title, '#', ' # ', 'g'))
-  elseif a:level == 2
-    echomsg "-------------------------------------------------------[" . now . "]"
-    echomsg toupper(substitute(a:title, '#', ' # ', 'g'))
-  else
-    echomsg "@ " . a:title
-  endif
-endfunction
-
-function! s:print_stats()
-  call s:print_header(2, '')
-  let stats = unittest#runner().stats()
-  if stats.failures > 0 || stats.errors > 0
-    echohl Error
-  endif
-  echomsg stats.tests . " tests, " . stats.assertions . " assertions, " .
-        \ stats.failures . " failures, " . stats.errors . " errors"
-  echohl None
 endfunction
 
 "-----------------------------------------------------------------------------
@@ -121,25 +85,168 @@ endfunction
 
 let s:TestCase = {}
 
-function! s:TestCase.new()
+function! s:TestCase.new(path)
   let obj = copy(self)
-  call obj.init()
+  let obj.class = s:TestCase
+  let obj.path = a:path
+  let obj.name = substitute(split(a:path, '/')[-1], '\.\w\+$', '', '')
   return obj
 endfunction
 
-function! s:TestCase.init()
-  let self.class = s:TestCase
-  let self.path = expand('<sfile>:p')
-  let self.name = 'testcase'
-  let self.stats = { 'assertions': 0, 'failures': 0, 'errors': 0 }
-endfunction
-
 function! s:TestCase.tests()
-  return filter(keys(self), "v:val =~# '^test_'")
+  return sort(filter(keys(self), 'v:val =~# "^test_"'))
 endfunction
 
-function! s:TestCase.add_error()
-  let self.stats.errors += 1
+"-----------------------------------------------------------------------------
+" TestResults
+
+let s:TestResults = {}
+
+function! s:TestResults.new()
+  let obj = copy(self)
+  let obj.class = s:TestResults
+  let obj.n_tests = 0
+  let obj.n_asserts = 0
+  let obj.failures = []
+  let obj.errors = []
+  let obj.buffer = []
+  return obj
+endfunction
+
+function! s:TestResults.open_window()
+  let sp = ''
+  if !exists('s:bufnr') || !bufexists(s:bufnr)
+    " the buffer doesn't exist
+    execute sp 'split'
+    edit `='[unittest results]'`
+    let s:bufnr = bufnr('%')
+    nnoremap <buffer> q <C-w>c
+    setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
+    setlocal filetype=unittest
+  elseif bufwinnr(s:bufnr) != -1
+    " the buffer exists, but it has no window
+    execute bufwinnr(s:bufnr) 'wincmd w'
+    %delete _
+  else
+    " the buffer and its window exist
+    execute sp 'split'
+    execute 'buffer' s:bufnr
+    %delete _
+  endif
+endfunction
+
+function! s:TestResults.count_test()
+  let self.n_tests += 1
+endfunction
+
+function! s:TestResults.count_assertion()
+  let self.n_asserts += 1
+endfunction
+
+function! s:TestResults.add_success()
+  call self.append(".")
+endfunction
+
+function! s:TestResults.add_failure(assert, reason, hint)
+  let fail = s:Failure.new(a:assert, a:reason, a:hint)
+  call add(self.failures, fail)
+  call add(self.buffer, fail)
+  call self.append("F")
+endfunction
+
+function! s:TestResults.add_error()
+  let err = s:Error.new()
+  call add(self.errors, err)
+  call add(self.buffer, err)
+  call self.append("E")
+endfunction
+
+function! s:TestResults.puts(...)
+  execute bufwinnr(s:bufnr) 'wincmd w'
+  let args = (a:0 ? a:000 : [""])
+  for str in args
+    call append('$', str)
+  endfor
+  setlocal nomodified
+endfunction
+
+function! s:TestResults.append(str)
+  execute bufwinnr(s:bufnr) 'wincmd w'
+  call setline('$', getline('$') . a:str)
+  setlocal nomodified
+endfunction
+
+function! s:TestResults.flush()
+  for err in self.buffer
+    if err.class is s:Failure
+      call self.print_failure(err)
+    elseif err.class is s:Error
+      call self.print_error(err)
+    endif
+  endfor
+  call self.puts()
+  let self.buffer = []
+endfunction
+
+function! s:TestResults.print_separator(ch)
+  let winw = winwidth(bufwinnr(s:bufnr))
+  let seplen = min([80, winw]) - 2
+  call self.puts(substitute(printf('%*s', seplen, ''), ' ', a:ch, 'g'))
+endfunction
+
+function! s:TestResults.print_header(level, title)
+  if a:level == 1
+    call self.print_separator('=')
+  elseif a:level == 2
+    call self.print_separator('-')
+  endif
+  call self.puts(toupper(a:title))
+endfunction
+
+function! s:TestResults.print_failure(fail)
+  call self.puts()
+  call self.puts("Failure: " . a:fail.test . ": " . a:fail.assert)
+  call self.puts(split(a:fail.reason, "\n"))
+endfunction
+
+function! s:TestResults.print_error(err)
+  call self.puts()
+  call self.puts("Error: " . a:err.throwpoint)
+  call self.puts(a:err.exception)
+endfunction
+
+function! s:TestResults.print_stats()
+  call self.print_separator('-')
+  let n_fails = len(self.failures)
+  let n_errs  = len(self.errors)
+  call self.puts(self.n_tests . " tests, " . self.n_asserts . " assertions, " .
+        \ n_fails . " failures, " . n_errs . " errors")
+  call self.puts()
+endfunction
+
+let s:Failure = {}
+
+function! s:Failure.new(assert, reason, hint)
+  let obj = copy(self)
+  let obj.class = s:Failure
+  let obj.testcase = s:test_runner.context.testcase
+  let obj.test = s:test_runner.context.test
+  let obj.assert = a:assert
+  let obj.reason = a:reason
+  let obj.hint = a:hint
+  return obj
+endfunction
+
+let s:Error = {}
+
+function! s:Error.new()
+  let obj = copy(self)
+  let obj.class = s:Error
+  let obj.testcase = s:test_runner.context.testcase
+  let obj.test = s:test_runner.context.test
+  let obj.throwpoint = v:throwpoint
+  let obj.exception = v:exception
+  return obj
 endfunction
 
 " vim: filetype=vim

@@ -1,7 +1,7 @@
 " himesuke's vimrc suite
 " Maintainer: Satoshi Himeno <himesuke@gmail.com>
 
-let tc = unittest#testcase()
+let tc = unittest#testcase(expand('<sfile>:p'))
 
 function! tc.test_bool_assertions()
   call assert#true(1)
