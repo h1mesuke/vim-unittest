@@ -89,14 +89,14 @@ endfunction
 
 function! tc.test_match_assertions()
   call assert#match("hello", 'e')
-  call assert#match(["hello", "goodbyb"], 'e')
+  call assert#match(["hello", "goodbye"], 'e')
   call assert#match("hello", 'x')
-  call assert#match(["hello", "goodbyb"], 'x')
+  call assert#match(["hello", "goodbye"], 'x')
 
   call assert#not_match("hello", 'x')
-  call assert#not_match(["hello", "goodbyb"], 'x')
+  call assert#not_match(["hello", "goodbye"], 'x')
   call assert#not_match("hello", 'e')
-  call assert#not_match(["hello", "goodbyb"], 'e')
+  call assert#not_match(["hello", "goodbye"], 'e')
 endfunction
 
 function! tc.test_error()

@@ -62,6 +62,9 @@ function! s:TestRunner.add_testcase(tc)
 endfunction
 
 function! s:TestRunner.run()
+  if has("reltime")
+    let start_time = reltime()
+  endif
   call self.results.open_window()
   let saved_pos = getpos(".")
   for tc in self.testcases
@@ -84,6 +87,10 @@ function! s:TestRunner.run()
     endfor
   endfor
   call self.results.print_stats()
+  if has("reltime")
+    let used_time = split(reltimestr(reltime(start_time)))[0]
+    call self.results.puts("Finished in " . used_time . " seconds.")
+  endif
   call setpos(".", saved_pos)
 endfunction
 
