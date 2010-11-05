@@ -1,5 +1,5 @@
 "=============================================================================
-" File    : assert.vim
+" File    : autoload/assert.vim
 " Author  : h1mesuke
 " Updated : 2010-11-05
 " Version : 0.1.4

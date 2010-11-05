@@ -1,6 +1,5 @@
 "=============================================================================
-" File    : unittest.vim
-" Require : assert.vim
+" File    : autoload/unittest.vim
 " Author  : h1mesuke
 " Updated : 2010-11-05
 " Version : 0.1.4
