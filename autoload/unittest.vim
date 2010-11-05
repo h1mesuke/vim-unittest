@@ -65,6 +65,7 @@ function! s:TestRunner.run()
   if has("reltime")
     let start_time = reltime()
   endif
+  let s:Failure.id = 0 | let s:Error.id = 0
   call self.results.open_window()
   let saved_pos = getpos(".")
   for tc in self.testcases
@@ -169,10 +170,8 @@ function! s:TestResults.new(runner)
   let obj = copy(self)
   let obj.class = s:TestResults
   let obj.context = a:runner.context
-  let obj.n_tests = 0
-  let obj.n_asserts = 0
-  let obj.failures = []
-  let obj.errors = []
+  let obj.n_tests = 0    | let obj.n_assertions = 0
+  let obj.n_failures = 0 | let obj.n_errors = 0
   let obj.buffer = []
   return obj
 endfunction
@@ -204,7 +203,7 @@ function! s:TestResults.count_test()
 endfunction
 
 function! s:TestResults.count_assertion()
-  let self.n_asserts += 1
+  let self.n_assertions += 1
 endfunction
 
 function! s:TestResults.add_success()
@@ -213,14 +212,12 @@ endfunction
 
 function! s:TestResults.add_failure(assert, reason, hint)
   let fail = s:Failure.new(a:assert, a:reason, a:hint)
-  call add(self.failures, fail)
   call add(self.buffer, fail)
   call self.append("F", self.context.test_header_lnum)
 endfunction
 
 function! s:TestResults.add_error()
   let err = s:Error.new()
-  call add(self.errors, err)
   call add(self.buffer, err)
   call self.append("E", self.context.test_header_lnum)
 endfunction
@@ -247,8 +244,10 @@ endfunction
 function! s:TestResults.flush()
   for err in self.buffer
     if err.class is s:Failure
+      let self.n_failures = err.id
       call self.print_failure(err)
     elseif err.class is s:Error
+      let self.n_errors = err.id
       call self.print_error(err)
     endif
   endfor
@@ -273,28 +272,29 @@ endfunction
 
 function! s:TestResults.print_failure(fail)
   call self.puts()
-  call self.puts("Failure: " . a:fail.test . ": " . a:fail.assert)
+  let idx = printf('%3d) ', a:fail.id)
+  call self.puts(idx . "Failure: " . a:fail.test . ": " . a:fail.assert)
   call self.puts(split(a:fail.reason, "\n"))
 endfunction
 
 function! s:TestResults.print_error(err)
   call self.puts()
-  call self.puts("Error: " . a:err.throwpoint)
+  let idx = printf('%3d) ', a:err.id)
+  call self.puts(idx . "Error: " . a:err.throwpoint)
   call self.puts(a:err.exception)
 endfunction
 
 function! s:TestResults.print_stats()
   call self.print_separator('-')
-  let n_fails = len(self.failures)
-  let n_errs  = len(self.errors)
-  call self.puts(self.n_tests . " tests, " . self.n_asserts . " assertions, " .
-        \ n_fails . " failures, " . n_errs . " errors")
+  call self.puts(self.n_tests . " tests, " . self.n_assertions . " assertions, " .
+        \ self.n_failures . " failures, " . self.n_errors . " errors")
   call self.puts()
 endfunction
 
-let s:Failure = {}
+let s:Failure = { 'id': 0 }
 
 function! s:Failure.new(assert, reason, hint)
+  let self.id += 1
   let obj = copy(self)
   let obj.class = s:Failure
   let obj.testcase = s:test_runner.context.testcase
@@ -305,9 +305,10 @@ function! s:Failure.new(assert, reason, hint)
   return obj
 endfunction
 
-let s:Error = {}
+let s:Error = { 'id': 0 }
 
 function! s:Error.new()
+  let self.id += 1
   let obj = copy(self)
   let obj.class = s:Error
   let obj.testcase = s:test_runner.context.testcase
