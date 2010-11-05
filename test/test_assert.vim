@@ -1,5 +1,4 @@
-" himesuke's vimrc suite
-" Maintainer: Satoshi Himeno <himesuke@gmail.com>
+" unittest.vim's test suite
 
 let tc = unittest#testcase(expand('<sfile>:p'))
 
