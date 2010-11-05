@@ -80,6 +80,10 @@ function! s:TestRunner.run()
       try
         call tc.__setup__(test)
         call tc[test]()
+      catch
+        call self.results.add_error()
+      endtry
+      try
         call tc.__teardown__(test)
       catch
         call self.results.add_error()
