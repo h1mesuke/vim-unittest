@@ -3,7 +3,7 @@
 " Require : assert.vim
 " Author  : h1mesuke
 " Updated : 2010-11-05
-" Version : 0.1.3
+" Version : 0.1.4
 "
 " Licensed under the MIT license:
 " http://www.opensource.org/licenses/mit-license.php
@@ -38,6 +38,11 @@ function! unittest#testcase(tc_path)
   return tc
 endfunction
 
+function! unittest#puts(...)
+  let str = (a:0 ? a:1 : "")
+  call s:test_runner.results.puts(str)
+endfunction
+
 "-----------------------------------------------------------------------------
 " TestRunner
 
@@ -48,7 +53,7 @@ function! s:TestRunner.new()
   let obj.class = s:TestRunner
   let obj.testcases = []
   let obj.context = {}
-  let obj.results = s:TestResults.new()
+  let obj.results = s:TestResults.new(obj)
   return obj
 endfunction
 
@@ -67,9 +72,11 @@ function! s:TestRunner.run()
       let self.context.test = test
       call self.results.count_test()
       call self.results.print_header(2, test)
-      call self.results.append(" => ")
+      let self.context.test_header_lnum = self.results.append(" => ")
       try
+        call tc.__setup__(test)
         call tc[test]()
+        call tc.__teardown__(test)
       catch
         call self.results.add_error()
       endtry
@@ -90,11 +97,60 @@ function! s:TestCase.new(path)
   let obj.class = s:TestCase
   let obj.path = a:path
   let obj.name = substitute(split(a:path, '/')[-1], '\.\w\+$', '', '')
+  let obj.cache = {}
   return obj
 endfunction
 
 function! s:TestCase.tests()
-  return sort(filter(keys(self), 'v:val =~# "^test_"'))
+  if !has_key(self.cache, 'tests')
+    let self.cache.tests = sort(s:grep(keys(self), '^test_'))
+  endif
+  return self.cache.tests
+endfunction
+
+function! s:TestCase.__setup__(test)
+  if has_key(self, 'setup')
+    call self.setup()
+  endif
+  if !has_key(self.cache, 'setup_prefixes')
+    let setups = sort(s:grep(keys(self), '^setup_'), 's:compare_strlen')
+    let self.cache.setup_prefixes = s:map_matchstr(setups, 'setup_\zs.*$')
+  endif
+  for prefix in self.cache.setup_prefixes
+    if a:test =~# '^test_'.prefix
+      call self['setup_'.prefix]()
+    endif
+  endfor
+endfunction
+
+function! s:TestCase.__teardown__(test)
+  if !has_key(self.cache, 'teardown_prefixes')
+    let teardowns = reverse(sort(s:grep(keys(self), '^teardown_'), 's:compare_strlen'))
+    let self.cache.teardown_prefixes = s:map_matchstr(teardowns, 'teardown_\zs.*$')
+  endif
+  for prefix in self.cache.teardown_prefixes
+    if a:test =~# '^test_'.prefix
+      call self['teardown_'.prefix]()
+    endif
+  endfor
+  if has_key(self, 'teardown')
+    call self.teardown()
+  endif
+endfunction
+
+function! s:grep(list, pat, ...)
+  let op = (a:0 ? a:1 : '=~#')
+  return filter(a:list, 'v:val ' . op . " '" . a:pat . "'")
+endfunction
+
+function! s:map_matchstr(list, pat)
+  return map(a:list, 'matchstr(v:val, ' . "'" . a:pat . "')")
+endfunction
+
+function! s:compare_strlen(str1, str2)
+  let len1 = len(a:str1)
+  let len2 = len(a:str2)
+  return len1 == len2 ? 0 : len1 > len2 ? 1 : -1
 endfunction
 
 "-----------------------------------------------------------------------------
@@ -102,9 +158,10 @@ endfunction
 
 let s:TestResults = {}
 
-function! s:TestResults.new()
+function! s:TestResults.new(runner)
   let obj = copy(self)
   let obj.class = s:TestResults
+  let obj.context = a:runner.context
   let obj.n_tests = 0
   let obj.n_asserts = 0
   let obj.failures = []
@@ -144,36 +201,40 @@ function! s:TestResults.count_assertion()
 endfunction
 
 function! s:TestResults.add_success()
-  call self.append(".")
+  call self.append(".", self.context.test_header_lnum)
 endfunction
 
 function! s:TestResults.add_failure(assert, reason, hint)
   let fail = s:Failure.new(a:assert, a:reason, a:hint)
   call add(self.failures, fail)
   call add(self.buffer, fail)
-  call self.append("F")
+  call self.append("F", self.context.test_header_lnum)
 endfunction
 
 function! s:TestResults.add_error()
   let err = s:Error.new()
   call add(self.errors, err)
   call add(self.buffer, err)
-  call self.append("E")
+  call self.append("E", self.context.test_header_lnum)
 endfunction
 
 function! s:TestResults.puts(...)
+  let saved_winnr =  bufwinnr('%')
   execute bufwinnr(s:bufnr) 'wincmd w'
-  let args = (a:0 ? a:000 : [""])
-  for str in args
-    call append('$', str)
-  endfor
+  let str = (a:0 ? a:1 : "")
+  call append('$', str)
   setlocal nomodified
+  execute saved_winnr 'wincmd w'
 endfunction
 
-function! s:TestResults.append(str)
+function! s:TestResults.append(str, ...)
+  let saved_winnr =  bufwinnr('%')
   execute bufwinnr(s:bufnr) 'wincmd w'
-  call setline('$', getline('$') . a:str)
+  let lnum = (a:0 ? a:1 : line('$'))
+  call setline(lnum, getline(lnum) . a:str)
   setlocal nomodified
+  execute saved_winnr 'wincmd w'
+  return lnum
 endfunction
 
 function! s:TestResults.flush()

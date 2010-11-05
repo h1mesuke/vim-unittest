@@ -3,6 +3,42 @@
 
 let tc = unittest#testcase(expand('<sfile>:p'))
 
+function! tc.setup()
+  call unittest#puts()
+  call unittest#puts("setup")
+endfunction
+
+function! tc.setup_foo_bar_baz()
+  call unittest#puts("setup_foo_bar_baz")
+endfunction
+
+function! tc.setup_foo()
+  call unittest#puts("setup_foo")
+endfunction
+
+function! tc.setup_foo_bar()
+  call unittest#puts("setup_foo_bar")
+endfunction
+
+function! tc.teardown()
+  call unittest#puts("teardown")
+endfunction
+
+function! tc.teardown_foo_bar_baz()
+  call unittest#puts("teardown_foo_bar_baz")
+endfunction
+
+function! tc.teardown_foo()
+  call unittest#puts("teardown_foo")
+endfunction
+
+function! tc.teardown_foo_bar()
+  call unittest#puts("teardown_foo_bar")
+endfunction
+
+function! tc.test_foo_bar_baz()
+endfunction
+
 function! tc.test_bool_assertions()
   call assert#true(1)
   call assert#true(0)

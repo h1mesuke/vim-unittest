@@ -3,7 +3,7 @@
 " Require : assert.vim
 " Author  : h1mesuke
 " Updated : 2010-11-04
-" Version : 0.1.3
+" Version : 0.1.4
 "
 " Licensed under the MIT license:
 " http://www.opensource.org/licenses/mit-license.php
