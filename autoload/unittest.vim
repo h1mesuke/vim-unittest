@@ -67,7 +67,6 @@ function! s:TestRunner.run()
   endif
   let s:Failure.id = 0 | let s:Error.id = 0
   call self.results.open_window()
-  let saved_pos = getpos(".")
   for tc in self.testcases
     let self.context.testcase = tc
     call self.results.print_header(1, tc.name)
@@ -96,7 +95,6 @@ function! s:TestRunner.run()
     let used_time = split(reltimestr(reltime(start_time)))[0]
     call self.results.puts("Finished in " . used_time . " seconds.")
   endif
-  call setpos(".", saved_pos)
 endfunction
 
 "-----------------------------------------------------------------------------
@@ -231,6 +229,7 @@ function! s:TestResults.puts(...)
   execute bufwinnr(s:bufnr) 'wincmd w'
   let str = (a:0 ? a:1 : "")
   call append('$', str)
+  normal! G
   setlocal nomodified
   execute saved_winnr 'wincmd w'
 endfunction
