@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-11-05
+" Updated : 2010-11-06
 " Version : 0.1.4
 "
 " Licensed under the MIT license:
@@ -211,8 +211,8 @@ function! s:TestResults.add_success()
   call self.append(".", self.context.test_header_lnum)
 endfunction
 
-function! s:TestResults.add_failure(assert, reason, hint)
-  let fail = s:Failure.new(a:assert, a:reason, a:hint)
+function! s:TestResults.add_failure(reason, hint)
+  let fail = s:Failure.new(a:reason, a:hint)
   call add(self.buffer, fail)
   call self.append("F", self.context.test_header_lnum)
 endfunction
@@ -276,6 +276,9 @@ function! s:TestResults.print_failure(fail)
   call self.puts()
   let idx = printf('%3d) ', a:fail.id)
   call self.puts(idx . "Failure: " . a:fail.test . ": " . a:fail.assert)
+  if a:fail.message != ""
+    call self.puts(a:fail.message)
+  endif
   call self.puts(split(a:fail.reason, "\n"))
 endfunction
 
@@ -295,15 +298,16 @@ endfunction
 
 let s:Failure = { 'id': 0 }
 
-function! s:Failure.new(assert, reason, hint)
+function! s:Failure.new(reason, message)
   let self.id += 1
   let obj = copy(self)
   let obj.class = s:Failure
   let obj.testcase = s:test_runner.context.testcase
   let obj.test = s:test_runner.context.test
-  let obj.assert = a:assert
+  let obj.failpoint = expand('<sfile>')
+  let obj.assert = matchstr(obj.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
   let obj.reason = a:reason
-  let obj.hint = a:hint
+  let obj.message = a:message
   return obj
 endfunction
 
