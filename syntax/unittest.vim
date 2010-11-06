@@ -21,6 +21,7 @@ hi def UnitTestRed   ctermfg=Red   guifg=Red
 syn match UnitTestHeader
       \ '^TEST_.*'
       \ contains=UnitTestResults
+      \ keepend
 
 syn match UnitTestResults
       \ '\( => \)\@<=[.FE]\+'
@@ -41,6 +42,7 @@ syn match UnitTestErrorHeader
 syn match UnitTestStats
       \ '^\d\+ tests, \d\+ assertions, \d\+ failures, \d\+ errors$'
       \ contains=UnitTestNoFailures,UnitTestNoErrors,UnitTestSomeFailures,UnitTestSomeErrors
+      \ keepend
 
 syn match UnitTestNoFailures
       \ ' \@<=0 failures,\( 0 errors\)\@='

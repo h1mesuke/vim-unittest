@@ -179,24 +179,29 @@ endfunction
 
 function! s:TestResults.open_window()
   let sp = ''
-  if !exists('s:bufnr') || !bufexists(s:bufnr)
+  if !exists('s:results_bufnr') || !bufexists(s:results_bufnr)
     " the buffer doesn't exist
     execute sp 'split'
     edit `='[unittest results]'`
-    let s:bufnr = bufnr('%')
-    nnoremap <buffer> q <C-w>c
-    setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
-    setlocal filetype=unittest
-  elseif bufwinnr(s:bufnr) != -1
-    " the buffer exists, but it has no window
-    execute bufwinnr(s:bufnr) 'wincmd w'
-    %delete _
+    let s:results_bufnr = bufnr('%')
+    call s:init_results_buffer()
+  elseif bufwinnr(s:results_bufnr) != -1
+    " the buffer exists, and it has a window
+    execute bufwinnr(s:results_bufnr) 'wincmd w'
+    call s:init_results_buffer()
   else
-    " the buffer and its window exist
+    " the buffer exists, but it has no window
     execute sp 'split'
-    execute 'buffer' s:bufnr
-    %delete _
+    execute 'buffer' s:results_bufnr
+    call s:init_results_buffer()
   endif
+endfunction
+
+function! s:init_results_buffer()
+  nnoremap <buffer> q <C-w>c
+  setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
+  setlocal filetype=unittest
+  silent! %delete _
 endfunction
 
 function! s:TestResults.count_test()
@@ -211,8 +216,8 @@ function! s:TestResults.add_success()
   call self.append(".", self.context.test_header_lnum)
 endfunction
 
-function! s:TestResults.add_failure(reason, hint)
-  let fail = s:Failure.new(a:reason, a:hint)
+function! s:TestResults.add_failure(reason, message)
+  let fail = s:Failure.new(a:reason, a:message)
   call add(self.buffer, fail)
   call self.append("F", self.context.test_header_lnum)
 endfunction
@@ -225,7 +230,7 @@ endfunction
 
 function! s:TestResults.puts(...)
   let saved_winnr =  bufwinnr('%')
-  execute bufwinnr(s:bufnr) 'wincmd w'
+  execute bufwinnr(s:results_bufnr) 'wincmd w'
   let str = (a:0 ? a:1 : "")
   call append('$', str)
   normal! G
@@ -235,7 +240,7 @@ endfunction
 
 function! s:TestResults.append(str, ...)
   let saved_winnr =  bufwinnr('%')
-  execute bufwinnr(s:bufnr) 'wincmd w'
+  execute bufwinnr(s:results_bufnr) 'wincmd w'
   let lnum = (a:0 ? a:1 : line('$'))
   call setline(lnum, getline(lnum) . a:str)
   setlocal nomodified
@@ -258,7 +263,7 @@ function! s:TestResults.flush()
 endfunction
 
 function! s:TestResults.print_separator(ch)
-  let winw = winwidth(bufwinnr(s:bufnr))
+  let winw = winwidth(bufwinnr(s:results_bufnr))
   let seplen = min([80, winw]) - 2
   call self.puts(substitute(printf('%*s', seplen, ''), ' ', a:ch, 'g'))
 endfunction
