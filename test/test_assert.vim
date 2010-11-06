@@ -36,6 +36,19 @@ function! tc.teardown_foo_bar()
 endfunction
 
 function! tc.test_foo_bar_baz()
+  " Expected:
+  "
+  " setup
+  " setup_foo
+  " setup_foo_bar
+  " setup_foo_bar_baz
+  "
+  " test_foo_bar_baz
+  "
+  " teardown_foo_bar_baz
+  " teardown_foo_bar
+  " teardown_foo
+  " teardown
 endfunction
 
 function! tc.test_bool_assertions()
@@ -88,13 +101,15 @@ endfunction
 
 function! tc.test_match_assertions()
   call assert#match("hello", 'e')
-  call assert#match(["hello", "goodbye"], 'e')
   call assert#match("hello", 'x')
+
+  call assert#match(["hello", "goodbye"], 'e')
   call assert#match(["hello", "goodbye"], 'x')
 
   call assert#not_match("hello", 'x')
-  call assert#not_match(["hello", "goodbye"], 'x')
   call assert#not_match("hello", 'e')
+
+  call assert#not_match(["hello", "goodbye"], 'x')
   call assert#not_match(["hello", "goodbye"], 'e')
 endfunction
 

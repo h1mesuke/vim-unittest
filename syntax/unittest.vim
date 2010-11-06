@@ -18,14 +18,48 @@ endif
 hi def UnitTestGreen ctermfg=Green guifg=Green
 hi def UnitTestRed   ctermfg=Red   guifg=Red
 
+syn match UnitTestHeader
+      \ '^TEST_.*'
+      \ contains=UnitTestResults
+
+syn match UnitTestResults
+      \ '\( => \)\@<=[.FE]\+'
+      \ contained
+      \ contains=UnitTestFailure,UnitTestError
+
+syn match UnitTestFailure
+      \ 'F'
+      \ contained
+
+syn match UnitTestError
+      \ 'E'
+      \ contained
+
+syn match UnitTestErrorHeader
+      \ '^\s*\d\+) \(Failure\|Error\):.*'
+
 syn match UnitTestStats
       \ '^\d\+ tests, \d\+ assertions, \d\+ failures, \d\+ errors$'
       \ contains=UnitTestNoFailures,UnitTestNoErrors,UnitTestSomeFailures,UnitTestSomeErrors
 
-syn match UnitTestNoFailures    / \@<=0 failures,\( 0 errors\)\@=/ contained
-syn match UnitTestNoErrors      /\( 0 failures, \)\@<=0 errors/    contained
-syn match UnitTestSomeFailures  /[1-9]\d* failures,/               contained
-syn match UnitTestSomeErrors    /[1-9]\d* errors/                  contained
+syn match UnitTestNoFailures
+      \ ' \@<=0 failures,\( 0 errors\)\@='
+      \ contained
+
+syn match UnitTestNoErrors
+      \ '\( 0 failures, \)\@<=0 errors'
+      \ contained
+
+syn match UnitTestSomeFailures
+      \ '[1-9]\d* failures,'
+      \ contained
+
+syn match UnitTestSomeErrors
+      \ '[1-9]\d* errors'
+      \ contained
+
+hi def link UnitTestFailure      UnitTestRed
+hi def link UnitTestError        UnitTestRed
 
 hi def link UnitTestNoFailures   UnitTestGreen
 hi def link UnitTestNoErrors     UnitTestGreen

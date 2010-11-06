@@ -2,7 +2,15 @@
 
 let tc = unittest#testcase(expand('<sfile>:p'))
 
-function! tc.test_all_green()
+function! tc.test_foo()
+  call assert#true(1)
+endfunction
+
+function! tc.test_bar()
+  call assert#true(1)
+endfunction
+
+function! tc.test_baz()
   call assert#true(1)
 endfunction
 
