@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-11-05
+" Updated : 2010-11-06
 " Version : 0.1.4
 "
 " Licensed under the MIT license:
@@ -9,6 +9,6 @@
 "
 "=============================================================================
 
-command! -nargs=* Unittest call unittest#run(<f-args>)
+command! -nargs=* UnitTest call unittest#run(<f-args>)
 
 " vim: filetype=vim
