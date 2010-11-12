@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : syntax/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-11-06
+" Updated : 2010-11-13
 " Version : 0.1.4
 "
 " Licensed under the MIT license:
@@ -15,8 +15,8 @@ elseif exists('b:current_syntax')
   finish
 endif
 
-highlight defalut UnitTestGreen ctermfg=Green guifg=Green
-highlight defalut UnitTestRed   ctermfg=Red   guifg=Red
+highlight default UnitTestGreen ctermfg=Green guifg=Green
+highlight default UnitTestRed   ctermfg=Red   guifg=Red
 
 syntax match UnitTestHeader
       \ '^TEST_.*'
@@ -60,13 +60,13 @@ syntax match UnitTestSomeErrors
       \ '[1-9]\d* errors'
       \ contained
 
-highlight defalut link UnitTestFailure      UnitTestRed
-highlight defalut link UnitTestError        UnitTestRed
+highlight default link UnitTestFailure      UnitTestRed
+highlight default link UnitTestError        UnitTestRed
 
-highlight defalut link UnitTestNoFailures   UnitTestGreen
-highlight defalut link UnitTestNoErrors     UnitTestGreen
-highlight defalut link UnitTestSomeFailures UnitTestRed
-highlight defalut link UnitTestSomeErrors   UnitTestRed
+highlight default link UnitTestNoFailures   UnitTestGreen
+highlight default link UnitTestNoErrors     UnitTestGreen
+highlight default link UnitTestSomeFailures UnitTestRed
+highlight default link UnitTestSomeErrors   UnitTestRed
 
 let b:current_syntax = 'unittest'
 
