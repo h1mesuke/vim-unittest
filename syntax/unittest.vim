@@ -15,58 +15,58 @@ elseif exists('b:current_syntax')
   finish
 endif
 
-hi def UnitTestGreen ctermfg=Green guifg=Green
-hi def UnitTestRed   ctermfg=Red   guifg=Red
+highlight defalut UnitTestGreen ctermfg=Green guifg=Green
+highlight defalut UnitTestRed   ctermfg=Red   guifg=Red
 
-syn match UnitTestHeader
+syntax match UnitTestHeader
       \ '^TEST_.*'
       \ contains=UnitTestResults
       \ keepend
 
-syn match UnitTestResults
+syntax match UnitTestResults
       \ '\( => \)\@<=[.FE]\+'
       \ contained
       \ contains=UnitTestFailure,UnitTestError
 
-syn match UnitTestFailure
+syntax match UnitTestFailure
       \ 'F'
       \ contained
 
-syn match UnitTestError
+syntax match UnitTestError
       \ 'E'
       \ contained
 
-syn match UnitTestErrorHeader
+syntax match UnitTestErrorHeader
       \ '^\s*\d\+) \(Failure\|Error\):.*'
 
-syn match UnitTestStats
+syntax match UnitTestStats
       \ '^\d\+ tests, \d\+ assertions, \d\+ failures, \d\+ errors$'
       \ contains=UnitTestNoFailures,UnitTestNoErrors,UnitTestSomeFailures,UnitTestSomeErrors
       \ keepend
 
-syn match UnitTestNoFailures
+syntax match UnitTestNoFailures
       \ ' \@<=0 failures,\( 0 errors\)\@='
       \ contained
 
-syn match UnitTestNoErrors
+syntax match UnitTestNoErrors
       \ '\( 0 failures, \)\@<=0 errors'
       \ contained
 
-syn match UnitTestSomeFailures
+syntax match UnitTestSomeFailures
       \ '[1-9]\d* failures,'
       \ contained
 
-syn match UnitTestSomeErrors
+syntax match UnitTestSomeErrors
       \ '[1-9]\d* errors'
       \ contained
 
-hi def link UnitTestFailure      UnitTestRed
-hi def link UnitTestError        UnitTestRed
+highlight defalut link UnitTestFailure      UnitTestRed
+highlight defalut link UnitTestError        UnitTestRed
 
-hi def link UnitTestNoFailures   UnitTestGreen
-hi def link UnitTestNoErrors     UnitTestGreen
-hi def link UnitTestSomeFailures UnitTestRed
-hi def link UnitTestSomeErrors   UnitTestRed
+highlight defalut link UnitTestNoFailures   UnitTestGreen
+highlight defalut link UnitTestNoErrors     UnitTestGreen
+highlight defalut link UnitTestSomeFailures UnitTestRed
+highlight defalut link UnitTestSomeErrors   UnitTestRed
 
 let b:current_syntax = 'unittest'
 

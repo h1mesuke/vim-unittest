@@ -157,8 +157,8 @@ function! s:map_matchstr(list, pat)
 endfunction
 
 function! s:compare_strlen(str1, str2)
-  let len1 = len(a:str1)
-  let len2 = len(a:str2)
+  let len1 = strlen(a:str1)
+  let len2 = strlen(a:str2)
   return len1 == len2 ? 0 : len1 > len2 ? 1 : -1
 endfunction
 
