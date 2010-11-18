@@ -96,6 +96,7 @@ function! s:TestRunner.run()
     let used_time = split(reltimestr(reltime(start_time)))[0]
     call self.results.puts("Finished in " . used_time . " seconds.")
   endif
+  call self.results.focus_window()
 endfunction
 
 "-----------------------------------------------------------------------------
@@ -215,6 +216,10 @@ function! s:TestResults.open_window()
     execute 'buffer' s:results_bufnr
   endif
   call s:init_results_buffer()
+endfunction
+
+function! s:TestResults.focus_window()
+  execute bufwinnr(s:results_bufnr) 'wincmd w'
 endfunction
 
 function! s:init_results_buffer()
