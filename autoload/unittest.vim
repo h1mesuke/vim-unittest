@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-11-06
+" Updated : 2010-11-19
 " Version : 0.1.4
 "
 " Licensed under the MIT license:
@@ -37,11 +37,6 @@ function! unittest#testcase(tc_path)
   return tc
 endfunction
 
-function! unittest#puts(...)
-  let str = (a:0 ? a:1 : "")
-  call s:test_runner.results.puts(str)
-endfunction
-
 "-----------------------------------------------------------------------------
 " TestRunner
 
@@ -70,6 +65,9 @@ function! s:TestRunner.run()
     let self.context.testcase = tc
     call self.results.print_header(1, tc.name)
     call self.results.puts()
+    if tc.context_file != ""
+      call tc.open_context_file()
+    endif
     for test in tc.tests()
       let self.context.test = test
       call self.results.count_test()
@@ -106,6 +104,7 @@ function! s:TestCase.new(path)
   let obj.class = s:TestCase
   let obj.path = a:path
   let obj.name = substitute(split(a:path, '/')[-1], '\.\w\+$', '', '')
+  let obj.context_file = ""
   let obj.cache = {}
   return obj
 endfunction
@@ -115,6 +114,21 @@ function! s:TestCase.tests()
     let self.cache.tests = sort(s:grep(keys(self), '^test_'))
   endif
   return self.cache.tests
+endfunction
+
+function! s:TestCase.open_context_file()
+  if !bufexists(self.context_file)
+    " the buffer doesn't exist
+    split
+    edit `self.context_file`
+  elseif bufwinnr(self.context_file) != -1
+    " the buffer exists, and it has a window
+    execute bufwinnr(self.context_file) 'wincmd w'
+  else
+    " the buffer exists, but it has no window
+    split
+    execute 'buffer' bufnr(self.context_file)
+  endif
 endfunction
 
 function! s:TestCase.__setup__(test)
@@ -145,6 +159,11 @@ function! s:TestCase.__teardown__(test)
   if has_key(self, 'teardown')
     call self.teardown()
   endif
+endfunction
+
+function! s:TestCase.puts(...)
+  let str = (a:0 ? a:1 : "")
+  call s:test_runner.results.puts(str)
 endfunction
 
 function! s:grep(list, pat, ...)
@@ -178,23 +197,20 @@ function! s:TestResults.new(runner)
 endfunction
 
 function! s:TestResults.open_window()
-  let sp = ''
   if !exists('s:results_bufnr') || !bufexists(s:results_bufnr)
     " the buffer doesn't exist
-    execute sp 'split'
+    split
     edit `='[unittest results]'`
     let s:results_bufnr = bufnr('%')
-    call s:init_results_buffer()
   elseif bufwinnr(s:results_bufnr) != -1
     " the buffer exists, and it has a window
     execute bufwinnr(s:results_bufnr) 'wincmd w'
-    call s:init_results_buffer()
   else
     " the buffer exists, but it has no window
-    execute sp 'split'
+    split
     execute 'buffer' s:results_bufnr
-    call s:init_results_buffer()
   endif
+  call s:init_results_buffer()
 endfunction
 
 function! s:init_results_buffer()
