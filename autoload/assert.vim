@@ -243,7 +243,7 @@ function! assert#match(value, pat, ...)
   let hint = (a:0 ? a:1 : "")
   if match(a:value, a:pat) < 0
     call s:add_failure(
-          \ string(a:value) . " didn't match against " . string(a:pat), hint)
+          \ string(a:value) . " didn't match the pattern " . string(a:pat), hint)
   else
     call s:add_success()
   endif
@@ -254,7 +254,7 @@ function! assert#not_match(value, pat, ...)
   let hint = (a:0 ? a:1 : "")
   if match(a:value, a:pat) >= 0
     call s:add_failure(
-          \ string(a:value) . " matched against " . string(a:pat), hint)
+          \ string(a:value) . " matched the pattern " . string(a:pat), hint)
   else
     call s:add_success()
   endif
