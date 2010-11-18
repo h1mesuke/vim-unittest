@@ -232,8 +232,8 @@ function! s:TestResults.add_success()
   call self.append(".", self.context.test_header_lnum)
 endfunction
 
-function! s:TestResults.add_failure(reason, message)
-  let fail = s:Failure.new(a:reason, a:message)
+function! s:TestResults.add_failure(reason, hint)
+  let fail = s:Failure.new(a:reason, a:hint)
   call add(self.buffer, fail)
   call self.append("F", self.context.test_header_lnum)
 endfunction
@@ -296,10 +296,11 @@ endfunction
 function! s:TestResults.print_failure(fail)
   call self.puts()
   let idx = printf('%3d) ', a:fail.id)
-  call self.puts(idx . "Failure: " . a:fail.test . ": " . a:fail.assert)
-  if a:fail.message != ""
-    call self.puts(a:fail.message)
+  let head = idx . "Failure: " . a:fail.test . ": " . a:fail.assert
+  if a:fail.hint != ""
+    let head .= ": " . a:fail.hint
   endif
+  call self.puts(head)
   call self.puts(split(a:fail.reason, "\n"))
 endfunction
 
@@ -319,7 +320,7 @@ endfunction
 
 let s:Failure = { 'id': 0 }
 
-function! s:Failure.new(reason, message)
+function! s:Failure.new(reason, hint)
   let self.id += 1
   let obj = copy(self)
   let obj.class = s:Failure
@@ -328,7 +329,7 @@ function! s:Failure.new(reason, message)
   let obj.failpoint = expand('<sfile>')
   let obj.assert = matchstr(obj.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
   let obj.reason = a:reason
-  let obj.message = a:message
+  let obj.hint = string(a:hint)
   return obj
 endfunction
 
