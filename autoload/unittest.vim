@@ -32,6 +32,10 @@ function! unittest#results()
 endfunction
 
 function! unittest#testcase(tc_path)
+  if !exists('s:test_runner')
+    " sourced by the user, not the test runner, so retuun a dummy
+    return {}
+  endif
   let tc = s:TestCase.new(a:tc_path)
   call s:test_runner.add_testcase(tc)
   return tc
