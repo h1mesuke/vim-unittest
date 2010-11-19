@@ -254,22 +254,22 @@ function! s:TestResults.add_error()
 endfunction
 
 function! s:TestResults.puts(...)
-  let saved_winnr =  bufwinnr('%')
+  let save_winnr =  bufwinnr('%')
   execute bufwinnr(s:results_bufnr) 'wincmd w'
   let str = (a:0 ? a:1 : "")
   call append('$', str)
   normal! G
   setlocal nomodified
-  execute saved_winnr 'wincmd w'
+  execute save_winnr 'wincmd w'
 endfunction
 
 function! s:TestResults.append(str, ...)
-  let saved_winnr =  bufwinnr('%')
+  let save_winnr =  bufwinnr('%')
   execute bufwinnr(s:results_bufnr) 'wincmd w'
   let lnum = (a:0 ? a:1 : line('$'))
   call setline(lnum, getline(lnum) . a:str)
   setlocal nomodified
-  execute saved_winnr 'wincmd w'
+  execute save_winnr 'wincmd w'
   return lnum
 endfunction
 
@@ -338,7 +338,7 @@ function! s:Failure.new(reason, hint)
   let obj.failpoint = expand('<sfile>')
   let obj.assert = matchstr(obj.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
   let obj.reason = a:reason
-  let obj.hint = string(a:hint)
+  let obj.hint = (type(a:hint) == type("") ? a:hint : string(a:hint))
   return obj
 endfunction
 

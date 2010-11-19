@@ -106,7 +106,7 @@ function! assert#is_float(value, ...)
 endfunction
 
 function! s:typestr(value)
-  let val_val_type
+  let val_type = type(a:value)
   if val_type == type(0)
     return 'Number'
   elseif val_type == type("")
