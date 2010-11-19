@@ -10,16 +10,28 @@
 "=============================================================================
 
 function! unittest#run(...)
-  let s:test_runner = s:TestRunner.new()
   if a:0
     let tc_files = a:000
   else
     let tc_files = [expand('%:p')]
   endif
   for tc_file in tc_files
-    execute 'source' tc_file
+    if match(tc_file, '\<test_\w\+\.vim$') == -1
+      call s:print_error("unittest: sourced file is not a testcase")
+      return
+    endif
   endfor
-  call s:test_runner.run()
+
+  let s:test_runner = s:TestRunner.new()
+  try
+    for tc_file in tc_files
+      execute 'source' tc_file
+    endfor
+    call s:test_runner.run()
+  catch
+    call s:print_error(v:throwpoint)
+    call s:print_error(v:exception)
+  endtry
   unlet s:test_runner
 endfunction
 
@@ -39,6 +51,12 @@ function! unittest#testcase(tc_path)
   let tc = s:TestCase.new(a:tc_path)
   call s:test_runner.add_testcase(tc)
   return tc
+endfunction
+
+function! s:print_error(msg)
+  echohl ErrorMsg
+  echomsg a:msg
+  echohl None
 endfunction
 
 "-----------------------------------------------------------------------------
