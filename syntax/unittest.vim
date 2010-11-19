@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : syntax/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-11-13
+" Updated : 2010-11-19
 " Version : 0.1.4
 "
 " Licensed under the MIT license:
@@ -62,6 +62,8 @@ syntax match UnitTestSomeErrors
 
 highlight default link UnitTestFailure      UnitTestRed
 highlight default link UnitTestError        UnitTestRed
+
+highlight default link UnitTestErrorHeader  ErrorMsg
 
 highlight default link UnitTestNoFailures   UnitTestGreen
 highlight default link UnitTestNoErrors     UnitTestGreen
