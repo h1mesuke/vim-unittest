@@ -33,7 +33,27 @@ function! assert#false(expr, ...)
   endif
 endfunction
 
-function! assert#is_number(value, ...)
+function! assert#exists(expr, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if !exists(a:expr)
+    call s:add_failure(string(a:expr) . " doesn't exist", hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#not_exists(expr, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if exists(a:expr)
+    call s:add_failure(string(a:expr) . " exist", hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#is_Number(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type(0)
@@ -45,7 +65,7 @@ function! assert#is_number(value, ...)
   endif
 endfunction
 
-function! assert#is_string(value, ...)
+function! assert#is_String(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type("")
@@ -57,10 +77,10 @@ function! assert#is_string(value, ...)
   endif
 endfunction
 
-function! assert#is_funcref(value, ...)
+function! assert#is_Funcref(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if type(a:value) != type(function("tr"))
+  if type(a:value) != type(function('tr'))
     call s:add_failure(
           \ "Funcref expected, but was\n" .
           \ s:typestr(a:value), hint)
@@ -69,7 +89,7 @@ function! assert#is_funcref(value, ...)
   endif
 endfunction
 
-function! assert#is_list(value, ...)
+function! assert#is_List(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type([])
@@ -81,7 +101,7 @@ function! assert#is_list(value, ...)
   endif
 endfunction
 
-function! assert#is_dictionary(value, ...)
+function! assert#is_Dictionary(value, ...)
   call s:count_assertion()
   if type(a:value) != type({})
     let hint = (a:0 ? a:1 : "")
@@ -93,7 +113,7 @@ function! assert#is_dictionary(value, ...)
   endif
 endfunction
 
-function! assert#is_float(value, ...)
+function! assert#is_Float(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type(0.0)
@@ -122,7 +142,7 @@ function! s:typestr(value)
   endif
 endfunction
 
-function! assert#equal(value_1, value_2, ...)
+function! assert#equals(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value_1) == type("") && type(a:value_2) == type("")
@@ -144,7 +164,7 @@ function! assert#equal(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#equal_c(value_1, value_2, ...)
+function! assert#equals_c(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 !=? a:value_2
@@ -156,7 +176,7 @@ function! assert#equal_c(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#equal_C(value_1, value_2, ...)
+function! assert#equals_C(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 !=# a:value_2
@@ -168,7 +188,7 @@ function! assert#equal_C(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#not_equal(value_1, value_2, ...)
+function! assert#not_equals(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value_1) == type("") && type(a:value_2) == type("")
@@ -190,7 +210,7 @@ function! assert#not_equal(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#not_equal_c(value_1, value_2, ...)
+function! assert#not_equals_c(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 ==? a:value_2
@@ -202,7 +222,7 @@ function! assert#not_equal_c(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#not_equal_C(value_1, value_2, ...)
+function! assert#not_equals_C(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 ==# a:value_2

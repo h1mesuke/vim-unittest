@@ -51,61 +51,109 @@ function! tc.test_foo_bar_baz()
   " teardown
 endfunction
 
-function! tc.test_bool_assertions()
+function! tc.test_assert_true()
   call assert#true(1)
   call assert#true(0)
+endfunction
+
+function! tc.test_assert_false()
   call assert#false(0)
   call assert#false(1)
 endfunction
 
-function! tc.test_type_assertions()
-  call assert#is_number(1)
-  call assert#is_number("a")
-  call assert#is_string("a")
-  call assert#is_string(1)
-  call assert#is_funcref(function("type"))
-  call assert#is_funcref(1)
-  call assert#is_list([1,2,3])
-  call assert#is_list(1)
-  call assert#is_dictionary({ 1:'a', 2:'b' })
-  call assert#is_dictionary(1)
-  call assert#is_float(3.14)
-  call assert#is_float(1)
+function! tc.test_assert_exists()
+  call assert#exists('*tr')
+  call assert#exists('*foo#bar#baz')
 endfunction
 
-function! tc.test_equal_assertions()
-  call assert#equal(1, 1)
-  call assert#equal(1, 2)
-  call assert#equal_c("a", "A")
-  call assert#equal_c("a", "b")
-  call assert#equal_C("a", "a")
-  call assert#equal_C("a", "b")
-
-  call assert#not_equal(1, 2)
-  call assert#not_equal(1, 1)
-  call assert#not_equal_c("a", "b")
-  call assert#not_equal_c("a", "A")
-  call assert#not_equal_C("a", "b")
-  call assert#not_equal_C("a", "a")
+function! tc.test_assert_not_exists()
+  call assert#not_exists('*foo#bar#baz')
+  call assert#not_exists('*tr')
 endfunction
 
-function! tc.test_same_assertions()
+function! tc.test_assert_is_Number()
+  call assert#is_Number(1)
+  call assert#is_Number("a")
+endfunction
+
+function! tc.test_assert_is_String()
+  call assert#is_String("a")
+  call assert#is_String(1)
+endfunction
+
+function! tc.test_assert_is_Funcref()
+  call assert#is_Funcref(function("type"))
+  call assert#is_Funcref(1)
+endfunction
+
+function! tc.test_assert_is_List()
+  call assert#is_List([1,2,3])
+  call assert#is_List(1)
+endfunction
+
+function! tc.test_assert_is_Dictionary()
+  call assert#is_Dictionary({ 1:'a', 2:'b' })
+  call assert#is_Dictionary(1)
+endfunction
+
+function! tc.test_assert_is_Float()
+  call assert#is_Float(3.14)
+  call assert#is_Float(1)
+endfunction
+
+function! tc.test_assert_equal()
+  call assert#equals(1, 1)
+  call assert#equals(1, 2)
+endfunction
+
+function! tc.test_assert_equal_c()
+  call assert#equals_c("a", "A")
+  call assert#equals_c("a", "b")
+endfunction
+
+function! tc.test_assert_equal_C()
+  call assert#equals_C("a", "a")
+  call assert#equals_C("a", "b")
+endfunction
+
+function! tc.test_assert_not_equals()
+  call assert#not_equals(1, 2)
+  call assert#not_equals(1, 1)
+endfunction
+
+function! tc.test_assert_not_equals_c()
+  call assert#not_equals_c("a", "b")
+  call assert#not_equals_c("a", "A")
+endfunction
+
+function! tc.test_assert_not_equals_C()
+  call assert#not_equals_C("a", "b")
+  call assert#not_equals_C("a", "a")
+endfunction
+
+function! tc.test_assert_same()
   let a = []
   let b = []
   call assert#same(a, a)
   call assert#same(a, b)
+endfunction
 
+function! tc.test_assert_not_same()
+  let a = []
+  let b = []
   call assert#not_same(a, b)
   call assert#not_same(a, a)
 endfunction
 
-function! tc.test_match_assertions()
+function! tc.test_assert_match()
   call assert#match("hello", 'e')
   call assert#match("hello", 'x')
 
   call assert#match(["hello", "goodbye"], 'e')
   call assert#match(["hello", "goodbye"], 'x')
+endfunction
 
+function! tc.test_assert_not_match()
   call assert#not_match("hello", 'x')
   call assert#not_match("hello", 'e')
 
