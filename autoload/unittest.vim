@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-11-19
+" Updated : 2010-11-21
 " Version : 0.1.4
 "
 " Licensed under the MIT license:
@@ -140,10 +140,11 @@ function! s:TestCase.tests()
 endfunction
 
 function! s:TestCase.open_context_file()
+  echomsg "self.context_file = " . string(self.context_file)
   if !bufexists(self.context_file)
     " the buffer doesn't exist
     split
-    edit `self.context_file`
+    edit `=self.context_file`
   elseif bufwinnr(self.context_file) != -1
     " the buffer exists, and it has a window
     execute bufwinnr(self.context_file) 'wincmd w'
