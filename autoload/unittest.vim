@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-11-22
+" Updated : 2010-11-23
 " Version : 0.1.5
 "
 " Licensed under the MIT license:
@@ -31,8 +31,8 @@ function! unittest#run(...)
     endif
   endfor
 
-  let s:test_runner = s:TestRunner.new(test_patterns)
   try
+    let s:test_runner = s:TestRunner.new(test_patterns)
     for tc_file in tc_files
       execute 'source' tc_file
     endfor
@@ -40,26 +40,42 @@ function! unittest#run(...)
   catch
     call s:print_error(v:throwpoint)
     call s:print_error(v:exception)
+  finally
+    if exists('s:test_runner')
+      unlet s:test_runner
+    endif
   endtry
-  unlet s:test_runner
 endfunction
 
 function! unittest#runner()
+  if !unittest#is_running()
+    call s:print_error("unittest: no test is running")
+    return {}
+  endif
   return s:test_runner
 endfunction
 
 function! unittest#results()
+  if !unittest#is_running()
+    call s:print_error("unittest: no test is running")
+    return {}
+  endif
   return s:test_runner.results
 endfunction
 
 function! unittest#testcase(tc_path)
-  if !exists('s:test_runner')
-    " sourced by the user, not the test runner, so retuun a dummy
+  if !unittest#is_running()
+    " the testcase sourced by the user
+    " return a dummy Dict to suppress too many errors
     return {}
   endif
   let tc = s:TestCase.new(a:tc_path)
   call s:test_runner.add_testcase(tc)
   return tc
+endfunction
+
+function! unittest#is_running()
+  return exists('s:test_runner')
 endfunction
 
 function! s:print_error(msg)

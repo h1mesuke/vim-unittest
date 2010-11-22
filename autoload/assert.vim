@@ -294,17 +294,23 @@ endfunction
 
 function! s:count_assertion()
   let results = unittest#results()
-  call results.count_assertion()
+  if !empty(results)
+    call results.count_assertion()
+  endif
 endfunction
 
 function! s:add_success()
   let results = unittest#results()
-  call results.add_success()
+  if !empty(results)
+    call results.add_success()
+  endif
 endfunction
 
 function! s:add_failure(reason, hint)
   let results = unittest#results()
-  call results.add_failure(a:reason, a:hint)
+  if !empty(results)
+    call results.add_failure(a:reason, a:hint)
+  endif
 endfunction
 
 " vim: filetype=vim
