@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/assert.vim
 " Author  : h1mesuke
-" Updated : 2010-11-19
+" Updated : 2010-11-23
 " Version : 0.1.4
 "
 " Licensed under the MIT license:
@@ -142,7 +142,7 @@ function! s:typestr(value)
   endif
 endfunction
 
-function! assert#equals(value_1, value_2, ...)
+function! assert#equal(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value_1) == type("") && type(a:value_2) == type("")
@@ -164,7 +164,11 @@ function! assert#equals(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#equals_c(value_1, value_2, ...)
+function! assert#equals(value_1, value_2, ...)
+  call assert#equal(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+endfunction
+
+function! assert#equal_c(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 !=? a:value_2
@@ -176,7 +180,11 @@ function! assert#equals_c(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#equals_C(value_1, value_2, ...)
+function! assert#equals_c(value_1, value_2, ...)
+  call assert#equal_c(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+endfunction
+
+function! assert#equal_C(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 !=# a:value_2
@@ -188,7 +196,11 @@ function! assert#equals_C(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#not_equals(value_1, value_2, ...)
+function! assert#equals_C(value_1, value_2, ...)
+  call assert#equal_C(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+endfunction
+
+function! assert#not_equal(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value_1) == type("") && type(a:value_2) == type("")
@@ -210,7 +222,11 @@ function! assert#not_equals(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#not_equals_c(value_1, value_2, ...)
+function! assert#not_equals(value_1, value_2, ...)
+  call assert#not_equal(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+endfunction
+
+function! assert#not_equal_c(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 ==? a:value_2
@@ -222,7 +238,11 @@ function! assert#not_equals_c(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#not_equals_C(value_1, value_2, ...)
+function! assert#not_equals_c(value_1, value_2, ...)
+  call assert#not_equal_c(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+endfunction
+
+function! assert#not_equal_C(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 ==# a:value_2
@@ -232,6 +252,10 @@ function! assert#not_equals_C(value_1, value_2, ...)
   else
     call s:add_success()
   endif
+endfunction
+
+function! assert#not_equals_C(value_1, value_2, ...)
+  call assert#not_equal_C(a:value_1, a:value_2, (a:0 ? a:1 : ""))
 endfunction
 
 function! assert#same(value_1, value_2, ...)
