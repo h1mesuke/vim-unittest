@@ -129,6 +129,9 @@ function! s:TestRunner.run()
 endfunction
 
 function! s:filter_tests(tests, patterns)
+  if empty(a:patterns)
+    return a:tests
+  endif
   let d = {}
   for pat in a:patterns
     for test in filter(a:tests, 'v:val =~# pat')
