@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-11-21
+" Updated : 2010-11-22
 " Version : 0.1.4
 "
 " Licensed under the MIT license:
@@ -10,19 +10,28 @@
 "=============================================================================
 
 function! unittest#run(...)
-  if a:0
-    let tc_files = a:000
-  else
-    let tc_files = [expand('%:p')]
+  let args = a:000
+  if empty(filter(copy(args), "v:val !~ '^-'"))
+    let args += ['%']
   endif
-  for tc_file in tc_files
-    if match(tc_file, '\<test_\w\+\.vim$') == -1
-      call s:print_error("unittest: sourced file is not a testcase")
-      return
+
+  let tc_files = []
+  let test_patterns = []
+  for value in args
+    if value =~# '^-'
+      call add(test_patterns, matchstr(value, '^-\zs.*\ze$'))
+    else
+      let value = expand(value)
+      if value =~# '\<test_\w\+\.vim$'
+        call add(tc_files, value)
+      else
+        call s:print_error("unittest: sourced file is not a testcase")
+        return
+      endif
     endif
   endfor
 
-  let s:test_runner = s:TestRunner.new()
+  let s:test_runner = s:TestRunner.new(test_patterns)
   try
     for tc_file in tc_files
       execute 'source' tc_file
@@ -64,10 +73,11 @@ endfunction
 
 let s:TestRunner = {}
 
-function! s:TestRunner.new()
+function! s:TestRunner.new(test_patterns)
   let obj = copy(self)
   let obj.class = s:TestRunner
   let obj.testcases = []
+  let obj.test_patterns = a:test_patterns
   let obj.context = {}
   let obj.results = s:TestResults.new(obj)
   return obj
@@ -90,7 +100,8 @@ function! s:TestRunner.run()
     if tc.context_file != ""
       call tc.open_context_file()
     endif
-    for test in tc.tests()
+    let tests = s:filter_tests(tc.tests(), self.test_patterns)
+    for test in tests
       let self.context.test = test
       call self.results.count_test()
       call self.results.print_header(2, test)
@@ -117,6 +128,16 @@ function! s:TestRunner.run()
   call self.results.focus_window()
 endfunction
 
+function! s:filter_tests(tests, patterns)
+  let d = {}
+  for pat in a:patterns
+    for test in filter(a:tests, 'v:val =~# pat')
+      let d[test] = 1
+    endfor
+  endfor
+  return sort(keys(d))
+endfunction
+
 "-----------------------------------------------------------------------------
 " TestCase
 
@@ -140,7 +161,6 @@ function! s:TestCase.tests()
 endfunction
 
 function! s:TestCase.open_context_file()
-  echomsg "self.context_file = " . string(self.context_file)
   if !bufexists(self.context_file)
     " the buffer doesn't exist
     split
