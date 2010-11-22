@@ -161,6 +161,16 @@ function! tc.test_assert_not_match()
   call assert#not_match(["hello", "goodbye"], 'e')
 endfunction
 
+function! tc.test_assert_raise()
+  call assert#raise('FooBarBaz', 'E492')
+  call assert#raise('nohl', 'E492')
+endfunction
+
+function! tc.test_assert_nothing_raised()
+  call assert#nothing_raised('nohl')
+  call assert#nothing_raised('FooBarBaz')
+endfunction
+
 function! tc.test_error()
   call foo#bar#baz()
 endfunction

@@ -266,6 +266,32 @@ function! assert#not_match(value, pattern, ...)
   endif
 endfunction
 
+function! assert#raise(ex_command, pattern, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  try
+    execute a:ex_command
+  catch
+    if v:exception =~# a:pattern
+      call s:add_success()
+      return
+    endif
+  endtry
+  call s:add_failure(string(a:ex_command) . " didn't raise /" . a:pattern . "/", hint)
+endfunction
+
+function! assert#nothing_raised(ex_command, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  try
+    execute a:ex_command
+  catch
+    call s:add_failure(string(a:ex_command) . " raised:\n" . v:exception, hint)
+    return
+  endtry
+  call s:add_success()
+endfunction
+
 function! s:count_assertion()
   let results = unittest#results()
   call results.count_assertion()
