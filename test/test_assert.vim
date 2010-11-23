@@ -1,4 +1,9 @@
 " unittest.vim's test suite
+"
+" This is a testcase of assertions.
+"
+" Expected results are: 
+" N tests, 2 * N assertions, N failures, 1 errors
 
 let tc = unittest#testcase(expand('<sfile>:p'))
 
