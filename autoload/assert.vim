@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2010-11-26
+" Updated : 2010-12-02
 " Version : 0.1.5
 " License : MIT license {{{
 "
@@ -271,10 +271,17 @@ function! assert#raise(ex_command, pattern, ...)
   catch
     if v:exception =~# a:pattern
       call s:add_success()
-      return
+    else
+      call s:add_failure(
+            \ string(a:ex_command) . " didn't raise /" . a:pattern . "/, but raised:\n" .
+            \ v:exception, hint
+            \ )
     endif
+    return
   endtry
-  call s:add_failure(string(a:ex_command) . " didn't raise /" . a:pattern . "/", hint)
+  call s:add_failure(
+        \ string(a:ex_command) . " didn't raise /" . a:pattern . "/\n" .
+        \ "Nothing raised.", hint)
 endfunction
 
 function! assert#nothing_raised(ex_command, ...)
