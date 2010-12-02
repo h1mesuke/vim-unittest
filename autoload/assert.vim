@@ -30,7 +30,10 @@ function! assert#true(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !a:expr
-    call s:add_failure("True expected, but was\n" . string(a:expr), hint)
+    call s:add_failure(
+          \ "True expected, but was\n" .
+          \ string(a:expr),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -40,7 +43,10 @@ function! assert#false(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr
-    call s:add_failure("False expected, but was\n" . string(a:expr), hint)
+    call s:add_failure(
+          \ "False expected, but was\n" .
+          \ string(a:expr),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -51,13 +57,19 @@ function! assert#equal(value_1, value_2, ...)
   let hint = (a:0 ? a:1 : "")
   if type(a:value_1) == type("") && type(a:value_2) == type("")
     if a:value_1 !=# a:value_2
-      call s:add_failure(string(a:value_1) . " expected but was\n" . string(a:value_2), hint)
+      call s:add_failure(
+            \ string(a:value_1) . " expected but was\n" .
+            \ string(a:value_2),
+            \ hint)
     else
       call s:add_success()
     endif
   else
     if a:value_1 != a:value_2
-      call s:add_failure(string(a:value_1) . " expected but was\n" . string(a:value_2), hint)
+      call s:add_failure(
+            \ string(a:value_1) . " expected but was\n" .
+            \ string(a:value_2),
+            \ hint)
     else
       call s:add_success()
     endif
@@ -69,13 +81,19 @@ function! assert#not_equal(value_1, value_2, ...)
   let hint = (a:0 ? a:1 : "")
   if type(a:value_1) == type("") && type(a:value_2) == type("")
     if a:value_1 ==# a:value_2
-      call s:add_failure(string(a:value_1) . " not expected but was\n" . string(a:value_2), hint)
+      call s:add_failure(
+            \ string(a:value_1) . " not expected but was\n" .
+            \ string(a:value_2),
+            \ hint)
     else
       call s:add_success()
     endif
   else
     if a:value_1 == a:value_2
-      call s:add_failure(string(a:value_1) . " not expected but was\n" . string(a:value_2), hint)
+      call s:add_failure(
+            \ string(a:value_1) . " not expected but was\n" .
+            \ string(a:value_2),
+            \ hint)
     else
       call s:add_success()
     endif
@@ -94,7 +112,10 @@ function! assert#equal_c(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 !=? a:value_2
-    call s:add_failure(string(a:value_1) . " expected but was\n" . string(a:value_2), hint)
+    call s:add_failure(
+          \ string(a:value_1) . " expected but was\n" .
+          \ string(a:value_2),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -104,7 +125,10 @@ function! assert#not_equal_c(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 ==? a:value_2
-    call s:add_failure(string(a:value_1) . " not expected but was\n" . string(a:value_2), hint)
+    call s:add_failure(
+          \ string(a:value_1) . " not expected but was\n" .
+          \ string(a:value_2),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -122,7 +146,10 @@ function! assert#equal_C(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 !=# a:value_2
-    call s:add_failure(string(a:value_1) . " expected but was\n" . string(a:value_2), hint)
+    call s:add_failure(
+          \ string(a:value_1) . " expected but was\n" .
+          \ string(a:value_2),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -132,7 +159,10 @@ function! assert#not_equal_C(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 ==# a:value_2
-    call s:add_failure(string(a:value_1) . " not expected but was\n" . string(a:value_2), hint)
+    call s:add_failure(
+          \ string(a:value_1) . " not expected but was\n" .
+          \ string(a:value_2),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -150,7 +180,9 @@ function! assert#exists(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !exists(a:expr)
-    call s:add_failure(string(a:expr) . " doesn't exist", hint)
+    call s:add_failure(
+          \ string(a:expr) . " doesn't exist",
+          \ hint)
   else
     call s:add_success()
   endif
@@ -160,7 +192,9 @@ function! assert#not_exists(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if exists(a:expr)
-    call s:add_failure(string(a:expr) . " exist", hint)
+    call s:add_failure(
+          \ string(a:expr) . " exist",
+          \ hint)
   else
     call s:add_success()
   endif
@@ -170,7 +204,10 @@ function! assert#is_Number(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type(0)
-    call s:add_failure("Number expected, but was\n" . s:typestr(a:value), hint)
+    call s:add_failure(
+          \ "Number expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -180,7 +217,10 @@ function! assert#is_String(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type("")
-    call s:add_failure("String expected, but was\n" . s:typestr(a:value), hint)
+    call s:add_failure(
+          \ "String expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -190,7 +230,10 @@ function! assert#is_Funcref(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type(function('tr'))
-    call s:add_failure("Funcref expected, but was\n" . s:typestr(a:value), hint)
+    call s:add_failure(
+          \ "Funcref expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -200,7 +243,10 @@ function! assert#is_List(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type([])
-    call s:add_failure("List expected, but was\n" . s:typestr(a:value), hint)
+    call s:add_failure(
+          \ "List expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -210,7 +256,10 @@ function! assert#is_Dictionary(value, ...)
   call s:count_assertion()
   if type(a:value) != type({})
     let hint = (a:0 ? a:1 : "")
-    call s:add_failure("Dictionary expected, but was\n" . s:typestr(a:value), hint)
+    call s:add_failure(
+          \ "Dictionary expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -220,7 +269,10 @@ function! assert#is_Float(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type(0.0)
-    call s:add_failure("Float expected, but was\n" . s:typestr(a:value), hint)
+    call s:add_failure(
+          \ "Float expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -247,7 +299,9 @@ function! assert#match(value, pattern, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if match(a:value, a:pattern) < 0
-    call s:add_failure(string(a:value) . " didn't match the pattern " . string(a:pattern), hint)
+    call s:add_failure(
+          \ string(a:value) . " didn't match the pattern " . string(a:pattern),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -257,7 +311,9 @@ function! assert#not_match(value, pattern, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if match(a:value, a:pattern) >= 0
-    call s:add_failure(string(a:value) . " matched the pattern " . string(a:pattern), hint)
+    call s:add_failure(
+          \ string(a:value) . " matched the pattern " . string(a:pattern),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -274,14 +330,15 @@ function! assert#raise(ex_command, pattern, ...)
     else
       call s:add_failure(
             \ string(a:ex_command) . " didn't raise /" . a:pattern . "/, but raised:\n" .
-            \ v:exception, hint
-            \ )
+            \ v:exception,
+            \ hint)
     endif
     return
   endtry
   call s:add_failure(
         \ string(a:ex_command) . " didn't raise /" . a:pattern . "/\n" .
-        \ "Nothing raised.", hint)
+        \ "Nothing raised.",
+        \ hint)
 endfunction
 
 function! assert#nothing_raised(ex_command, ...)
@@ -290,7 +347,10 @@ function! assert#nothing_raised(ex_command, ...)
   try
     execute a:ex_command
   catch
-    call s:add_failure(string(a:ex_command) . " raised:\n" . v:exception, hint)
+    call s:add_failure(
+          \ string(a:ex_command) . " raised:\n" .
+          \ v:exception,
+          \ hint)
     return
   endtry
   call s:add_success()
@@ -300,7 +360,10 @@ function! assert#same(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 isnot a:value_2
-    call s:add_failure(string(a:value_1) . " itself expected but was\n" . string(a:value_2), hint)
+    call s:add_failure(
+          \ string(a:value_1) . " itself expected but was\n" .
+          \ string(a:value_2),
+          \ hint)
   else
     call s:add_success()
   endif
@@ -310,7 +373,10 @@ function! assert#not_same(value_1, value_2, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value_1 is a:value_2
-    call s:add_failure(string(a:value_1) . " itself not expected but was\n" . string(a:value_2), hint)
+    call s:add_failure(
+          \ string(a:value_1) . " itself not expected but was\n" .
+          \ string(a:value_2) . " itself",
+          \ hint)
   else
     call s:add_success()
   endif
