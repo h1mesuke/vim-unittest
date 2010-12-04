@@ -118,11 +118,15 @@ let s:TestRunner = {}
 function! s:TestRunner.new(test_filters)
   let obj = copy(self)
   let obj.class = s:TestRunner
-  let obj.testcases = []
-  let obj.test_filters = a:test_filters
-  let obj.context = {}
-  let obj.results = s:TestResults.new(obj)
+  call obj.initialize(a:test_filters)
   return obj
+endfunction
+
+function! s:TestRunner.initialize(test_filters)
+  let self.testcases = []
+  let self.test_filters = a:test_filters
+  let self.context = {}
+  let self.results = s:TestResults.new(self)
 endfunction
 
 function! s:TestRunner.add_testcase(tc)
@@ -189,11 +193,15 @@ let s:TestCase = {}
 function! s:TestCase.new(path)
   let obj = copy(self)
   let obj.class = s:TestCase
-  let obj.path = a:path
-  let obj.name = substitute(split(a:path, '/')[-1], '\.\w\+$', '', '')
-  let obj.context_file = ""
-  let obj.cache = {}
+  call obj.initialize(a:path)
   return obj
+endfunction
+
+function! s:TestCase.initialize(path)
+  let self.path = a:path
+  let self.name = substitute(split(a:path, '/')[-1], '\.\w\+$', '', '')
+  let self.context_file = ""
+  let self.cache = {}
 endfunction
 
 function! s:TestCase.tests()
@@ -276,11 +284,19 @@ let s:TestResults = {}
 function! s:TestResults.new(runner)
   let obj = copy(self)
   let obj.class = s:TestResults
-  let obj.context = a:runner.context
-  let obj.n_tests = 0    | let obj.n_assertions = 0
-  let obj.n_failures = 0 | let obj.n_errors = 0
-  let obj.buffer = []
+  call obj.initialize(a:runner)
   return obj
+endfunction
+
+function! s:TestResults.initialize(runner)
+  let self.context = a:runner.context
+  let self.stats = {
+        \ 'n_tests'     : 0,
+        \ 'n_assertions': 0,
+        \ 'n_failures'  : 0,
+        \ 'n_errors'    : 0,
+        \ }
+  let self.buffer = []
 endfunction
 
 function! s:TestResults.open_window()
@@ -297,14 +313,14 @@ function! s:TestResults.open_window()
     split
     execute 'buffer' s:results_bufnr
   endif
-  call s:init_results_buffer()
+  call self._init_results_buffer()
 endfunction
 
 function! s:TestResults.focus_window()
   execute bufwinnr(s:results_bufnr) 'wincmd w'
 endfunction
 
-function! s:init_results_buffer()
+function! s:TestResults._init_results_buffer()
   nnoremap <buffer> q <C-w>c
   setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
   setlocal filetype=unittest
@@ -312,11 +328,11 @@ function! s:init_results_buffer()
 endfunction
 
 function! s:TestResults.count_test()
-  let self.n_tests += 1
+  let self.stats.n_tests += 1
 endfunction
 
 function! s:TestResults.count_assertion()
-  let self.n_assertions += 1
+  let self.stats.n_assertions += 1
 endfunction
 
 function! s:TestResults.add_success()
@@ -358,10 +374,10 @@ endfunction
 function! s:TestResults.flush()
   for err in self.buffer
     if err.class is s:Failure
-      let self.n_failures = err.id
+      let self.stats.n_failures = err.id
       call self.print_failure(err)
     elseif err.class is s:Error
-      let self.n_errors = err.id
+      let self.stats.n_errors = err.id
       call self.print_error(err)
     endif
   endfor
@@ -404,10 +420,14 @@ endfunction
 
 function! s:TestResults.print_stats()
   call self.print_separator('-')
-  call self.puts(self.n_tests . " tests, " . self.n_assertions . " assertions, " .
-        \ self.n_failures . " failures, " . self.n_errors . " errors")
+  let stats = self.stats
+  call self.puts(stats.n_tests . " tests, " . stats.n_assertions . " assertions, " .
+        \ stats.n_failures . " failures, " . stats.n_errors . " errors")
   call self.puts()
 endfunction
+
+"-----------------------------------------------------------------------------
+" Failure
 
 let s:Failure = { 'id': 0 }
 
@@ -415,14 +435,21 @@ function! s:Failure.new(reason, hint)
   let self.id += 1
   let obj = copy(self)
   let obj.class = s:Failure
-  let obj.testcase = s:test_runner.context.testcase
-  let obj.test = s:test_runner.context.test
-  let obj.failpoint = expand('<sfile>')
-  let obj.assert = matchstr(obj.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
-  let obj.reason = a:reason
-  let obj.hint = (type(a:hint) == type("") ? a:hint : string(a:hint))
+  call obj.initialize(a:reason, a:hint)
   return obj
 endfunction
+
+function! s:Failure.initialize(reason, hint)
+  let self.testcase = s:test_runner.context.testcase
+  let self.test = s:test_runner.context.test
+  let self.failpoint = expand('<sfile>')
+  let self.assert = matchstr(self.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
+  let self.reason = a:reason
+  let self.hint = (type(a:hint) == type("") ? a:hint : string(a:hint))
+endfunction
+
+"-----------------------------------------------------------------------------
+" Error
 
 let s:Error = { 'id': 0 }
 
@@ -430,11 +457,15 @@ function! s:Error.new()
   let self.id += 1
   let obj = copy(self)
   let obj.class = s:Error
-  let obj.testcase = s:test_runner.context.testcase
-  let obj.test = s:test_runner.context.test
-  let obj.throwpoint = v:throwpoint
-  let obj.exception = v:exception
+  call obj.initialize()
   return obj
+endfunction
+
+function! s:Error.initialize()
+  let self.testcase = s:test_runner.context.testcase
+  let self.test = s:test_runner.context.test
+  let self.throwpoint = v:throwpoint
+  let self.exception = v:exception
 endfunction
 
 " vim: filetype=vim
