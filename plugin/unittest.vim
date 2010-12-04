@@ -2,7 +2,7 @@
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
 " Updated : 2010-11-06
-" Version : 0.1.5
+" Version : 0.1.6
 "
 " Licensed under the MIT license:
 " http://www.opensource.org/licenses/mit-license.php
