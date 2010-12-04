@@ -48,6 +48,8 @@ endif
 
 command! -nargs=* UnitTest call unittest#run(<f-args>)
 
+"-----------------------------------------------------------------------------
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
