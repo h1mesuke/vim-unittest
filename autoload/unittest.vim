@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2010-11-26
+" Updated : 2010-12-04
 " Version : 0.1.5
 " License : MIT license {{{
 "
@@ -39,7 +39,7 @@ function! unittest#run(...)
       call add(test_patterns, matchstr(value, '^-\zs.*\ze$'))
     else
       let value = expand(value)
-      if value =~# '\<test_\w\+\.vim$'
+      if value =~# '\<\(test_\|t[cs]_\)\w\+\.vim$'
         call add(tc_files, value)
       else
         call s:print_error("unittest: sourced file is not a testcase")
@@ -82,7 +82,7 @@ endfunction
 
 function! unittest#testcase(tc_path)
   if !unittest#is_running()
-    " the testcase sourced by the user
+    " the testcase may be sourced by the user
     " return a dummy Dict to suppress too many errors
     return {}
   endif
