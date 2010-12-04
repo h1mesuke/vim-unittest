@@ -359,6 +359,9 @@ function! s:TestResults.puts(...)
   normal! G
   setlocal nomodified
   execute save_winnr 'wincmd w'
+  if g:unittest_smooth_redraw_results
+    redraw
+  endif
 endfunction
 
 function! s:TestResults.append(str, ...)

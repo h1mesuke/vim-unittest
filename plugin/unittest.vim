@@ -37,6 +37,13 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 "-----------------------------------------------------------------------------
+" Variables
+
+if !exists('g:unittest_smooth_redraw_results')
+  let g:unittest_smooth_redraw_results = 1
+endif
+
+"-----------------------------------------------------------------------------
 " Command
 
 command! -nargs=* UnitTest call unittest#run(<f-args>)
