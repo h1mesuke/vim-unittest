@@ -28,28 +28,37 @@
 
 function! unittest#run(...)
   let args = a:000
-  if empty(filter(copy(args), "v:val !~ '^-'"))
+  if empty(filter(copy(args), "v:val !~ '^[gv]/'"))
+    " if no argument was given, process the current buffer
     let args += ['%']
   endif
 
   let tc_files = []
-  let test_patterns = []
+  let test_filters = { 'g_pattern': "", 'v_pattern': "" }
   for value in args
-    if value =~# '^-'
-      call add(test_patterns, matchstr(value, '^-\zs.*\ze$'))
-    else
-      let value = expand(value)
-      if value =~# '\<\(test_\|t[cs]_\)\w\+\.vim$'
-        call add(tc_files, value)
+    " filtering pattern
+    let matched_list = matchlist(value, '^\([gv]\)/\(.*\)$')
+    if len(matched_list) > 0
+      if matched_list[1] ==# 'g'
+        let test_filters.g_pattern = matched_list[2]
       else
-        call s:print_error("unittest: sourced file is not a testcase")
-        return
+        let test_filters.v_pattern = matched_list[2]
       endif
+      continue
     endif
+    " testcase
+    let path = expand(value)
+    if path =~# '\<\(test_\|t[cs]_\)\w\+\.vim$'
+      call add(tc_files, path)
+      continue
+    endif
+    " invalid value
+    call s:print_error("unittest: sourced file is not a testcase")
+    return
   endfor
 
   try
-    let s:test_runner = s:TestRunner.new(test_patterns)
+    let s:test_runner = s:TestRunner.new(test_filters)
     for tc_file in tc_files
       execute 'source' tc_file
     endfor
@@ -106,11 +115,11 @@ endfunction
 
 let s:TestRunner = {}
 
-function! s:TestRunner.new(test_patterns)
+function! s:TestRunner.new(test_filters)
   let obj = copy(self)
   let obj.class = s:TestRunner
   let obj.testcases = []
-  let obj.test_patterns = a:test_patterns
+  let obj.test_filters = a:test_filters
   let obj.context = {}
   let obj.results = s:TestResults.new(obj)
   return obj
@@ -133,7 +142,7 @@ function! s:TestRunner.run()
     if tc.context_file != ""
       call tc.open_context_file()
     endif
-    let tests = s:filter_tests(tc.tests(), self.test_patterns)
+    let tests = self._filter_tests(tc.tests())
     for test in tests
       let self.context.test = test
       call self.results.count_test()
@@ -161,17 +170,15 @@ function! s:TestRunner.run()
   call self.results.focus_window()
 endfunction
 
-function! s:filter_tests(tests, patterns)
-  if empty(a:patterns)
-    return a:tests
+function! s:TestRunner._filter_tests(tests)
+  let tests = copy(a:tests)
+  if self.test_filters.g_pattern != ""
+    call filter(tests, 'v:val =~# self.test_filters.g_pattern')
   endif
-  let d = {}
-  for pat in a:patterns
-    for test in filter(a:tests, 'v:val =~# pat')
-      let d[test] = 1
-    endfor
-  endfor
-  return sort(keys(d))
+  if self.test_filters.v_pattern != ""
+    call filter(tests, 'v:val !~# self.test_filters.v_pattern')
+  endif
+  return tests
 endfunction
 
 "-----------------------------------------------------------------------------
