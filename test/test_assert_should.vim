@@ -48,7 +48,7 @@ function! tc.should_foo_bar_baz()
   " setup_foo_bar
   " setup_foo_bar_baz
   "
-  " test_foo_bar_baz
+  " should_foo_bar_baz
   "
   " teardown_foo_bar_baz
   " teardown_foo_bar
