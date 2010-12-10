@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2010-12-04
+" Updated : 2010-12-10
 " Version : 0.1.7
 " License : MIT license {{{
 "
@@ -206,7 +206,7 @@ endfunction
 
 function! s:TestCase.tests()
   if !has_key(self.cache, 'tests')
-    let self.cache.tests = sort(s:grep(keys(self), '^test_'))
+    let self.cache.tests = sort(s:grep(keys(self), '\(^test\|\(^\|_\)should\)_'))
   endif
   return self.cache.tests
 endfunction
@@ -235,7 +235,7 @@ function! s:TestCase.__setup__(test)
     let self.cache.setup_prefixes = s:map_matchstr(setups, 'setup_\zs.*$')
   endif
   for prefix in self.cache.setup_prefixes
-    if a:test =~# '^test_'.prefix
+    if a:test =~# '\(^test\|\(^\|_\)should\)_'.prefix
       call self['setup_'.prefix]()
     endif
   endfor
@@ -247,7 +247,7 @@ function! s:TestCase.__teardown__(test)
     let self.cache.teardown_prefixes = s:map_matchstr(teardowns, 'teardown_\zs.*$')
   endif
   for prefix in self.cache.teardown_prefixes
-    if a:test =~# '^test_'.prefix
+    if a:test =~# '\(^test\|\(^\|_\)should\)_'.prefix
       call self['teardown_'.prefix]()
     endif
   endfor
