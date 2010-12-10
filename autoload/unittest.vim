@@ -188,7 +188,9 @@ endfunction
 "-----------------------------------------------------------------------------
 " TestCase
 
-let s:TestCase = {}
+let s:TestCase = {
+      \ '__test_function_name__': '\(^test\|\(^\|[^_]_\)should\)_',
+      \ }
 
 function! s:TestCase.new(path)
   let obj = copy(self)
@@ -206,7 +208,7 @@ endfunction
 
 function! s:TestCase.tests()
   if !has_key(self.cache, 'tests')
-    let self.cache.tests = sort(s:grep(keys(self), '\(^test\|\(^\|_\)should\)_'))
+    let self.cache.tests = sort(s:grep(keys(self), s:TestCase.__test_function_name__))
   endif
   return self.cache.tests
 endfunction
@@ -230,25 +232,25 @@ function! s:TestCase.__setup__(test)
   if has_key(self, 'setup')
     call self.setup()
   endif
-  if !has_key(self.cache, 'setup_prefixes')
+  if !has_key(self.cache, 'setup_suffixes')
     let setups = sort(s:grep(keys(self), '^setup_'), 's:compare_strlen')
-    let self.cache.setup_prefixes = s:map_matchstr(setups, 'setup_\zs.*$')
+    let self.cache.setup_suffixes = s:map_matchstr(setups, '^setup_\zs.*$')
   endif
-  for prefix in self.cache.setup_prefixes
-    if a:test =~# '\(^test\|\(^\|_\)should\)_'.prefix
-      call self['setup_'.prefix]()
+  for suffix in self.cache.setup_suffixes
+    if a:test =~# s:TestCase.__test_function_name__.suffix
+      call self['setup_'.suffix]()
     endif
   endfor
 endfunction
 
 function! s:TestCase.__teardown__(test)
-  if !has_key(self.cache, 'teardown_prefixes')
+  if !has_key(self.cache, 'teardown_suffixes')
     let teardowns = reverse(sort(s:grep(keys(self), '^teardown_'), 's:compare_strlen'))
-    let self.cache.teardown_prefixes = s:map_matchstr(teardowns, 'teardown_\zs.*$')
+    let self.cache.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
   endif
-  for prefix in self.cache.teardown_prefixes
-    if a:test =~# '\(^test\|\(^\|_\)should\)_'.prefix
-      call self['teardown_'.prefix]()
+  for suffix in self.cache.teardown_suffixes
+    if a:test =~# s:TestCase.__test_function_name__.suffix
+      call self['teardown_'.suffix]()
     endif
   endfor
   if has_key(self, 'teardown')
