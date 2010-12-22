@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2010-12-10
+" Updated : 2010-12-23
 " Version : 0.1.8
 " License : MIT license {{{
 "
@@ -91,8 +91,8 @@ endfunction
 
 function! unittest#testcase(tc_path)
   if !unittest#is_running()
-    " the testcase may be sourced by the user
-    " return a dummy Dict to suppress too many errors
+    " NOTE: The testcase may be sourced by the user unexpectedlly. Return
+    " a dummy Dictionary to suppress too many errors.
     return {}
   endif
   let tc = s:TestCase.new(a:tc_path)
@@ -188,9 +188,7 @@ endfunction
 "-----------------------------------------------------------------------------
 " TestCase
 
-let s:TestCase = {
-      \ '__test_function_name__': '\(^test\|\(^\|[^_]_\)should\)_',
-      \ }
+let s:TestCase = {}
 
 function! s:TestCase.new(path)
   let obj = copy(self)
@@ -208,7 +206,9 @@ endfunction
 
 function! s:TestCase.tests()
   if !has_key(self.cache, 'tests')
-    let self.cache.tests = sort(s:grep(keys(self), s:TestCase.__test_function_name__))
+    let tests = s:grep(keys(self), '^\(\(setup\|teardown\)_\)\@!')
+    let tests = s:grep(tests, '\(^test\|\(^\|[^_]_\)should\)_')
+    let self.cache.tests = sort(tests)
   endif
   return self.cache.tests
 endfunction
@@ -237,7 +237,7 @@ function! s:TestCase.__setup__(test)
     let self.cache.setup_suffixes = s:map_matchstr(setups, '^setup_\zs.*$')
   endif
   for suffix in self.cache.setup_suffixes
-    if a:test =~# s:TestCase.__test_function_name__.suffix
+    if a:test =~# suffix
       call self['setup_'.suffix]()
     endif
   endfor
@@ -249,7 +249,7 @@ function! s:TestCase.__teardown__(test)
     let self.cache.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
   endif
   for suffix in self.cache.teardown_suffixes
-    if a:test =~# s:TestCase.__test_function_name__.suffix
+    if a:test =~# suffix
       call self['teardown_'.suffix]()
     endif
   endfor
