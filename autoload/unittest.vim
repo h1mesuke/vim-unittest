@@ -111,16 +111,46 @@ function! s:print_error(msg)
 endfunction
 
 "-----------------------------------------------------------------------------
-" TestRunner
+" Object
 
-let s:TestRunner = {}
+let s:Object = {}
 
-function! s:TestRunner.new(test_filters)
+function! s:Object.new(...)
   let obj = copy(self)
-  let obj.class = s:TestRunner
-  call obj.initialize(a:test_filters)
+  let obj.class = self
+  let k = obj.class
+  while has_key(k, 'super')
+    call extend(obj, k.super, 'keep')
+    let k = k.super
+  endwhile
+  call call(obj.initialize, a:000, obj)
   return obj
 endfunction
+
+function! s:Object.initialize(...)
+endfunction
+
+function! s:Object.extend()
+  return extend({'super': self}, self, 'keep')
+endfunction
+
+function! s:Object.is_a(klass)
+  let k = self.class
+  while 1
+    if k is a:klass
+      return 1
+    elseif !has_key(k, 'super')
+      break
+    endif
+    let k = k.super
+  endwhile
+  return 0
+endfunction
+
+"-----------------------------------------------------------------------------
+" TestRunner
+
+let s:TestRunner = s:Object.extend()
 
 function! s:TestRunner.initialize(test_filters)
   let self.testcases = []
@@ -137,7 +167,7 @@ function! s:TestRunner.run()
   if has("reltime")
     let start_time = reltime()
   endif
-  let s:Failure.id = 0 | let s:Error.id = 0
+  let s:Failure.id = 1 | let s:Error.id = 1
   call self.results.open_window()
   for tc in self.testcases
     let self.context.testcase = tc
@@ -188,14 +218,7 @@ endfunction
 "-----------------------------------------------------------------------------
 " TestCase
 
-let s:TestCase = {}
-
-function! s:TestCase.new(path)
-  let obj = copy(self)
-  let obj.class = s:TestCase
-  call obj.initialize(a:path)
-  return obj
-endfunction
+let s:TestCase = s:Object.extend()
 
 function! s:TestCase.initialize(path)
   let self.path = a:path
@@ -281,14 +304,7 @@ endfunction
 "-----------------------------------------------------------------------------
 " TestResults
 
-let s:TestResults = {}
-
-function! s:TestResults.new(runner)
-  let obj = copy(self)
-  let obj.class = s:TestResults
-  call obj.initialize(a:runner)
-  return obj
-endfunction
+let s:TestResults = s:Object.extend()
 
 function! s:TestResults.initialize(runner)
   let self.context = a:runner.context
@@ -378,10 +394,10 @@ endfunction
 
 function! s:TestResults.flush()
   for err in self.buffer
-    if err.class is s:Failure
+    if err.is_a(s:Failure)
       let self.stats.n_failures = err.id
       call self.print_failure(err)
-    elseif err.class is s:Error
+    elseif err.is_a(s:Error)
       let self.stats.n_errors = err.id
       call self.print_error(err)
     endif
@@ -434,15 +450,8 @@ endfunction
 "-----------------------------------------------------------------------------
 " Failure
 
-let s:Failure = { 'id': 0 }
-
-function! s:Failure.new(reason, hint)
-  let self.id += 1
-  let obj = copy(self)
-  let obj.class = s:Failure
-  call obj.initialize(a:reason, a:hint)
-  return obj
-endfunction
+let s:Failure = s:Object.extend()
+let s:Failure.id = 1
 
 function! s:Failure.initialize(reason, hint)
   let self.testcase = s:test_runner.context.testcase
@@ -451,26 +460,21 @@ function! s:Failure.initialize(reason, hint)
   let self.assert = matchstr(self.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
   let self.reason = a:reason
   let self.hint = (type(a:hint) == type("") ? a:hint : string(a:hint))
+  let s:Failure.id += 1
 endfunction
 
 "-----------------------------------------------------------------------------
 " Error
 
-let s:Error = { 'id': 0 }
-
-function! s:Error.new()
-  let self.id += 1
-  let obj = copy(self)
-  let obj.class = s:Error
-  call obj.initialize()
-  return obj
-endfunction
+let s:Error = s:Object.extend()
+let s:Error.id = 1
 
 function! s:Error.initialize()
   let self.testcase = s:test_runner.context.testcase
   let self.test = s:test_runner.context.test
   let self.throwpoint = v:throwpoint
   let self.exception = v:exception
+  let s:Error.id += 1
 endfunction
 
 " vim: filetype=vim
