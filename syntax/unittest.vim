@@ -2,7 +2,7 @@
 " File    : syntax/unittest.vim
 " Author  : h1mesuke
 " Updated : 2010-11-19
-" Version : 0.1.9
+" Version : 0.2.0
 "
 " Licensed under the MIT license:
 " http://www.opensource.org/licenses/mit-license.php
