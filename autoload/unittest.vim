@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2010-12-23
+" Updated : 2010-12-29
 " Version : 0.1.9
 " License : MIT license {{{
 "
@@ -111,46 +111,9 @@ function! s:print_error(msg)
 endfunction
 
 "-----------------------------------------------------------------------------
-" Object
-
-let s:Object = {}
-
-function! s:Object.new(...)
-  let obj = copy(self)
-  let obj.class = self
-  let k = obj.class
-  while has_key(k, 'super')
-    call extend(obj, k.super, 'keep')
-    let k = k.super
-  endwhile
-  call call(obj.initialize, a:000, obj)
-  return obj
-endfunction
-
-function! s:Object.initialize(...)
-endfunction
-
-function! s:Object.extend()
-  return extend({'super': self}, self, 'keep')
-endfunction
-
-function! s:Object.is_a(klass)
-  let k = self.class
-  while 1
-    if k is a:klass
-      return 1
-    elseif !has_key(k, 'super')
-      break
-    endif
-    let k = k.super
-  endwhile
-  return 0
-endfunction
-
-"-----------------------------------------------------------------------------
 " TestRunner
 
-let s:TestRunner = s:Object.extend()
+let s:TestRunner = unittest#object#extend()
 
 function! s:TestRunner.initialize(test_filters)
   let self.testcases = []
@@ -218,7 +181,7 @@ endfunction
 "-----------------------------------------------------------------------------
 " TestCase
 
-let s:TestCase = s:Object.extend()
+let s:TestCase = unittest#object#extend()
 
 function! s:TestCase.initialize(path)
   let self.path = a:path
@@ -304,7 +267,7 @@ endfunction
 "-----------------------------------------------------------------------------
 " TestResults
 
-let s:TestResults = s:Object.extend()
+let s:TestResults = unittest#object#extend()
 
 function! s:TestResults.initialize(runner)
   let self.context = a:runner.context
@@ -450,7 +413,7 @@ endfunction
 "-----------------------------------------------------------------------------
 " Failure
 
-let s:Failure = s:Object.extend()
+let s:Failure = unittest#object#extend()
 let s:Failure.id = 1
 
 function! s:Failure.initialize(reason, hint)
@@ -466,7 +429,7 @@ endfunction
 "-----------------------------------------------------------------------------
 " Error
 
-let s:Error = s:Object.extend()
+let s:Error = unittest#object#extend()
 let s:Error.id = 1
 
 function! s:Error.initialize()
