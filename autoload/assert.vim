@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2010-12-02
+" Updated : 2011-01-17
 " Version : 0.2.0
 " License : MIT license {{{
 "
@@ -100,12 +100,12 @@ function! assert#not_equal(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#equals(value_1, value_2, ...)
-  call assert#equal(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+function! assert#equals(...)
+  call call('assert#equal', a:000)
 endfunction
 
-function! assert#not_equals(value_1, value_2, ...)
-  call assert#not_equal(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+function! assert#not_equals(...)
+  call call('assert#not_equal', a:000)
 endfunction
 
 function! assert#equal_c(value_1, value_2, ...)
@@ -134,12 +134,12 @@ function! assert#not_equal_c(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#equals_c(value_1, value_2, ...)
-  call assert#equal_c(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+function! assert#equals_c(...)
+  call call('assert#equal_c', a:000)
 endfunction
 
-function! assert#not_equals_c(value_1, value_2, ...)
-  call assert#not_equal_c(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+function! assert#not_equals_c(...)
+  call call('assert#not_equal_c', a:000)
 endfunction
 
 function! assert#equal_C(value_1, value_2, ...)
@@ -168,12 +168,12 @@ function! assert#not_equal_C(value_1, value_2, ...)
   endif
 endfunction
 
-function! assert#equals_C(value_1, value_2, ...)
-  call assert#equal_C(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+function! assert#equals_C(...)
+  call call('assert#equal_C', a:000)
 endfunction
 
-function! assert#not_equals_C(value_1, value_2, ...)
-  call assert#not_equal_C(a:value_1, a:value_2, (a:0 ? a:1 : ""))
+function! assert#not_equals_C(...)
+  call call('assert#not_equal_C', a:000)
 endfunction
 
 function! assert#exists(expr, ...)
