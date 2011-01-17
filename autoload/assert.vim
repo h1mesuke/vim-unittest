@@ -279,18 +279,18 @@ function! assert#is_Float(value, ...)
 endfunction
 
 function! s:typestr(value)
-  let val_type = type(a:value)
-  if val_type == type(0)
+  let value_type = type(a:value)
+  if value_type == type(0)
     return 'Number'
-  elseif val_type == type("")
+  elseif value_type == type("")
     return 'String'
-  elseif val_type == type(function("tr"))
+  elseif value_type == type(function("tr"))
     return 'Funcref'
-  elseif val_type == type([])
+  elseif value_type == type([])
     return 'List'
-  elseif val_type == type({})
+  elseif value_type == type({})
     return 'Dictionary'
-  elseif val_type == type(0.0)
+  elseif value_type == type(0.0)
     return 'Float'
   endif
 endfunction
