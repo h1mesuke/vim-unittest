@@ -188,6 +188,40 @@ function! assert#exists(expr, ...)
   endif
 endfunction
 
+function! assert#is(value_1, value_2, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if a:value_1 isnot a:value_2
+    call s:add_failure(
+          \ string(a:value_1) . " itself expected but was\n" .
+          \ string(a:value_2),
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#same(...)
+  call call('assert#is', a:000)
+endfunction
+
+function! assert#is_not(value_1, value_2, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if a:value_1 is a:value_2
+    call s:add_failure(
+          \ string(a:value_1) . " itself not expected but was\n" .
+          \ string(a:value_2) . " itself",
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#not_same(...)
+  call call('assert#is_not', a:000)
+endfunction
+
 function! assert#not_exists(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
@@ -354,32 +388,6 @@ function! assert#nothing_raised(ex_command, ...)
     return
   endtry
   call s:add_success()
-endfunction
-
-function! assert#same(value_1, value_2, ...)
-  call s:count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if a:value_1 isnot a:value_2
-    call s:add_failure(
-          \ string(a:value_1) . " itself expected but was\n" .
-          \ string(a:value_2),
-          \ hint)
-  else
-    call s:add_success()
-  endif
-endfunction
-
-function! assert#not_same(value_1, value_2, ...)
-  call s:count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if a:value_1 is a:value_2
-    call s:add_failure(
-          \ string(a:value_1) . " itself not expected but was\n" .
-          \ string(a:value_2) . " itself",
-          \ hint)
-  else
-    call s:add_success()
-  endif
 endfunction
 
 function! s:count_assertion()
