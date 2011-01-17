@@ -1,6 +1,6 @@
 " unittest.vim's test suite
-"
-" This is a testcase of assertions.
+
+" Testcase of assetions
 "
 " Expected results are: 
 " N tests, 2 * N assertions, N failures, 1 errors
@@ -66,6 +66,36 @@ function! tc.test_assert_false()
   call assert#false(1)
 endfunction
 
+function! tc.test_assert_equal()
+  call assert#equal(1, 1)
+  call assert#equal(1, 2)
+endfunction
+
+function! tc.test_assert_not_equal()
+  call assert#not_equal(1, 2)
+  call assert#not_equal(1, 1)
+endfunction
+
+function! tc.test_assert_equal_c()
+  call assert#equal_c("a", "A")
+  call assert#equal_c("a", "b")
+endfunction
+
+function! tc.test_assert_not_equal_c()
+  call assert#not_equal_c("a", "b")
+  call assert#not_equal_c("a", "A")
+endfunction
+
+function! tc.test_assert_equal_C()
+  call assert#equal_C("a", "a")
+  call assert#equal_C("a", "b")
+endfunction
+
+function! tc.test_assert_not_equal_C()
+  call assert#not_equal_C("a", "b")
+  call assert#not_equal_C("a", "a")
+endfunction
+
 function! tc.test_assert_exists()
   call assert#exists('*tr')
   call assert#exists('*foo#bar#baz')
@@ -74,6 +104,34 @@ endfunction
 function! tc.test_assert_not_exists()
   call assert#not_exists('*foo#bar#baz')
   call assert#not_exists('*tr')
+endfunction
+
+function! tc.test_assert_is()
+  let a = []
+  let b = []
+  call assert#is(a, a)
+  call assert#is(a, b)
+endfunction
+
+function! tc.test_assert_is_not()
+  let a = []
+  let b = []
+  call assert#is_not(a, b)
+  call assert#is_not(a, a)
+endfunction
+
+function! tc.test_assert_same()
+  let a = []
+  let b = []
+  call assert#same(a, a)
+  call assert#same(a, b)
+endfunction
+
+function! tc.test_assert_not_same()
+  let a = []
+  let b = []
+  call assert#not_same(a, b)
+  call assert#not_same(a, a)
 endfunction
 
 function! tc.test_assert_is_Number()
@@ -104,50 +162,6 @@ endfunction
 function! tc.test_assert_is_Float()
   call assert#is_Float(3.14)
   call assert#is_Float(1)
-endfunction
-
-function! tc.test_assert_equal()
-  call assert#equals(1, 1)
-  call assert#equals(1, 2)
-endfunction
-
-function! tc.test_assert_equal_c()
-  call assert#equals_c("a", "A")
-  call assert#equals_c("a", "b")
-endfunction
-
-function! tc.test_assert_equal_C()
-  call assert#equals_C("a", "a")
-  call assert#equals_C("a", "b")
-endfunction
-
-function! tc.test_assert_not_equals()
-  call assert#not_equals(1, 2)
-  call assert#not_equals(1, 1)
-endfunction
-
-function! tc.test_assert_not_equals_c()
-  call assert#not_equals_c("a", "b")
-  call assert#not_equals_c("a", "A")
-endfunction
-
-function! tc.test_assert_not_equals_C()
-  call assert#not_equals_C("a", "b")
-  call assert#not_equals_C("a", "a")
-endfunction
-
-function! tc.test_assert_same()
-  let a = []
-  let b = []
-  call assert#same(a, a)
-  call assert#same(a, b)
-endfunction
-
-function! tc.test_assert_not_same()
-  let a = []
-  let b = []
-  call assert#not_same(a, b)
-  call assert#not_same(a, a)
 endfunction
 
 function! tc.test_assert_match()
