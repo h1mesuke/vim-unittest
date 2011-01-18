@@ -165,19 +165,19 @@ function! tc.test_assert_is_Float()
 endfunction
 
 function! tc.test_assert_match()
-  call assert#match("hello", 'e')
-  call assert#match("hello", 'x')
+  call assert#match('e', "hello")
+  call assert#match('x', "hello")
 
-  call assert#match(["hello", "goodbye"], 'e')
-  call assert#match(["hello", "goodbye"], 'x')
+  call assert#match('e', ["hello", "goodbye"])
+  call assert#match('x', ["hello", "goodbye"])
 endfunction
 
 function! tc.test_assert_not_match()
-  call assert#not_match("hello", 'x')
-  call assert#not_match("hello", 'e')
+  call assert#not_match('x', "hello")
+  call assert#not_match('e', "hello")
 
-  call assert#not_match(["hello", "goodbye"], 'x')
-  call assert#not_match(["hello", "goodbye"], 'e')
+  call assert#not_match('x', ["hello", "goodbye"])
+  call assert#not_match('e', ["hello", "goodbye"])
 endfunction
 
 function! tc.test_assert_raise()

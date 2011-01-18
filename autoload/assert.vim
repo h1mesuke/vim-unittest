@@ -329,24 +329,24 @@ function! s:typestr(value)
   endif
 endfunction
 
-function! assert#match(value, pattern, ...)
+function! assert#match(pattern, str, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if match(a:value, a:pattern) < 0
+  if match(a:str, a:pattern) < 0
     call s:add_failure(
-          \ string(a:value) . " didn't match the pattern " . string(a:pattern),
+          \ string(a:str) . " didn't match the pattern " . string(a:pattern),
           \ hint)
   else
     call s:add_success()
   endif
 endfunction
 
-function! assert#not_match(value, pattern, ...)
+function! assert#not_match(pattern, str, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if match(a:value, a:pattern) >= 0
+  if match(a:str, a:pattern) >= 0
     call s:add_failure(
-          \ string(a:value) . " matched the pattern " . string(a:pattern),
+          \ string(a:str) . " matched the pattern " . string(a:pattern),
           \ hint)
   else
     call s:add_success()
