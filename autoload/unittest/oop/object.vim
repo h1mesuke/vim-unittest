@@ -1,8 +1,10 @@
 "=============================================================================
-" File    : autoload/unittest/object.vim
-" Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2010-12-29
-" Version : 0.2.2
+" Simple OOP Layer for Vimscript
+"
+" File    : oop/object.vim
+" Author  : h1mesuke <himesuke@gmail.com>
+" Updated : 2011-01-19
+" Version : 0.0.5
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -12,10 +14,10 @@
 "   distribute, sublicense, and/or sell copies of the Software, and to
 "   permit persons to whom the Software is furnished to do so, subject to
 "   the following conditions:
-"   
+"
 "   The above copyright notice and this permission notice shall be included
 "   in all copies or substantial portions of the Software.
-"   
+"
 "   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 "   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 "   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -26,44 +28,32 @@
 " }}}
 "=============================================================================
 
-function! unittest#object#extend()
-  return s:Object.extend()
+function! s:SID()
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
+let s:sid = s:SID()
 
-let s:NIL = {}
-let s:Object = { 'super': s:NIL }
+let s:Object = unittest#oop#class#new('Object', {})
 
-function! s:Object.new(...)
-  " instantiate
-  let obj = copy(self)
-  let obj.class = self
-  unlet obj.super
-  " inherit methods from superclasses
-  let klass = obj.class
-  while klass isnot s:NIL
-    call extend(obj, klass.super, 'keep')
-    let klass = klass.super
-  endwhile
-  call call(obj.initialize, a:000, obj)
-  return obj
+function! s:Object_initialize(...) dict
 endfunction
+call s:Object.define('initialize', function(s:sid . 'Object_initialize'))
 
-function! s:Object.initialize(...)
-endfunction
-
-function! s:Object.extend()
-  return extend({ 'super': self }, self, 'keep')
-endfunction
-
-function! s:Object.is_a(klass)
-  let klass = self.class
-  while klass isnot s:NIL
-    if klass is a:klass
+function! s:Object_is_a(class) dict
+  let class = self.class
+  while !empty(class)
+    if class is a:class
       return 1
     endif
-    let klass = klass.super
+    let class = class.super
   endwhile
   return 0
 endfunction
+call s:Object.define('is_a', function(s:sid . 'Object_is_a'))
+
+function! s:Object_to_s() dict
+  return '<' . self.class.name . ':0x' . printf('%08x', self.object_id) . '>'
+endfunction
+call s:Object.define('to_s', function(s:sid . 'Object_to_s'))
 
 " vim: filetype=vim

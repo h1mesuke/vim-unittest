@@ -1,6 +1,6 @@
 " unittest.vim's test suite
 
-" Testcase of assetions
+" Testcase of assertions
 "
 " Expected results are: 
 " N tests, 2 * N assertions, N failures, 1 errors
