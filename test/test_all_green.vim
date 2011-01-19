@@ -1,6 +1,6 @@
 " unittest.vim's test suite
 
-let tc = unittest#testcase(expand('<sfile>:p'))
+let tc = unittest#testcase#new(expand('<sfile>:p'))
 
 function! tc.test_foo()
   call assert#true(1)

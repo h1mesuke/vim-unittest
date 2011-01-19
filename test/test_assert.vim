@@ -5,7 +5,7 @@
 " Expected results are: 
 " N tests, 2 * N assertions, N failures, 1 errors
 
-let tc = unittest#testcase(expand('<sfile>:p'))
+let tc = unittest#testcase#new(expand('<sfile>:p'))
 
 function! tc.setup()
   call self.puts()
