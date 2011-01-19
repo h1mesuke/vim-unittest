@@ -181,8 +181,8 @@ function! tc.test_assert_not_match()
 endfunction
 
 function! tc.test_assert_raise()
-  call assert#raise('FooBarBaz', 'E492')
-  call assert#raise('nohl', 'E492')
+  call assert#raise('E492', 'FooBarBaz')
+  call assert#raise('E492', 'nohl')
 endfunction
 
 function! tc.test_assert_nothing_raised()
