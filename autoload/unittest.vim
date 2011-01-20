@@ -81,6 +81,14 @@ function! unittest#runner()
   return s:test_runner
 endfunction
 
+function! unittest#testcase()
+  if !unittest#is_running()
+    call s:print_error("unittest: no test is running")
+    return {}
+  endif
+  return s:test_runner.context.testcase
+endfunction
+
 function! unittest#results()
   if !unittest#is_running()
     call s:print_error("unittest: no test is running")
