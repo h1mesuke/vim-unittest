@@ -1,7 +1,7 @@
 "=============================================================================
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-20
+" Updated : 2011-01-21
 " Version : 0.2.4
 " License : MIT license {{{
 "
@@ -28,8 +28,8 @@
 
 function! unittest#testcase#new(tc_path)
   if !unittest#is_running()
-    " NOTE: The testcase may be sourced by the user unexpectedlly. Return
-    " a dummy Dictionary to suppress too many errors.
+    call unittest#print_error(
+          \ "unittest: don't source the testcase directly, use :UnitTest command")
     return {}
   endif
   let tc = s:TestCase.new(a:tc_path)
