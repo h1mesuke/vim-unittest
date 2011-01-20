@@ -2,7 +2,7 @@
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
 " Updated : 2011-01-21
-" Version : 0.2.4
+" Version : 0.2.5
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
