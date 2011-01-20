@@ -371,7 +371,6 @@ function! s:Error_initialize() dict
   let self.test = s:test_runner.context.test
   let self.throwpoint = v:throwpoint
   let self.exception = v:exception
-  let s:Error.id += 1
 endfunction
 call s:Error.bind(s:sid, 'initialize')
 
