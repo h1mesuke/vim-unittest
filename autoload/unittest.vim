@@ -53,7 +53,7 @@ function! unittest#run(...)
       continue
     endif
     " invalid value
-    call s:print_error("unittest: sourced file is not a testcase")
+    call unittest#print_error("unittest: sourced file is not a testcase")
     return
   endfor
 
@@ -64,8 +64,8 @@ function! unittest#run(...)
     endfor
     call s:test_runner.run()
   catch
-    call s:print_error(v:throwpoint)
-    call s:print_error(v:exception)
+    call unittest#print_error(v:throwpoint)
+    call unittest#print_error(v:exception)
   finally
     if exists('s:test_runner')
       unlet s:test_runner
@@ -98,7 +98,7 @@ function! unittest#is_running()
   return exists('s:test_runner')
 endfunction
 
-function! s:print_error(msg)
+function! unittest#print_error(msg)
   echohl ErrorMsg | echomsg a:msg | echohl None
 endfunction
 
