@@ -26,13 +26,13 @@
 " }}}
 "=============================================================================
 
-function! unittest#testcase#new(tc_path)
+function! unittest#testcase#new(tc_name)
   if !unittest#is_running()
     call unittest#print_error(
           \ "unittest: don't source the testcase directly, use :UnitTest command")
     return {}
   endif
-  let tc = s:TestCase.new(a:tc_path)
+  let tc = s:TestCase.new(a:tc_name)
   call unittest#runner().add_testcase(tc)
   return tc
 endfunction
@@ -44,9 +44,8 @@ let s:sid = s:SID()
 
 let s:TestCase = unittest#oop#class#new('TestCase')
 
-function! s:TestCase_initialize(path) dict
-  let self.path = a:path
-  let self.name = substitute(split(a:path, '/')[-1], '\.\w\+$', '', '')
+function! s:TestCase_initialize(tc_name) dict
+  let self.name = a:tc_name
   let self.context_file = ""
   let self.cache = {}
 endfunction

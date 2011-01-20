@@ -1,6 +1,6 @@
 " Testcase sample of shoulda style
 
-let tc = unittest#testcase#new(expand('<sfile>:p'))
+let tc = unittest#testcase#new('test_sample_shoulda')
 
 function! tc.one_should_be_true()
   call assert#true(1)
