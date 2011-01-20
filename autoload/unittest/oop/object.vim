@@ -1,10 +1,11 @@
 "=============================================================================
 " Simple OOP Layer for Vimscript
+" Minimum Edition
 "
 " File    : oop/object.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-19
-" Version : 0.0.5
+" Updated : 2011-01-20
+" Version : 0.0.6
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -37,7 +38,7 @@ let s:Object = unittest#oop#class#new('Object', {})
 
 function! s:Object_initialize(...) dict
 endfunction
-call s:Object.define('initialize', function(s:sid . 'Object_initialize'))
+call s:Object.bind(s:sid, 'initialize')
 
 function! s:Object_is_a(class) dict
   let class = self.class
@@ -45,15 +46,10 @@ function! s:Object_is_a(class) dict
     if class is a:class
       return 1
     endif
-    let class = class.super
+    let class = class.superclass
   endwhile
   return 0
 endfunction
-call s:Object.define('is_a', function(s:sid . 'Object_is_a'))
-
-function! s:Object_to_s() dict
-  return '<' . self.class.name . ':0x' . printf('%08x', self.object_id) . '>'
-endfunction
-call s:Object.define('to_s', function(s:sid . 'Object_to_s'))
+call s:Object.bind(s:sid, 'is_a')
 
 " vim: filetype=vim

@@ -50,7 +50,7 @@ function! s:TestCase_initialize(path) dict
   let self.context_file = ""
   let self.cache = {}
 endfunction
-call s:TestCase.define('initialize', function(s:sid . 'TestCase_initialize'))
+call s:TestCase.bind(s:sid, 'initialize')
 
 function! s:TestCase_tests() dict
   if !has_key(self.cache, 'tests')
@@ -60,7 +60,7 @@ function! s:TestCase_tests() dict
   endif
   return self.cache.tests
 endfunction
-call s:TestCase.define('tests', function(s:sid . 'TestCase_tests'))
+call s:TestCase.bind(s:sid, 'tests')
 
 function! s:TestCase_open_context_file() dict
   if !bufexists(self.context_file)
@@ -76,7 +76,7 @@ function! s:TestCase_open_context_file() dict
     execute 'buffer' bufnr(self.context_file)
   endif
 endfunction
-call s:TestCase.define('open_context_file', function(s:sid . 'TestCase_open_context_file'))
+call s:TestCase.bind(s:sid, 'open_context_file')
 
 function! s:TestCase___setup__(test) dict
   if has_key(self, 'setup')
@@ -92,7 +92,7 @@ function! s:TestCase___setup__(test) dict
     endif
   endfor
 endfunction
-call s:TestCase.define('__setup__', function(s:sid . 'TestCase___setup__'))
+call s:TestCase.bind(s:sid, '__setup__')
 
 function! s:TestCase___teardown__(test) dict
   if !has_key(self.cache, 'teardown_suffixes')
@@ -108,13 +108,13 @@ function! s:TestCase___teardown__(test) dict
     call self.teardown()
   endif
 endfunction
-call s:TestCase.define('__teardown__', function(s:sid . 'TestCase___teardown__'))
+call s:TestCase.bind(s:sid, '__teardown__')
 
 function! s:TestCase_puts(...) dict
   let str = (a:0 ? a:1 : "")
   call unittest#runner().results.puts(str)
 endfunction
-call s:TestCase.define('puts', function(s:sid . 'TestCase_puts'))
+call s:TestCase.bind(s:sid, 'puts')
 
 function! s:grep(list, pat, ...)
   let op = (a:0 ? a:1 : '=~#')

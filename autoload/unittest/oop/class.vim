@@ -1,10 +1,11 @@
 "=============================================================================
 " Simple OOP Layer for Vimscript
+" Minimum Edition
 "
 " File    : oop/class.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-19
-" Version : 0.0.5
+" Updated : 2011-01-20
+" Version : 0.0.6
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -36,27 +37,26 @@ function! unittest#oop#class#get(name)
   if unittest#oop#class#is_defined(a:name)
     return s:class_table[a:name]
   else
-    throw "unittest#oop#class#get(): class " . a:name . " is not defined"
+    throw "oop: class " . a:name . " is not defined"
   endif
 endfunction
 
 function! unittest#oop#class#new(name, ...)
   let _self = deepcopy(s:Class, 1)
-  let _self.object_id = s:get_object_id()
   let _self.class = s:Class
   if a:0
-    let _self.super = (type(a:1) == type("") ? unittest#oop#class#get(a:1) : a:1)
+    let _self.superclass = (type(a:1) == type("") ? unittest#oop#class#get(a:1) : a:1)
   else
-    let _self.super = unittest#oop#class#get('Object')
+    let _self.superclass = unittest#oop#class#get('Object')
   endif
   let _self.name  = a:name
   let s:class_table[a:name] = _self
   " inherit methods from superclasses
-  let class = _self.super
+  let class = _self.superclass
   while !empty(class)
     call extend(_self, class, 'keep')
     call extend(_self.prototype, class.prototype, 'keep')
-    let class = class.super
+    let class = class.superclass
   endwhile
   return _self
 endfunction
@@ -66,39 +66,27 @@ function! s:SID()
 endfunction
 let s:sid = s:SID()
 
-let s:class_table = {}
 let s:Class = { 'prototype': {} }
-let s:object_id = 0
+let s:class_table = { 'Class': s:Class }
 
-function! s:get_object_id()
-  let s:object_id += 1
-  return s:object_id
+function! s:Class_class_bind(sid, method_name) dict
+  let self[a:method_name] = function(a:sid . self.name . '_class_' . a:method_name)
 endfunction
+let s:Class.class_bind = function(s:sid . 'Class_class_bind')
 
-function! s:Class_class_define(method_name, funcref) dict
-  let self[a:method_name] = a:funcref
+function! s:Class_bind(sid, method_name) dict
+  let self.prototype[a:method_name] = function(a:sid . self.name . '_' . a:method_name)
 endfunction
-let s:Class.class_define = function(s:sid . 'Class_class_define')
-
-function! s:Class_define(method_name, funcref) dict
-  let self.prototype[a:method_name] = a:funcref
-endfunction
-let s:Class.define = function(s:sid . 'Class_define')
+let s:Class.bind = function(s:sid . 'Class_bind')
 
 function! s:Class_new(...) dict
   " instantiate
   let obj = copy(self.prototype)
-  let obj.object_id = s:get_object_id()
   let obj.class = self
   call call(obj.initialize, a:000, obj)
   return obj
 endfunction
 let s:Class.new = function(s:sid . 'Class_new')
-
-function! s:Class_to_s() dict
-  return '<Class:' . self.name . '>'
-endfunction
-let s:Class.to_s = function(s:sid . 'Class_to_s')
 
 " bootstrap
 execute 'source' expand('<sfile>:p:h') . '/object.vim'
