@@ -2,7 +2,7 @@
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
 " Updated : 2011-01-20
-" Version : 0.2.3
+" Version : 0.2.4
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
