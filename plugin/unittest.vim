@@ -1,7 +1,9 @@
 "=============================================================================
+" Simple Unit Testing Framework for Vim scripts
+"
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
-" Updated : 2010-12-04
+" Updated : 2011-01-22
 " Version : 0.2.5
 " License : MIT license {{{
 "

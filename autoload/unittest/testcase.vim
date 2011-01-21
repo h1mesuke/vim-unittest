@@ -1,7 +1,9 @@
 "=============================================================================
+" Simple Unit Testing Framework for Vim scripts
+"
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-21
+" Updated : 2011-01-22
 " Version : 0.2.5
 " License : MIT license {{{
 "
