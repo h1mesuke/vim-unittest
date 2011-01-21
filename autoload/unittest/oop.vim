@@ -1,6 +1,5 @@
 "=============================================================================
 " Simple OOP Layer for Vimscript
-" Minimum Edition
 "
 " File    : oop.vim
 " Author  : h1mesuke <himesuke@gmail.com>
@@ -30,9 +29,17 @@
 "=============================================================================
 
 function! unittest#oop#is_class(obj)
-  let Class_class = unittest#oop#class#get('Class')
+  let Class = unittest#oop#class#get('Class')
   return (type(a:obj) == type({}) && has_key(a:obj, 'class') &&
-        \ (a:obj.class is Class_class || a:obj is Class_class))
+        \ (a:obj.class is Class || a:obj is Class))
+endfunction
+
+function! unittest#oop#is_instance(obj)
+  return (unittest#oop#is_object(a:obj) && !unittest#oop#is_class(a:obj))
+endfunction
+
+function! unittest#oop#is_object(obj)
+  return (type(a:obj) == type({}) && has_key(a:obj, 'class') && unittest#oop#is_class(a:obj.class))
 endfunction
 
 " vim: filetype=vim
