@@ -4,8 +4,8 @@
 "
 " File    : oop/class.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-20
-" Version : 0.0.6
+" Updated : 2011-01-22
+" Version : 0.0.8
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -45,7 +45,14 @@ function! unittest#oop#class#new(name, ...)
   let _self = deepcopy(s:Class, 1)
   let _self.class = s:Class
   if a:0
-    let _self.superclass = (type(a:1) == type("") ? unittest#oop#class#get(a:1) : a:1)
+    let superclass = a:1
+    if unittest#oop#is_class(superclass)
+      let _self.superclass = superclass
+    elseif type(superclass) == type("")
+      let _self.superclass = unittest#oop#class#get(superclass)
+    else
+      throw "oop: class required, but got " . string(superclass)
+    endif
   else
     let _self.superclass = unittest#oop#class#get('Object')
   endif
@@ -61,23 +68,52 @@ function! unittest#oop#class#new(name, ...)
   return _self
 endfunction
 
-function! s:SID()
+function! s:get_SID()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
-let s:sid = s:SID()
+let s:SID = s:get_SID()
 
-let s:Class = { 'prototype': {} }
-let s:class_table = { 'Class': s:Class }
+let s:Class = { 'class': {}, 'prototype': {} }
+let s:class_table = { 'Class': s:Class, '__nil__': {} }
+
+function! s:Class_class_alias(alias, method_name) dict
+  if has_key(self, a:method_name) && type(self[a:method_name]) == type(function('tr'))
+    let self[a:alias] = self[a:method_name]
+  else
+    throw "oop: " . self.name . "." . a:method_name . "() is not defined"
+  endif
+endfunction
+let s:Class.class_alias = function(s:SID . 'Class_class_alias')
 
 function! s:Class_class_bind(sid, method_name) dict
   let self[a:method_name] = function(a:sid . self.name . '_class_' . a:method_name)
 endfunction
-let s:Class.class_bind = function(s:sid . 'Class_class_bind')
+let s:Class.class_bind = function(s:SID . 'Class_class_bind')
+
+function! s:Class_alias(alias, method_name) dict
+  if has_key(self.prototype, a:method_name) &&
+        \ type(self.prototype[a:method_name]) == type(function('tr'))
+    let self.prototype[a:alias] = self.prototype[a:method_name]
+  else
+    throw "oop: " . self.name . "#" . a:method_name . "() is not defined"
+  endif
+endfunction
+let s:Class.alias = function(s:SID . 'Class_alias')
 
 function! s:Class_bind(sid, method_name) dict
   let self.prototype[a:method_name] = function(a:sid . self.name . '_' . a:method_name)
 endfunction
-let s:Class.bind = function(s:sid . 'Class_bind')
+let s:Class.bind = function(s:SID . 'Class_bind')
+
+function! s:Class_export(method_name) dict
+  if has_key(self.prototype, a:method_name) &&
+        \ type(self.prototype[a:method_name]) == type(function('tr'))
+    let self[a:method_name] = self.prototype[a:method_name]
+  else
+    throw "oop: " . self.name . "#" . a:method_name . "() is not defined"
+  endif
+endfunction
+let s:Class.export = function(s:SID . 'Class_export')
 
 function! s:Class_new(...) dict
   " instantiate
@@ -86,7 +122,7 @@ function! s:Class_new(...) dict
   call call(obj.initialize, a:000, obj)
   return obj
 endfunction
-let s:Class.new = function(s:sid . 'Class_new')
+let s:Class.new = function(s:SID . 'Class_new')
 
 " bootstrap
 execute 'source' expand('<sfile>:p:h') . '/object.vim'
