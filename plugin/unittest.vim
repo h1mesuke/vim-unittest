@@ -4,7 +4,7 @@
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
 " Updated : 2011-01-22
-" Version : 0.2.5
+" Version : 0.2.6
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
