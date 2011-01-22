@@ -28,7 +28,11 @@
 " }}}
 "=============================================================================
 
-function! unittest#testcase#new(tc_name)
+function! unittest#testcase#class()
+  return s:TestCase
+endfunction
+
+function! unittest#testcase#new(tc_name, ...)
   if !unittest#is_running()
     call unittest#print_error(
           \ "unittest: don't source the testcase directly, use :UnitTest command")
