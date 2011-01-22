@@ -308,10 +308,11 @@ call s:TestResults.bind(s:sid, 'print_separator')
 function! s:TestResults_print_header(level, title) dict
   if a:level == 1
     call self.print_separator('=')
+    call self.puts(toupper(a:title))
   elseif a:level == 2
     call self.print_separator('-')
+    call self.puts(a:title)
   endif
-  call self.puts(a:title)
 endfunction
 call s:TestResults.bind(s:sid, 'print_header')
 
