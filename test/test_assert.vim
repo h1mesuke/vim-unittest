@@ -3,7 +3,7 @@
 " Testcase of assertions
 "
 " Expected results are: 
-" N tests, 2 * N assertions, N failures, 1 errors
+" T tests, A assertions, A/2 failures, 1 errors
 
 let tc = unittest#testcase#new('test_assert')
 
@@ -99,11 +99,17 @@ endfunction
 function! tc.test_assert_exists()
   call assert#exists('*tr')
   call assert#exists('*foo#bar#baz')
+
+  call assert#exists(':bnext')
+  call assert#exists(':bn')
 endfunction
 
 function! tc.test_assert_not_exists()
   call assert#not_exists('*foo#bar#baz')
   call assert#not_exists('*tr')
+
+  call assert#not_exists(':bn')
+  call assert#not_exists(':bnext')
 endfunction
 
 function! tc.test_assert_is()

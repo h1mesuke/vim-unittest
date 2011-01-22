@@ -3,7 +3,7 @@
 "
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-22
+" Updated : 2011-01-23
 " Version : 0.2.7
 " License : MIT license {{{
 "
@@ -181,10 +181,46 @@ endfunction
 function! assert#exists(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if !exists(a:expr)
+  if a:expr =~ '^:'
+    call s:assert_exists_command(a:expr, hint)
+  elseif !exists(a:expr)
     call s:add_failure(
           \ string(a:expr) . " doesn't exist",
           \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! s:assert_exists_command(command, hint)
+  if exists(a:command) != 2
+    call s:add_failure(
+          \ string(a:command) . " is not defined",
+          \ a:hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#not_exists(expr, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if a:expr =~ '^:'
+    call s:assert_not_exists_command(a:expr, hint)
+  elseif exists(a:expr)
+    call s:add_failure(
+          \ string(a:expr) . " exists",
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! s:assert_not_exists_command(command, hint)
+  if exists(a:command) == 2
+    call s:add_failure(
+          \ string(a:command) . " is defined",
+          \ a:hint)
   else
     call s:add_success()
   endif
@@ -222,18 +258,6 @@ endfunction
 
 function! assert#not_same(...)
   call call('assert#is_not', a:000)
-endfunction
-
-function! assert#not_exists(expr, ...)
-  call s:count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if exists(a:expr)
-    call s:add_failure(
-          \ string(a:expr) . " exist",
-          \ hint)
-  else
-    call s:add_success()
-  endif
 endfunction
 
 function! assert#is_Number(value, ...)
