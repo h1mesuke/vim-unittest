@@ -38,7 +38,11 @@ function! unittest#testcase#new(tc_name, ...)
           \ "unittest: don't source the testcase directly, use :UnitTest command")
     return {}
   endif
-  let tc = s:TestCase.new(a:tc_name)
+  let tc_class = unittest#oop#class#get(a:0 ? a:1 : 'TestCase')
+  if !tc_class.is_a(s:TestCase)
+    throw "unittest: testcase required, but got " . string(tc_class)
+  endif
+  let tc = tc_class.new(a:tc_name)
   call unittest#runner().add_testcase(tc)
   return tc
 endfunction
