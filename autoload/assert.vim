@@ -3,7 +3,7 @@
 "
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-23
+" Updated : 2011-01-30
 " Version : 0.2.7
 " License : MIT license {{{
 "
@@ -34,7 +34,7 @@ function! assert#true(expr, ...)
   if !a:expr
     call s:add_failure(
           \ "True expected, but was\n" .
-          \ string(a:expr),
+          \ unittest#oop#inspect(a:expr),
           \ hint)
   else
     call s:add_success()
@@ -47,7 +47,7 @@ function! assert#false(expr, ...)
   if a:expr
     call s:add_failure(
           \ "False expected, but was\n" .
-          \ string(a:expr),
+          \ unittest#oop#inspect(a:expr),
           \ hint)
   else
     call s:add_success()
@@ -60,8 +60,8 @@ function! assert#equal(expected, actual, ...)
   if type(a:expected) == type("") && type(a:actual) == type("")
     if a:expected !=# a:actual
       call s:add_failure(
-            \ string(a:expected) . " expected but was\n" .
-            \ string(a:actual),
+            \ unittest#oop#inspect(a:expected) . " expected but was\n" .
+            \ unittest#oop#inspect(a:actual),
             \ hint)
     else
       call s:add_success()
@@ -69,8 +69,8 @@ function! assert#equal(expected, actual, ...)
   else
     if a:expected != a:actual
       call s:add_failure(
-            \ string(a:expected) . " expected but was\n" .
-            \ string(a:actual),
+            \ unittest#oop#inspect(a:expected) . " expected but was\n" .
+            \ unittest#oop#inspect(a:actual),
             \ hint)
     else
       call s:add_success()
@@ -84,8 +84,8 @@ function! assert#not_equal(expected, actual, ...)
   if type(a:expected) == type("") && type(a:actual) == type("")
     if a:expected ==# a:actual
       call s:add_failure(
-            \ string(a:expected) . " not expected but was\n" .
-            \ string(a:actual),
+            \ unittest#oop#inspect(a:expected) . " not expected but was\n" .
+            \ unittest#oop#inspect(a:actual),
             \ hint)
     else
       call s:add_success()
@@ -93,8 +93,8 @@ function! assert#not_equal(expected, actual, ...)
   else
     if a:expected == a:actual
       call s:add_failure(
-            \ string(a:expected) . " not expected but was\n" .
-            \ string(a:actual),
+            \ unittest#oop#inspect(a:expected) . " not expected but was\n" .
+            \ unittest#oop#inspect(a:actual),
             \ hint)
     else
       call s:add_success()
@@ -115,8 +115,8 @@ function! assert#equal_c(expected, actual, ...)
   let hint = (a:0 ? a:1 : "")
   if a:expected !=? a:actual
     call s:add_failure(
-          \ string(a:expected) . " expected but was\n" .
-          \ string(a:actual),
+          \ unittest#oop#inspect(a:expected) . " expected but was\n" .
+          \ unittest#oop#inspect(a:actual),
           \ hint)
   else
     call s:add_success()
@@ -128,8 +128,8 @@ function! assert#not_equal_c(expected, actual, ...)
   let hint = (a:0 ? a:1 : "")
   if a:expected ==? a:actual
     call s:add_failure(
-          \ string(a:expected) . " not expected but was\n" .
-          \ string(a:actual),
+          \ unittest#oop#inspect(a:expected) . " not expected but was\n" .
+          \ unittest#oop#inspect(a:actual),
           \ hint)
   else
     call s:add_success()
@@ -149,8 +149,8 @@ function! assert#equal_C(expected, actual, ...)
   let hint = (a:0 ? a:1 : "")
   if a:expected !=# a:actual
     call s:add_failure(
-          \ string(a:expected) . " expected but was\n" .
-          \ string(a:actual),
+          \ unittest#oop#inspect(a:expected) . " expected but was\n" .
+          \ unittest#oop#inspect(a:actual),
           \ hint)
   else
     call s:add_success()
@@ -162,8 +162,8 @@ function! assert#not_equal_C(expected, actual, ...)
   let hint = (a:0 ? a:1 : "")
   if a:expected ==# a:actual
     call s:add_failure(
-          \ string(a:expected) . " not expected but was\n" .
-          \ string(a:actual),
+          \ unittest#oop#inspect(a:expected) . " not expected but was\n" .
+          \ unittest#oop#inspect(a:actual),
           \ hint)
   else
     call s:add_success()
@@ -185,7 +185,7 @@ function! assert#exists(expr, ...)
     call s:assert_exists_command(a:expr, hint)
   elseif !exists(a:expr)
     call s:add_failure(
-          \ string(a:expr) . " doesn't exist",
+          \ unittest#oop#inspect(a:expr) . " doesn't exist",
           \ hint)
   else
     call s:add_success()
@@ -195,7 +195,7 @@ endfunction
 function! s:assert_exists_command(command, hint)
   if exists(a:command) != 2
     call s:add_failure(
-          \ string(a:command) . " is not defined",
+          \ unittest#oop#inspect(a:command) . " is not defined",
           \ a:hint)
   else
     call s:add_success()
@@ -209,7 +209,7 @@ function! assert#not_exists(expr, ...)
     call s:assert_not_exists_command(a:expr, hint)
   elseif exists(a:expr)
     call s:add_failure(
-          \ string(a:expr) . " exists",
+          \ unittest#oop#inspect(a:expr) . " exists",
           \ hint)
   else
     call s:add_success()
@@ -219,7 +219,7 @@ endfunction
 function! s:assert_not_exists_command(command, hint)
   if exists(a:command) == 2
     call s:add_failure(
-          \ string(a:command) . " is defined",
+          \ unittest#oop#inspect(a:command) . " is defined",
           \ a:hint)
   else
     call s:add_success()
@@ -231,8 +231,8 @@ function! assert#is(expected, actual, ...)
   let hint = (a:0 ? a:1 : "")
   if a:expected isnot a:actual
     call s:add_failure(
-          \ string(a:expected) . " itself expected but was\n" .
-          \ string(a:actual),
+          \ unittest#oop#inspect(a:expected) . " itself expected but was\n" .
+          \ unittest#oop#inspect(a:actual),
           \ hint)
   else
     call s:add_success()
@@ -248,8 +248,8 @@ function! assert#is_not(expected, actual, ...)
   let hint = (a:0 ? a:1 : "")
   if a:expected is a:actual
     call s:add_failure(
-          \ string(a:expected) . " itself not expected but was\n" .
-          \ string(a:actual) . " itself",
+          \ unittest#oop#inspect(a:expected) . " itself not expected but was\n" .
+          \ unittest#oop#inspect(a:actual) . " itself",
           \ hint)
   else
     call s:add_success()
@@ -360,7 +360,8 @@ function! assert#match(pattern, str, ...)
   let hint = (a:0 ? a:1 : "")
   if match(a:str, a:pattern) < 0
     call s:add_failure(
-          \ string(a:str) . " didn't match the pattern " . string(a:pattern),
+          \ unittest#oop#inspect(a:str) . " didn't match the pattern " .
+          \ unittest#oop#inspect(a:pattern),
           \ hint)
   else
     call s:add_success()
@@ -372,7 +373,8 @@ function! assert#not_match(pattern, str, ...)
   let hint = (a:0 ? a:1 : "")
   if match(a:str, a:pattern) >= 0
     call s:add_failure(
-          \ string(a:str) . " matched the pattern " . string(a:pattern),
+          \ unittest#oop#inspect(a:str) . " matched the pattern " .
+          \ unittest#oop#inspect(a:pattern),
           \ hint)
   else
     call s:add_success()
@@ -389,14 +391,14 @@ function! assert#raise(exception, ex_command, ...)
       call s:add_success()
     else
       call s:add_failure(
-            \ string(a:ex_command) . " didn't raise /" . a:exception . "/, but raised:\n" .
+            \ unittest#oop#inspect(a:ex_command) . " didn't raise /" . a:exception . "/, but raised:\n" .
             \ v:exception,
             \ hint)
     endif
     return
   endtry
   call s:add_failure(
-        \ string(a:ex_command) . " didn't raise /" . a:exception . "/\n" .
+        \ unittest#oop#inspect(a:ex_command) . " didn't raise /" . a:exception . "/\n" .
         \ "Nothing raised.",
         \ hint)
 endfunction
@@ -408,7 +410,7 @@ function! assert#nothing_raised(ex_command, ...)
     execute a:ex_command
   catch
     call s:add_failure(
-          \ string(a:ex_command) . " raised:\n" .
+          \ unittest#oop#inspect(a:ex_command) . " raised:\n" .
           \ v:exception,
           \ hint)
     return
