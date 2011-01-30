@@ -175,6 +175,11 @@ function! tc.test_assert_is_Float()
   call assert#is_Float(1)
 endfunction
 
+function! tc.test_assert_is_Object()
+  call assert#is_Object(unittest#oop#class#get('Object').new())
+  call assert#is_Object({})
+endfunction
+
 function! tc.test_assert_match()
   call assert#match('e', "hello")
   call assert#match('x', "hello")

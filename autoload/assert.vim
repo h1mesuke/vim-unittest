@@ -351,6 +351,19 @@ function! assert#is_Float(value, ...)
   endif
 endfunction
 
+function! assert#is_Object(value, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if !unittest#oop#is_object(a:value)
+    call s:add_failure(
+          \ "Object expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
 function! s:typestr(value)
   let value_type = type(a:value)
   if value_type == type(0)
@@ -365,6 +378,8 @@ function! s:typestr(value)
     return 'Dictionary'
   elseif value_type == type(0.0)
     return 'Float'
+  elseif unittest#oop#is_object(a:value)
+    return 'Object'
   endif
 endfunction
 
