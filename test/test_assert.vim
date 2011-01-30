@@ -7,7 +7,15 @@
 
 let tc = unittest#testcase#new('test_assert')
 
+let s:Foo = unittest#oop#class#new('Foo')
+let s:Bar = unittest#oop#class#new('Bar', 'Foo')
+
+"-----------------------------------------------------------------------------
+
 function! tc.setup()
+  let self.foo = s:Foo.new()
+  let self.bar = s:Bar.new()
+
   call self.puts()
   call self.puts("setup")
 endfunction
@@ -176,8 +184,13 @@ function! tc.test_assert_is_Float()
 endfunction
 
 function! tc.test_assert_is_Object()
-  call assert#is_Object(unittest#oop#class#get('Object').new())
+  call assert#is_Object(self.foo)
   call assert#is_Object({})
+endfunction
+
+function! tc.test_assert_is_kind_of()
+  call assert#is_kind_of('Foo', self.bar)
+  call assert#is_kind_of('Bar', self.foo)
 endfunction
 
 function! tc.test_assert_match()
