@@ -4,7 +4,7 @@
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
 " Updated : 2011-01-30
-" Version : 0.2.7
+" Version : 0.2.8
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
