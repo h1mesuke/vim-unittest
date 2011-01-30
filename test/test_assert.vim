@@ -126,18 +126,18 @@ function! tc.test_assert_is_not()
   call assert#is_not(a, a)
 endfunction
 
-function! tc.test_assert_same()
+function! tc.test_assert_is_same()
   let a = []
   let b = []
-  call assert#same(a, a)
-  call assert#same(a, b)
+  call assert#is_same(a, a)
+  call assert#is_same(a, b)
 endfunction
 
-function! tc.test_assert_not_same()
+function! tc.test_assert_is_not_same()
   let a = []
   let b = []
-  call assert#not_same(a, b)
-  call assert#not_same(a, a)
+  call assert#is_not_same(a, b)
+  call assert#is_not_same(a, a)
 endfunction
 
 function! tc.test_assert_is_Number()

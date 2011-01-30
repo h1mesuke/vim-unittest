@@ -239,7 +239,7 @@ function! assert#is(expected, actual, ...)
   endif
 endfunction
 
-function! assert#same(...)
+function! assert#is_same(...)
   call call('assert#is', a:000)
 endfunction
 
@@ -256,7 +256,7 @@ function! assert#is_not(expected, actual, ...)
   endif
 endfunction
 
-function! assert#not_same(...)
+function! assert#is_not_same(...)
   call call('assert#is_not', a:000)
 endfunction
 
