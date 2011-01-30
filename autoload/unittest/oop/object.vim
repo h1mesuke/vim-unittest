@@ -1,10 +1,11 @@
 "=============================================================================
-" Simple OOP Layer for Vimscript
+" vim-oop
+" Class-based OOP Layer for Vimscript <Mininum Edition>
 "
 " File    : oop/object.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-22
-" Version : 0.0.8
+" Updated : 2011-01-30
+" Version : 0.1.3
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -31,18 +32,36 @@
 function! s:get_SID()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
-let s:SID = s:get_SID()
 
-let s:Object = unittest#oop#class#new('Object', '__nil__')
+function! unittest#oop#object#_initialize()
+  let SID = s:get_SID()
+
+  let s:object_id = 1001
+  let s:Object = unittest#oop#class#new('Object', '__nil__')
+
+  call s:Object.bind(SID, 'initialize')
+  call s:Object.bind(SID, 'inspect')
+  call s:Object.bind(SID, 'is_kind_of')
+  call s:Object.alias('is_a', 'is_kind_of')
+  call s:Object.bind(SID, 'to_s')
+
+  return s:Object
+endfunction
+
+function! unittest#oop#object#_get_object_id()
+  let s:object_id += 1
+  return s:object_id
+endfunction
+
+"-----------------------------------------------------------------------------
 
 function! s:Object_initialize(...) dict
 endfunction
-call s:Object.bind(s:SID, 'initialize')
 
-function! s:Object_is_instance_of(class) dict
-  return (self.class is unittest#oop#class#get(a:class))
+function! s:Object_inspect() dict
+  let _self = map(copy(self), 'unittest#oop#is_object(v:val) ? v:val.to_s() : v:val')
+  return string(_self)
 endfunction
-call s:Object.bind(s:SID, 'is_instance_of')
 
 function! s:Object_is_kind_of(class) dict
   let kind_class = unittest#oop#class#get(a:class)
@@ -55,38 +74,13 @@ function! s:Object_is_kind_of(class) dict
   endwhile
   return 0
 endfunction
-call s:Object.bind(s:SID, 'is_kind_of')
-call s:Object.alias('is_a', 'is_kind_of')
-
-function! s:Object_super(method_name, ...) dict
-  let defined_here = (has_key(self, a:method_name) &&
-        \ type(self[a:method_name]) == type(function('tr')))
-  let class = self.class
-  while !empty(class)
-    if has_key(class.prototype, a:method_name)
-      if type(class.prototype[a:method_name]) != type(function('tr'))
-        throw "oop: " . class.name . "#" . a:method_name . " is not a method"
-      elseif !defined_here ||
-            \ (defined_here && self[a:method_name] != class.prototype[a:method_name])
-        return call(class.prototype[a:method_name], a:000, self)
-      endif
-    endif
-    let class = class.superclass
-  endwhile
-  throw "oop: " . self.class.name . "#" . a:method_name . "()'s super implementation was not found"
-endfunction
-call s:Object.bind(s:SID, 'super')
 
 function! s:Object_to_s() dict
   return '<' . self.class.name . ':0x' . printf('%08x', self.object_id) . '>'
 endfunction
-call s:Object.bind(s:SID, 'to_s')
 
-" classes as objects
-let s:Object_instance_methods = copy(s:Object.prototype)
-unlet s:Object_instance_methods.initialize
-call extend(s:Object, s:Object_instance_methods, 'keep')
-call extend(unittest#oop#class#get('Class'), s:Object_instance_methods, 'keep')
-unlet s:Object_instance_methods
+if !unittest#oop#_is_initialized()
+  call unittest#oop#_initialize()
+endif
 
 " vim: filetype=vim

@@ -1,10 +1,11 @@
 "=============================================================================
-" Simple OOP Layer for Vimscript
+" vim-oop
+" Class-based OOP Layer for Vimscript <Mininum Edition>
 "
 " File    : oop.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-22
-" Version : 0.0.8
+" Updated : 2011-01-30
+" Version : 0.1.3
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -28,18 +29,62 @@
 " }}}
 "=============================================================================
 
-function! unittest#oop#is_class(obj)
-  let Class = unittest#oop#class#get('Class')
-  return (type(a:obj) == type({}) && has_key(a:obj, 'class') &&
-        \ (a:obj.class is Class || a:obj is Class))
+let s:initialized = 0
+
+function! unittest#oop#_is_initialized()
+  return s:initialized
 endfunction
 
-function! unittest#oop#is_instance(obj)
-  return (unittest#oop#is_object(a:obj) && !unittest#oop#is_class(a:obj))
+function! unittest#oop#_initialize()
+  if s:initialized | return | endif
+  let s:initialized = 1
+
+  let Class = unittest#oop#class#_initialize()
+  let Object = unittest#oop#object#_initialize()
+
+  let Class.superclass = Object
+
+  let Object_instance_methods = copy(Object.prototype)
+  unlet Object_instance_methods.initialize
+
+  call extend(Object, Object_instance_methods, 'keep')
+
+  call extend(Class, Object_instance_methods, 'keep')
+  call extend(Class.prototype, Object_instance_methods, 'keep')
 endfunction
 
 function! unittest#oop#is_object(obj)
-  return (type(a:obj) == type({}) && has_key(a:obj, 'class') && unittest#oop#is_class(a:obj.class))
+  return (type(a:obj) == type({}) && has_key(a:obj, 'class') &&
+        \ type(a:obj.class) == type({}) && has_key(a:obj.class, 'class') &&
+        \ a:obj.class.class is unittest#oop#class#get('Class'))
 endfunction
+
+function! unittest#oop#is_class(obj)
+  return (unittest#oop#is_object(a:obj) && a:obj.class is unittest#oop#class#get('Class'))
+endfunction
+
+function! unittest#oop#is_instance(obj)
+  return (unittest#oop#is_object(a:obj) && a:obj.class isnot unittest#oop#class#get('Class'))
+endfunction
+
+function! unittest#oop#inspect(value)
+  if unittest#oop#is_object(a:value)
+    return a:value.inspect()
+  else
+    return string(a:value)
+  endif
+endfunction
+
+function! unittest#oop#to_s(value)
+  if unittest#oop#is_object(a:value)
+    return a:value.to_s()
+  else
+    return string(a:value)
+  endif
+endfunction
+
+if !s:initialized
+  call unittest#oop#_initialize()
+endif
 
 " vim: filetype=vim

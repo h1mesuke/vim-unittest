@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-22
+" Updated : 2011-01-30
 " Version : 0.2.7
 " License : MIT license {{{
 "
@@ -39,7 +39,7 @@ function! unittest#testcase#new(tc_name, ...)
     return {}
   endif
   let tc_class = unittest#oop#class#get(a:0 ? a:1 : 'TestCase')
-  if !tc_class.is_a(s:TestCase)
+  if !(tc_class.is_descendant_of(s:TestCase) || tc_class is s:TestCase)
     throw "unittest: testcase required, but got " . string(tc_class)
   endif
   let tc = tc_class.new(a:tc_name)
