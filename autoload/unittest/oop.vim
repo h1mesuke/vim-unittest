@@ -4,8 +4,8 @@
 "
 " File    : oop.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-30
-" Version : 0.1.3
+" Updated : 2011-01-31
+" Version : 0.1.5
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -71,13 +71,22 @@ function! unittest#oop#inspect(value)
   if unittest#oop#is_object(a:value)
     return a:value.inspect()
   else
-    return string(a:value)
+    return s:safe_dump(a:value)
   endif
 endfunction
 
 function! unittest#oop#to_s(value)
   if unittest#oop#is_object(a:value)
     return a:value.to_s()
+  else
+    return s:safe_dump(a:value)
+  endif
+endfunction
+
+function! s:safe_dump(value)
+  let value_type = type(a:value)
+  if value_type == type({}) || value_type == type([])
+    return string(map(copy(a:value), 'unittest#oop#is_object(v:val) ? v:val.to_s() : v:val'))
   else
     return string(a:value)
   endif

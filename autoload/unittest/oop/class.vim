@@ -4,8 +4,8 @@
 "
 " File    : oop/class.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-30
-" Version : 0.1.3
+" Updated : 2011-01-31
+" Version : 0.1.5
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -115,12 +115,10 @@ function! s:class_Class_new(name, ...) dict
   let _self.name  = a:name | let s:class_table[a:name] = _self
   let _self.prototype  = {}
   " inherit methods from superclasses
-  let class = _self.superclass
-  while !empty(class)
+  for class in _self.ancestors()
     call extend(_self, class, 'keep')
     call extend(_self.prototype, class.prototype, 'keep')
-    let class = class.superclass
-  endwhile
+  endfor
   return _self
 endfunction
 
