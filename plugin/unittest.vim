@@ -1,5 +1,5 @@
 "=============================================================================
-" Simple Unit Testing Framework for Vim scripts
+" Simple Unit Testing Framework for Vimscript
 "
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
