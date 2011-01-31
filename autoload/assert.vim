@@ -3,7 +3,7 @@
 "
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-30
+" Updated : 2011-01-31
 " Version : 0.2.8
 " License : MIT license {{{
 "
@@ -358,6 +358,19 @@ function! assert#is_Object(value, ...)
     call s:add_failure(
           \ "Object expected, but was\n" .
           \ s:typestr(a:value),
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#is_instance_of(class, value, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  let class = unittest#oop#class#get(a:class)
+  if a:value.class isnot class
+    call s:add_failure(
+          \ a:value.to_s() . " is not an instance of " . class.to_s(),
           \ hint)
   else
     call s:add_success()

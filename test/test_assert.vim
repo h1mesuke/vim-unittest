@@ -188,6 +188,11 @@ function! tc.test_assert_is_Object()
   call assert#is_Object({})
 endfunction
 
+function! tc.test_assert_is_instance_of()
+  call assert#is_instance_of('Foo', self.foo)
+  call assert#is_instance_of('Bar', self.foo)
+endfunction
+
 function! tc.test_assert_is_kind_of()
   call assert#is_kind_of('Foo', self.bar)
   call assert#is_kind_of('Bar', self.foo)
