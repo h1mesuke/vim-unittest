@@ -3,7 +3,7 @@
 "
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-31
+" Updated : 2011-02-01
 " Version : 0.2.8
 " License : MIT license {{{
 "
@@ -52,6 +52,14 @@ function! assert#false(expr, ...)
   else
     call s:add_success()
   endif
+endfunction
+
+function! assert#_(...)
+  call call('assert#true', a:000)
+endfunction
+
+function! assert#not(...)
+  call call('assert#false', a:000)
 endfunction
 
 function! assert#equal(expected, actual, ...)

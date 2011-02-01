@@ -74,6 +74,16 @@ function! tc.test_assert_false()
   call assert#false(1)
 endfunction
 
+function! tc.test_assert_()
+  call assert#_(1)
+  call assert#_(0)
+endfunction
+
+function! tc.test_assert_not()
+  call assert#not(0)
+  call assert#not(1)
+endfunction
+
 function! tc.test_assert_equal()
   call assert#equal(1, 1)
   call assert#equal(1, 2)
