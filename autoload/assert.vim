@@ -372,6 +372,25 @@ function! assert#is_Object(value, ...)
   endif
 endfunction
 
+function! s:typestr(value)
+  let value_type = type(a:value)
+  if value_type == type(0)
+    return 'Number'
+  elseif value_type == type("")
+    return 'String'
+  elseif value_type == type(function("tr"))
+    return 'Funcref'
+  elseif value_type == type([])
+    return 'List'
+  elseif unittest#oop#is_object(a:value)
+    return 'Object'
+  elseif value_type == type({})
+    return 'Dictionary'
+  elseif value_type == type(0.0)
+    return 'Float'
+  endif
+endfunction
+
 function! assert#is_instance_of(class, value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
@@ -395,25 +414,6 @@ function! assert#is_kind_of(class, value, ...)
           \ hint)
   else
     call s:add_success()
-  endif
-endfunction
-
-function! s:typestr(value)
-  let value_type = type(a:value)
-  if value_type == type(0)
-    return 'Number'
-  elseif value_type == type("")
-    return 'String'
-  elseif value_type == type(function("tr"))
-    return 'Funcref'
-  elseif value_type == type([])
-    return 'List'
-  elseif value_type == type({})
-    return 'Dictionary'
-  elseif value_type == type(0.0)
-    return 'Float'
-  elseif unittest#oop#is_object(a:value)
-    return 'Object'
   endif
 endfunction
 
