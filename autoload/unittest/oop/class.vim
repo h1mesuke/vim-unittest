@@ -5,7 +5,7 @@
 " File    : oop/class.vim
 " Author  : h1mesuke <himesuke@gmail.com>
 " Updated : 2011-01-31
-" Version : 0.1.5
+" Version : 0.1.6
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -99,7 +99,7 @@ function! s:class_Class_get(name) dict
   elseif unittest#oop#is_class(a:name)
     return a:name
   else
-    throw "oop: class required, but got " . unittest#oop#to_s(a:name)
+    throw "oop: class required, but got " . unittest#oop#string(a:name)
   endif
 endfunction
 

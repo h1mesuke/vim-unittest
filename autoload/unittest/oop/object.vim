@@ -4,8 +4,8 @@
 "
 " File    : oop/object.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-31
-" Version : 0.1.5
+" Updated : 2011-02-01
+" Version : 0.1.6
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -40,6 +40,7 @@ function! unittest#oop#object#_initialize()
   let s:Object = unittest#oop#class#new('Object', '__nil__')
 
   call s:Object.bind(SID, 'initialize')
+  call s:Object.bind(SID, 'attributes')
   call s:Object.bind(SID, 'inspect')
   call s:Object.bind(SID, 'is_kind_of')
   call s:Object.alias('is_a', 'is_kind_of')
@@ -56,6 +57,26 @@ endfunction
 "-----------------------------------------------------------------------------
 
 function! s:Object_initialize(...) dict
+endfunction
+
+function! s:Object_attributes(...) dict
+  let attrs = filter(copy(self), 'type(v:val) != type(function("tr"))')
+  let all = (a:0 ? a:1 : 0)
+  if !all
+    call s:remove_attrs(attrs, ['class', 'object_id', 'superclass'])
+  else
+    let attrs.__class__ = attrs.class
+    unlet attrs.class
+  endif
+  return attrs
+endfunction
+
+function! s:remove_attrs(dict, attrs)
+  for attr in a:attrs
+    if has_key(a:dict, attr)
+      call remove(a:dict, attr)
+    endif
+  endfor
 endfunction
 
 function! s:Object_inspect() dict
