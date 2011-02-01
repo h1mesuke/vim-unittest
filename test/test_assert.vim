@@ -130,11 +130,6 @@ function! tc.test_assert_not_exists()
   call assert#not_exists(':bnext')
 endfunction
 
-function! tc.test_assert_has_key()
-  call assert#has_key('foo', { 'foo': 1 })
-  call assert#has_key('bar', { 'foo': 1 })
-endfunction
-
 function! tc.test_assert_is()
   let a = []
   let b = []

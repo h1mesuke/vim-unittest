@@ -234,19 +234,6 @@ function! s:assert_not_exists_command(command, hint)
   endif
 endfunction
 
-function! assert#has_key(key, dict, ...)
-  call s:count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if !has_key(a:dict, a:key)
-    call s:add_failure(
-          \ unittest#oop#to_s(a:dict) . " doesn't has key " .
-          \ unittest#oop#to_s(a:key),
-          \ hint)
-  else
-    call s:add_success()
-  endif
-endfunction
-
 function! assert#is(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
