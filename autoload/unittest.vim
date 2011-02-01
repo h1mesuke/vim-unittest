@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-01-22
+" Updated : 2011-02-01
 " Version : 0.2.8
 " License : MIT license {{{
 "
@@ -148,7 +148,7 @@ function! s:TestRunner_run() dict
       let self.context.test_header_lnum = self.results.append(" => ")
       try
         call tc.__setup__(test)
-        call tc[test]()
+        call call(tc[test], [], tc)
       catch
         call self.results.add_error()
       endtry
