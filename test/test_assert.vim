@@ -224,6 +224,11 @@ function! tc.test_assert_raise()
   call assert#raise('E492', 'nohl')
 endfunction
 
+function! tc.test_assert_not_raised()
+  call assert#not_raise('nohl')
+  call assert#not_raise('FooBarBaz')
+endfunction
+
 function! tc.test_assert_nothing_raised()
   call assert#nothing_raised('nohl')
   call assert#nothing_raised('FooBarBaz')

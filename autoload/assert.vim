@@ -247,10 +247,6 @@ function! assert#is(expected, actual, ...)
   endif
 endfunction
 
-function! assert#is_same(...)
-  call call('assert#is', a:000)
-endfunction
-
 function! assert#is_not(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
@@ -262,6 +258,10 @@ function! assert#is_not(expected, actual, ...)
   else
     call s:add_success()
   endif
+endfunction
+
+function! assert#is_same(...)
+  call call('assert#is', a:000)
 endfunction
 
 function! assert#is_not_same(...)
@@ -452,7 +452,7 @@ function! assert#raise(exception, ex_command, ...)
         \ hint)
 endfunction
 
-function! assert#nothing_raised(ex_command, ...)
+function! assert#not_raise(ex_command, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
@@ -465,6 +465,10 @@ function! assert#nothing_raised(ex_command, ...)
     return
   endtry
   call s:add_success()
+endfunction
+
+function! assert#nothing_raised(...)
+  call call('assert#not_raise', a:000)
 endfunction
 
 function! s:count_assertion()
