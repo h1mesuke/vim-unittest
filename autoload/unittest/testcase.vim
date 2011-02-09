@@ -1,5 +1,5 @@
 "=============================================================================
-" Simple Unit Testing Framework for Vimscript
+" Simple Unit Testing Framework for Vim script
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
