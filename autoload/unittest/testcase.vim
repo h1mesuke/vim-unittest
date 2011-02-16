@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-02-01
+" Updated : 2011-02-16
 " Version : 0.3.0
 " License : MIT license {{{
 "
@@ -71,21 +71,48 @@ function! s:TestCase_tests() dict
 endfunction
 call s:TestCase.bind(s:SID, 'tests')
 
-function! s:TestCase_open_context_file() dict
-  if !bufexists(self.context_file)
+function! s:TestCase___initialize__() dict
+  if !empty(self.context_file)
+    call self._open_context_window()
+  endif
+endfunction
+call s:TestCase.bind(s:SID, '__initialize__')
+
+function! s:TestCase__open_context_window() dict
+  let context_file = s:escape_file_pattern(self.context_file)
+  if !bufexists(context_file)
     " the buffer doesn't exist
     split
-    edit `=self.context_file`
-  elseif bufwinnr(self.context_file) != -1
+    edit `=context_file`
+  elseif bufwinnr(context_file) != -1
     " the buffer exists, and it has a window
-    execute bufwinnr(self.context_file) 'wincmd w'
+    execute bufwinnr(context_file) 'wincmd w'
   else
     " the buffer exists, but it has no window
     split
-    execute 'buffer' bufnr(self.context_file)
+    execute 'buffer' bufnr(context_file)
   endif
 endfunction
-call s:TestCase.bind(s:SID, 'open_context_file')
+call s:TestCase.bind(s:SID, '_open_context_window')
+
+function! s:TestCase___finalize__() dict
+  if !empty(self.context_file)
+    call self._close_context_window()
+  endif
+endfunction
+call s:TestCase.bind(s:SID, '__finalize__')
+
+function! s:TestCase__close_context_window() dict
+  let context_file = s:escape_file_pattern(self.context_file)
+  if bufwinnr(context_file) != -1
+    execute bufwinnr(context_file) 'wincmd c'
+  endif
+endfunction
+call s:TestCase.bind(s:SID, '_close_context_window')
+
+function! s:escape_file_pattern(path)
+  return escape(a:path, '*[]?{},')
+endfunction
 
 function! s:TestCase___setup__(test) dict
   if has_key(self, 'setup')

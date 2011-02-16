@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-02-01
+" Updated : 2011-02-16
 " Version : 0.3.0
 " License : MIT license {{{
 "
@@ -137,9 +137,7 @@ function! s:TestRunner_run() dict
     let self.context.testcase = tc
     call self.results.print_header(1, tc.name)
     call self.results.puts()
-    if tc.context_file != ""
-      call tc.open_context_file()
-    endif
+    call tc.__initialize__()
     let tests = self._filter_tests(tc.tests())
     for test in tests
       let self.context.test = test
@@ -159,6 +157,7 @@ function! s:TestRunner_run() dict
       endtry
       call self.results.flush()
     endfor
+    call tc.__finalize__()
   endfor
   call self.results.print_stats()
   if has("reltime")
@@ -358,7 +357,7 @@ function! s:Failure_initialize(reason, hint) dict
   let self.failpoint = expand('<sfile>')
   let self.assert = matchstr(self.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
   let self.reason = a:reason
-  let self.hint = (type(a:hint) == type("") ? a:hint : string(a:hint))
+  let self.hint = (type(a:hint) == type("") ? a:hint : unittest#oop#string(a:hint))
 endfunction
 call s:Failure.bind(s:SID, 'initialize')
 
