@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-02-16
+" Updated : 2011-02-27
 " Version : 0.3.1
 " License : MIT license {{{
 "
@@ -154,11 +154,11 @@ call s:TestCase.bind(s:SID, 'puts')
 
 function! s:grep(list, pat, ...)
   let op = (a:0 ? a:1 : '=~#')
-  return filter(a:list, 'v:val ' . op . " '" . a:pat . "'")
+  return filter(a:list, 'v:val ' . op . ' a:pat')
 endfunction
 
 function! s:map_matchstr(list, pat)
-  return map(a:list, 'matchstr(v:val, ' . "'" . a:pat . "')")
+  return map(a:list, 'matchstr(v:val, a:pat)')
 endfunction
 
 function! s:compare_strlen(str1, str2)

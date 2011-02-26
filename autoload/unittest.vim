@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-02-16
+" Updated : 2011-02-27
 " Version : 0.3.1
 " License : MIT license {{{
 "
@@ -69,9 +69,7 @@ function! unittest#run(...)
     call unittest#print_error(v:throwpoint)
     call unittest#print_error(v:exception)
   finally
-    if exists('s:test_runner')
-      unlet s:test_runner
-    endif
+    unlet! s:test_runner
   endtry
 endfunction
 
