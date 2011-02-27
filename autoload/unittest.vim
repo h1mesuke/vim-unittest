@@ -55,7 +55,7 @@ function! unittest#run(...)
       continue
     endif
     " invalid value
-    call unittest#print_error("unittest: sourced file is not a testcase")
+    call unittest#print_error("unittest: Sourced file is not a testcase.")
     return
   endfor
 
@@ -75,21 +75,21 @@ endfunction
 
 function! unittest#runner()
   if !unittest#is_running()
-    throw "unittest: no test is running"
+    throw "unittest: :UnitTest is not running."
   endif
   return s:test_runner
 endfunction
 
 function! unittest#testcase()
   if !unittest#is_running()
-    throw "unittest: no test is running"
+    throw "unittest: :UnitTest is not running."
   endif
   return s:test_runner.context.testcase
 endfunction
 
 function! unittest#results()
   if !unittest#is_running()
-    throw "unittest: no test is running"
+    throw "unittest: :UnitTest is not running."
   endif
   return s:test_runner.results
 endfunction

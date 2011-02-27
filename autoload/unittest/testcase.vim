@@ -35,12 +35,12 @@ endfunction
 function! unittest#testcase#new(tc_name, ...)
   if !unittest#is_running()
     call unittest#print_error(
-          \ "unittest: don't source the testcase directly, use :UnitTest command")
+          \ "unittest: Don't source the testcase directly, use :UnitTest command.")
     return {}
   endif
   let tc_class = unittest#oop#class#get(a:0 ? a:1 : 'TestCase')
   if !(tc_class.is_descendant_of(s:TestCase) || tc_class is s:TestCase)
-    throw "unittest: testcase required, but got " . string(tc_class)
+    throw "unittest: Testcase required, but got " . string(tc_class)
   endif
   let tc = tc_class.new(a:tc_name)
   call unittest#runner().add_testcase(tc)
