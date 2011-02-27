@@ -3,7 +3,7 @@
 "
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
-" Updated : 2011-01-22
+" Updated : 2011-02-27
 " Version : 0.3.1
 " License : MIT license {{{
 "
@@ -48,7 +48,7 @@ endif
 "-----------------------------------------------------------------------------
 " Command
 
-command! -nargs=* UnitTest call unittest#run(<f-args>)
+command! -nargs=* -complete=file UnitTest call unittest#run(<f-args>)
 
 "-----------------------------------------------------------------------------
 
