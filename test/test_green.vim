@@ -1,5 +1,10 @@
 " unittest.vim's test suite
 
+" Testcase of the green state
+"
+" Expected results:
+" Green
+
 let tc = unittest#testcase#new('test_green')
 
 function! tc.test_foo()

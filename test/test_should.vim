@@ -1,6 +1,9 @@
 " unittest.vim's test suite
 
 " Testcase sample of shoulda style
+"
+" thoughtbot/shoulda - GitHub
+" https://github.com/thoughtbot/shoulda
 
 let tc = unittest#testcase#new('test_should')
 

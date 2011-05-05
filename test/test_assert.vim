@@ -2,7 +2,7 @@
 
 " Testcase of assertions
 "
-" Expected results are: 
+" Expected results are:
 " T tests, A assertions, A/2 failures, 1 errors
 
 function! s:get_SID()
