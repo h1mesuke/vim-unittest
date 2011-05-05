@@ -1,6 +1,6 @@
 " unittest.vim's test suite
 
-let tc = unittest#testcase#new('test_all_green')
+let tc = unittest#testcase#new('test_green')
 
 function! tc.test_foo()
   call assert#true(1)
