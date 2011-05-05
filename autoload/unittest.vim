@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-05-05
+" Updated : 2011-05-06
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -164,6 +164,7 @@ function! s:TestRunner_run() dict
     call self.results.puts("Finished in " . used_time . " seconds.")
   endif
   call self.results.focus_window()
+  normal! z-
 endfunction
 call s:TestRunner.method('run')
 
