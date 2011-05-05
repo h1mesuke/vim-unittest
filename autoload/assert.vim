@@ -3,7 +3,7 @@
 "
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-02-01
+" Updated : 2011-05-05
 " Version : 0.3.1
 " License : MIT license {{{
 "
@@ -346,19 +346,6 @@ function! assert#is_Float(value, ...)
   endif
 endfunction
 
-function! assert#is_Object(value, ...)
-  call s:count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if !unittest#oop#is_object(a:value)
-    call s:add_failure(
-          \ "Object expected, but was\n" .
-          \ s:typestr(a:value),
-          \ hint)
-  else
-    call s:add_success()
-  endif
-endfunction
-
 function! s:typestr(value)
   let value_type = type(a:value)
   if value_type == type(0)
@@ -369,38 +356,16 @@ function! s:typestr(value)
     return 'Funcref'
   elseif value_type == type([])
     return 'List'
-  elseif unittest#oop#is_object(a:value)
-    return 'Object'
+  elseif unittest#oop#is_class(a:value)
+    return 'Class'
+  elseif unittest#oop#is_instance(a:value)
+    return 'Instance'
+  elseif unittest#oop#is_module(a:value)
+    return 'Module'
   elseif value_type == type({})
     return 'Dictionary'
   elseif value_type == type(0.0)
     return 'Float'
-  endif
-endfunction
-
-function! assert#is_instance_of(class, value, ...)
-  call s:count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  let class = unittest#oop#class#get(a:class)
-  if a:value.class isnot class
-    call s:add_failure(
-          \ a:value.to_s() . " is not an instance of " . class.to_s(),
-          \ hint)
-  else
-    call s:add_success()
-  endif
-endfunction
-
-function! assert#is_kind_of(class, value, ...)
-  call s:count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  let class = unittest#oop#class#get(a:class)
-  if !a:value.is_kind_of(class)
-    call s:add_failure(
-          \ a:value.to_s() . " is not kind of " . class.to_s(),
-          \ hint)
-  else
-    call s:add_success()
   endif
 endfunction
 
@@ -440,7 +405,8 @@ function! assert#raise(exception, ex_command, ...)
       call s:add_success()
     else
       call s:add_failure(
-            \ unittest#oop#string(a:ex_command) . " didn't raise /" . a:exception . "/, but raised:\n" .
+            \ unittest#oop#string(a:ex_command) .
+            \   " didn't raise /" . a:exception . "/, but raised:\n" .
             \ v:exception,
             \ hint)
     endif
@@ -470,6 +436,90 @@ endfunction
 function! assert#nothing_raised(...)
   call call('assert#not_raise', a:000)
 endfunction
+
+"-----------------------------------------------------------------------------
+" vim-oop
+
+" h1mesuke/vim-oop - GitHub
+" https://github.com/h1mesuke/vim-oop
+
+function! assert#is_Object(value, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if !unittest#oop#is_object(a:value)
+    call s:add_failure(
+          \ "Object expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#is_Class(value, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if !unittest#oop#is_class(a:value)
+    call s:add_failure(
+          \ "Class expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#is_Instance(value, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if !unittest#oop#is_instance(a:value)
+    call s:add_failure(
+          \ "Instance expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#is_Module(value, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if !unittest#oop#is_module(a:value)
+    call s:add_failure(
+          \ "Module expected, but was\n" .
+          \ s:typestr(a:value),
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#is_kind_of(class, value, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if !a:value.is_kind_of(a:class)
+    call s:add_failure(
+          \ unittest#oop#string(a:value) . " is not kind of " . a:class.__name__,
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+function! assert#is_instance_of(class, value, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if a:value.__class__ isnot a:class
+    call s:add_failure(
+          \ unittest#oop#string(a:value) . " is not an instance of " . a:class.__name__,
+          \ hint)
+  else
+    call s:add_success()
+  endif
+endfunction
+
+"-----------------------------------------------------------------------------
 
 function! s:count_assertion()
   let results = unittest#results()

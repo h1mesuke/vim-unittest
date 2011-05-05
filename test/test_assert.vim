@@ -5,12 +5,20 @@
 " Expected results are: 
 " T tests, A assertions, A/2 failures, 1 errors
 
-let tc = unittest#testcase#new('test_assert')
+function! s:get_SID()
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+endfunction
+let s:SID = s:get_SID()
+delfunction s:get_SID
 
-let s:Foo = unittest#oop#class#new('Foo')
-let s:Bar = unittest#oop#class#new('Bar', 'Foo')
+let s:Foo = oop#class#new('Foo', s:SID)
+let s:Bar = oop#class#new('Bar', s:SID, s:Foo)
+
+let s:Fizz = oop#module#new('Fizz', s:SID)
 
 "-----------------------------------------------------------------------------
+
+let tc = unittest#testcase#new('test_assert')
 
 function! tc.setup()
   let self.foo = s:Foo.new()
@@ -188,21 +196,6 @@ function! tc.test_assert_is_Float()
   call assert#is_Float(1)
 endfunction
 
-function! tc.test_assert_is_Object()
-  call assert#is_Object(self.foo)
-  call assert#is_Object({})
-endfunction
-
-function! tc.test_assert_is_instance_of()
-  call assert#is_instance_of('Foo', self.foo)
-  call assert#is_instance_of('Bar', self.foo)
-endfunction
-
-function! tc.test_assert_is_kind_of()
-  call assert#is_kind_of('Foo', self.bar)
-  call assert#is_kind_of('Bar', self.foo)
-endfunction
-
 function! tc.test_assert_match()
   call assert#match('e', "hello")
   call assert#match('x', "hello")
@@ -236,6 +229,42 @@ endfunction
 
 function! tc.test_error()
   call foo#bar#baz()
+endfunction
+
+"-----------------------------------------------------------------------------
+" vim-oop
+
+" h1mesuke/vim-oop - GitHub
+" https://github.com/h1mesuke/vim-oop
+
+function! tc.test_assert_is_Object()
+  call assert#is_Object(s:Foo)
+  call assert#is_Object({})
+endfunction
+
+function! tc.test_assert_is_Class()
+  call assert#is_Class(s:Foo)
+  call assert#is_Class(self.foo)
+endfunction
+
+function! tc.test_assert_is_Instance()
+  call assert#is_Class(self.foo)
+  call assert#is_Class(s:Foo)
+endfunction
+
+function! tc.test_assert_is_Module()
+  call assert#is_Module(s:Fizz)
+  call assert#is_Module({})
+endfunction
+
+function! tc.test_assert_is_kind_of()
+  call assert#is_kind_of(s:Foo, self.bar)
+  call assert#is_kind_of(s:Bar, self.foo)
+endfunction
+
+function! tc.test_assert_is_instance_of()
+  call assert#is_instance_of(s:Foo, self.foo)
+  call assert#is_instance_of(s:Bar, self.foo)
 endfunction
 
 unlet tc

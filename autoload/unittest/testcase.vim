@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-02-27
+" Updated : 2011-05-05
 " Version : 0.3.1
 " License : MIT license {{{
 "
@@ -38,7 +38,7 @@ function! unittest#testcase#new(tc_name, ...)
           \ "unittest: Don't source the testcase directly, use :UnitTest command.")
     return {}
   endif
-  let tc_class = unittest#oop#class#get(a:0 ? a:1 : 'TestCase')
+  let tc_class = (a:0 ? a:1 : s:TestCase)
   if !(tc_class.is_descendant_of(s:TestCase) || tc_class is s:TestCase)
     throw "unittest: Testcase required, but got " . string(tc_class)
   endif
@@ -51,15 +51,16 @@ function! s:get_SID()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
 let s:SID = s:get_SID()
+delfunction s:get_SID
 
-let s:TestCase = unittest#oop#class#new('TestCase')
+let s:TestCase = unittest#oop#class#new('TestCase', s:SID)
 
 function! s:TestCase_initialize(tc_name) dict
   let self.name = a:tc_name
   let self.context_file = ""
   let self.cache = {}
 endfunction
-call s:TestCase.bind(s:SID, 'initialize')
+call s:TestCase.method('initialize')
 
 function! s:TestCase_tests() dict
   if !has_key(self.cache, 'tests')
@@ -69,14 +70,14 @@ function! s:TestCase_tests() dict
   endif
   return self.cache.tests
 endfunction
-call s:TestCase.bind(s:SID, 'tests')
+call s:TestCase.method('tests')
 
 function! s:TestCase___initialize__() dict
   if !empty(self.context_file)
     call self._open_context_window()
   endif
 endfunction
-call s:TestCase.bind(s:SID, '__initialize__')
+call s:TestCase.method('__initialize__')
 
 function! s:TestCase__open_context_window() dict
   let context_file = s:escape_file_pattern(self.context_file)
@@ -93,14 +94,14 @@ function! s:TestCase__open_context_window() dict
     execute 'buffer' bufnr(context_file)
   endif
 endfunction
-call s:TestCase.bind(s:SID, '_open_context_window')
+call s:TestCase.method('_open_context_window')
 
 function! s:TestCase___finalize__() dict
   if !empty(self.context_file)
     call self._close_context_window()
   endif
 endfunction
-call s:TestCase.bind(s:SID, '__finalize__')
+call s:TestCase.method('__finalize__')
 
 function! s:TestCase__close_context_window() dict
   let context_file = s:escape_file_pattern(self.context_file)
@@ -108,7 +109,7 @@ function! s:TestCase__close_context_window() dict
     execute bufwinnr(context_file) 'wincmd c'
   endif
 endfunction
-call s:TestCase.bind(s:SID, '_close_context_window')
+call s:TestCase.method('_close_context_window')
 
 function! s:escape_file_pattern(path)
   return escape(a:path, '*[]?{},')
@@ -128,7 +129,7 @@ function! s:TestCase___setup__(test) dict
     endif
   endfor
 endfunction
-call s:TestCase.bind(s:SID, '__setup__')
+call s:TestCase.method('__setup__')
 
 function! s:TestCase___teardown__(test) dict
   if !has_key(self.cache, 'teardown_suffixes')
@@ -144,13 +145,13 @@ function! s:TestCase___teardown__(test) dict
     call self.teardown()
   endif
 endfunction
-call s:TestCase.bind(s:SID, '__teardown__')
+call s:TestCase.method('__teardown__')
 
 function! s:TestCase_puts(...) dict
   let str = (a:0 ? a:1 : "")
   call unittest#runner().results.puts(str)
 endfunction
-call s:TestCase.bind(s:SID, 'puts')
+call s:TestCase.method('puts')
 
 function! s:grep(list, pat, ...)
   let op = (a:0 ? a:1 : '=~#')
