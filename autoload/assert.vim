@@ -3,7 +3,7 @@
 "
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-05-05
+" Updated : 2011-05-06
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -522,23 +522,29 @@ endfunction
 "-----------------------------------------------------------------------------
 
 function! s:count_assertion()
-  let results = unittest#results()
-  if !empty(results)
+  if unittest#is_running()
+    let results = unittest#results()
     call results.count_assertion()
   endif
 endfunction
 
 function! s:add_success()
-  let results = unittest#results()
-  if !empty(results)
+  if unittest#is_running()
+    let results = unittest#results()
     call results.add_success()
   endif
 endfunction
 
 function! s:add_failure(reason, hint)
-  let results = unittest#results()
-  if !empty(results)
+  if unittest#is_running()
+    let results = unittest#results()
     call results.add_failure(a:reason, a:hint)
+  else
+    let msg = substitute(a:reason, "\n", ' ', 'g')
+    if !empty(a:hint)
+      let msg .= " (" . a:hint . ")"
+    endif
+    throw "AssertionFailedError: " . msg
   endif
 endfunction
 
