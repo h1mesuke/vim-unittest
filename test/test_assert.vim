@@ -11,19 +11,22 @@ endfunction
 let s:SID = s:get_SID()
 delfunction s:get_SID
 
-let s:Foo = oop#class#new('Foo', s:SID)
-let s:Bar = oop#class#new('Bar', s:SID, s:Foo)
+let has_oop_dev = 1
+try
+  let s:Foo = oop#class#new('Foo', s:SID)
+  let s:Bar = oop#class#new('Bar', s:SID, s:Foo)
 
-let s:Fizz = oop#module#new('Fizz', s:SID)
+  let s:Fizz = oop#module#new('Fizz', s:SID)
+
+catch /^Vim\%((\a\+)\)\=:E117:/
+  let has_oop_dev = 0
+endtry
 
 "-----------------------------------------------------------------------------
 
 let tc = unittest#testcase#new('test_assert')
 
 function! tc.setup()
-  let self.foo = s:Foo.new()
-  let self.bar = s:Bar.new()
-
   call self.puts()
   call self.puts("setup")
 endfunction
@@ -237,35 +240,48 @@ endfunction
 " h1mesuke/vim-oop - GitHub
 " https://github.com/h1mesuke/vim-oop
 
-function! tc.test_assert_is_Object()
-  call assert#is_Object(s:Foo)
-  call assert#is_Object({})
-endfunction
+if has_oop_dev
 
-function! tc.test_assert_is_Class()
-  call assert#is_Class(s:Foo)
-  call assert#is_Class(self.foo)
-endfunction
+  function! tc.setup()
+    let self.foo = s:Foo.new()
+    let self.bar = s:Bar.new()
 
-function! tc.test_assert_is_Instance()
-  call assert#is_Class(self.foo)
-  call assert#is_Class(s:Foo)
-endfunction
+    call self.puts()
+    call self.puts("setup")
+  endfunction
 
-function! tc.test_assert_is_Module()
-  call assert#is_Module(s:Fizz)
-  call assert#is_Module({})
-endfunction
+  function! tc.test_assert_is_Object()
+    call assert#is_Object(s:Foo)
+    call assert#is_Object({})
+  endfunction
 
-function! tc.test_assert_is_kind_of()
-  call assert#is_kind_of(s:Foo, self.bar)
-  call assert#is_kind_of(s:Bar, self.foo)
-endfunction
+  function! tc.test_assert_is_Class()
+    call assert#is_Class(s:Foo)
+    call assert#is_Class(self.foo)
+  endfunction
 
-function! tc.test_assert_is_instance_of()
-  call assert#is_instance_of(s:Foo, self.foo)
-  call assert#is_instance_of(s:Bar, self.foo)
-endfunction
+  function! tc.test_assert_is_Instance()
+    call assert#is_Class(self.foo)
+    call assert#is_Class(s:Foo)
+  endfunction
+
+  function! tc.test_assert_is_Module()
+    call assert#is_Module(s:Fizz)
+    call assert#is_Module({})
+  endfunction
+
+  function! tc.test_assert_is_kind_of()
+    call assert#is_kind_of(s:Foo, self.bar)
+    call assert#is_kind_of(s:Bar, self.foo)
+  endfunction
+
+  function! tc.test_assert_is_instance_of()
+    call assert#is_instance_of(s:Foo, self.foo)
+    call assert#is_instance_of(s:Bar, self.foo)
+  endfunction
+
+endif
+unlet has_oop_dev
 
 unlet tc
 
