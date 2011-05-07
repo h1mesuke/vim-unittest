@@ -3,7 +3,7 @@
 "
 " File    : autoload/assert.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-05-06
+" Updated : 2011-05-07
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -190,7 +190,7 @@ function! assert#exists(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr =~ '^:'
-    call s:assert_exists_command(a:expr, hint)
+    call s:assert_command_exists(a:expr, hint)
   elseif !exists(a:expr)
     call s:add_failure(
           \ unittest#oop#string(a:expr) . " doesn't exist",
@@ -200,7 +200,7 @@ function! assert#exists(expr, ...)
   endif
 endfunction
 
-function! s:assert_exists_command(command, hint)
+function! s:assert_command_exists(command, hint)
   if exists(a:command) != 2
     call s:add_failure(
           \ unittest#oop#string(a:command) . " is not defined",
@@ -214,7 +214,7 @@ function! assert#not_exists(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr =~ '^:'
-    call s:assert_not_exists_command(a:expr, hint)
+    call s:assert_command_not_exists(a:expr, hint)
   elseif exists(a:expr)
     call s:add_failure(
           \ unittest#oop#string(a:expr) . " exists",
@@ -224,7 +224,7 @@ function! assert#not_exists(expr, ...)
   endif
 endfunction
 
-function! s:assert_not_exists_command(command, hint)
+function! s:assert_command_not_exists(command, hint)
   if exists(a:command) == 2
     call s:add_failure(
           \ unittest#oop#string(a:command) . " is defined",
