@@ -4,7 +4,7 @@
 "
 " File    : oop/class.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-05-05
+" Updated : 2011-05-08
 " Version : 0.2.0
 " License : MIT license {{{
 "
@@ -100,7 +100,7 @@ let s:Class.ancestors = function(s:SID . 'Class_ancestors')
 "   endif
 "
 function! s:Class_is_descendant_of(class) dict
-  for klass in self.ancestors(1)
+  for klass in self.ancestors()
     if klass is a:class
       return 1
     endif
@@ -244,8 +244,8 @@ let s:Instance = {
 "   let s:Foo = path#to#oop#class#new('Foo')
 "
 "   function! s:Foo_initialize(x, y) dict
-"     let self.a = a:x
-"     let self.b = a:y
+"     let self.x = a:x
+"     let self.y = a:y
 "   endfunction
 "   call s:Foo.method('initialize')
 "
