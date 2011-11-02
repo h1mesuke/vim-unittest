@@ -1,9 +1,9 @@
 "=============================================================================
 " Simple Unit Testing Framework for Vim script
 "
-" File    : autoload/assert.vim
+" File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-05-07
+" Updated : 2011-11-06
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -28,7 +28,23 @@
 " }}}
 "=============================================================================
 
-function! assert#true(expr, ...)
+function! s:get_SID()
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+endfunction
+let s:SID = s:get_SID()
+delfunction s:get_SID
+
+function! unittest#assertions#sid()
+  return s:SID
+endfunction
+
+function! unittest#assertions#module()
+  return s:Assertions
+endfunction
+
+let s:Assertions = unittest#oop#module#new('Assertions', s:SID)
+
+function! s:Assertions_assert_true(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !a:expr
@@ -40,8 +56,10 @@ function! assert#true(expr, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_true')
+call s:Assertions.alias('assert', 'assert_true')
 
-function! assert#false(expr, ...)
+function! s:Assertions_assert_false(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr
@@ -53,16 +71,10 @@ function! assert#false(expr, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_false')
+call s:Assertions.alias('assert_not', 'assert_false')
 
-function! assert#_(...)
-  call call('assert#true', a:000)
-endfunction
-
-function! assert#not(...)
-  call call('assert#false', a:000)
-endfunction
-
-function! assert#equal(expected, actual, ...)
+function! s:Assertions_assert_equal(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:expected) == type("") && type(a:actual) == type("")
@@ -85,8 +97,9 @@ function! assert#equal(expected, actual, ...)
     endif
   endif
 endfunction
+call s:Assertions.function('assert_equal')
 
-function! assert#not_equal(expected, actual, ...)
+function! s:Assertions_assert_not_equal(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:expected) == type("") && type(a:actual) == type("")
@@ -109,16 +122,9 @@ function! assert#not_equal(expected, actual, ...)
     endif
   endif
 endfunction
+call s:Assertions.function('assert_not_equal')
 
-function! assert#equals(...)
-  call call('assert#equal', a:000)
-endfunction
-
-function! assert#not_equals(...)
-  call call('assert#not_equal', a:000)
-endfunction
-
-function! assert#equal_c(expected, actual, ...)
+function! s:Assertions_assert_equal_c(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected !=? a:actual
@@ -130,8 +136,9 @@ function! assert#equal_c(expected, actual, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_equal_c')
 
-function! assert#not_equal_c(expected, actual, ...)
+function! s:Assertions_assert_not_equal_c(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected ==? a:actual
@@ -143,16 +150,9 @@ function! assert#not_equal_c(expected, actual, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_not_equal_c')
 
-function! assert#equals_c(...)
-  call call('assert#equal_c', a:000)
-endfunction
-
-function! assert#not_equals_c(...)
-  call call('assert#not_equal_c', a:000)
-endfunction
-
-function! assert#equal_C(expected, actual, ...)
+function! s:Assertions_assert_equal_C(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected !=# a:actual
@@ -164,8 +164,9 @@ function! assert#equal_C(expected, actual, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_equal_C')
 
-function! assert#not_equal_C(expected, actual, ...)
+function! s:Assertions_assert_not_equal_C(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected ==# a:actual
@@ -177,16 +178,9 @@ function! assert#not_equal_C(expected, actual, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_not_equal_C')
 
-function! assert#equals_C(...)
-  call call('assert#equal_C', a:000)
-endfunction
-
-function! assert#not_equals_C(...)
-  call call('assert#not_equal_C', a:000)
-endfunction
-
-function! assert#exists(expr, ...)
+function! s:Assertions_assert_exists(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr =~ '^:'
@@ -199,6 +193,8 @@ function! assert#exists(expr, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_exists')
+call s:Assertions.alias('assert_exist', 'assert_exists')
 
 function! s:assert_command_exists(command, hint)
   if exists(a:command) != 2
@@ -210,7 +206,7 @@ function! s:assert_command_exists(command, hint)
   endif
 endfunction
 
-function! assert#not_exists(expr, ...)
+function! s:Assertions_assert_not_exists(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr =~ '^:'
@@ -223,6 +219,8 @@ function! assert#not_exists(expr, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_not_exists')
+call s:Assertions.alias('assert_not_exist', 'assert_not_exists')
 
 function! s:assert_command_not_exists(command, hint)
   if exists(a:command) == 2
@@ -234,7 +232,7 @@ function! s:assert_command_not_exists(command, hint)
   endif
 endfunction
 
-function! assert#is(expected, actual, ...)
+function! s:Assertions_assert_is(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected isnot a:actual
@@ -246,8 +244,9 @@ function! assert#is(expected, actual, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is')
 
-function! assert#is_not(expected, actual, ...)
+function! s:Assertions_assert_is_not(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected is a:actual
@@ -259,16 +258,9 @@ function! assert#is_not(expected, actual, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_not')
 
-function! assert#is_same(...)
-  call call('assert#is', a:000)
-endfunction
-
-function! assert#is_not_same(...)
-  call call('assert#is_not', a:000)
-endfunction
-
-function! assert#is_Number(value, ...)
+function! s:Assertions_assert_is_Number(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type(0)
@@ -280,8 +272,9 @@ function! assert#is_Number(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_Number')
 
-function! assert#is_String(value, ...)
+function! s:Assertions_assert_is_String(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type("")
@@ -293,8 +286,9 @@ function! assert#is_String(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_String')
 
-function! assert#is_Funcref(value, ...)
+function! s:Assertions_assert_is_Funcref(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type(function('tr'))
@@ -306,8 +300,9 @@ function! assert#is_Funcref(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_Funcref')
 
-function! assert#is_List(value, ...)
+function! s:Assertions_assert_is_List(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type([])
@@ -319,8 +314,9 @@ function! assert#is_List(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_List')
 
-function! assert#is_Dictionary(value, ...)
+function! s:Assertions_assert_is_Dictionary(value, ...)
   call s:count_assertion()
   if type(a:value) != type({})
     let hint = (a:0 ? a:1 : "")
@@ -332,8 +328,10 @@ function! assert#is_Dictionary(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_Dictionary')
+call s:Assertions.alias('assert_is_Dict', 'assert_is_Dictionary')
 
-function! assert#is_Float(value, ...)
+function! s:Assertions_assert_is_Float(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != type(0.0)
@@ -345,6 +343,7 @@ function! assert#is_Float(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_Float')
 
 function! s:typestr(value)
   let value_type = type(a:value)
@@ -369,7 +368,7 @@ function! s:typestr(value)
   endif
 endfunction
 
-function! assert#match(pattern, str, ...)
+function! s:Assertions_assert_match(pattern, str, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if match(a:str, a:pattern) < 0
@@ -381,8 +380,9 @@ function! assert#match(pattern, str, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_match')
 
-function! assert#not_match(pattern, str, ...)
+function! s:Assertions_assert_not_match(pattern, str, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if match(a:str, a:pattern) >= 0
@@ -394,8 +394,9 @@ function! assert#not_match(pattern, str, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_not_match')
 
-function! assert#raise(exception, ex_command, ...)
+function! s:Assertions_assert_raise(exception, ex_command, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
@@ -417,8 +418,9 @@ function! assert#raise(exception, ex_command, ...)
         \ "Nothing raised.",
         \ hint)
 endfunction
+call s:Assertions.function('assert_raise')
 
-function! assert#not_raise(ex_command, ...)
+function! s:Assertions_assert_not_raise(ex_command, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
@@ -432,8 +434,9 @@ function! assert#not_raise(ex_command, ...)
   endtry
   call s:add_success()
 endfunction
+call s:Assertions.function('assert_not_raise')
 
-function! assert#nothing_raised(...)
+function! s:Assertions_assert_nothing_raised(...)
   call call('assert#not_raise', a:000)
 endfunction
 
@@ -443,7 +446,7 @@ endfunction
 " h1mesuke/vim-oop - GitHub
 " https://github.com/h1mesuke/vim-oop
 
-function! assert#is_Object(value, ...)
+function! s:Assertions_assert_is_Object(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !unittest#oop#is_object(a:value)
@@ -455,8 +458,9 @@ function! assert#is_Object(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_Object')
 
-function! assert#is_Class(value, ...)
+function! s:Assertions_assert_is_Class(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !unittest#oop#is_class(a:value)
@@ -468,8 +472,9 @@ function! assert#is_Class(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_Class')
 
-function! assert#is_Instance(value, ...)
+function! s:Assertions_assert_is_Instance(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !unittest#oop#is_instance(a:value)
@@ -481,8 +486,9 @@ function! assert#is_Instance(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_Instance')
 
-function! assert#is_Module(value, ...)
+function! s:Assertions_assert_is_Module(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !unittest#oop#is_module(a:value)
@@ -494,8 +500,9 @@ function! assert#is_Module(value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_Module')
 
-function! assert#is_kind_of(class, value, ...)
+function! s:Assertions_assert_is_kind_of(class, value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !a:value.is_kind_of(a:class)
@@ -506,8 +513,9 @@ function! assert#is_kind_of(class, value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_kind_of')
 
-function! assert#is_instance_of(class, value, ...)
+function! s:Assertions_assert_is_instance_of(class, value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value.__class__ isnot a:class
@@ -518,6 +526,7 @@ function! assert#is_instance_of(class, value, ...)
     call s:add_success()
   endif
 endfunction
+call s:Assertions.function('assert_is_instance_of')
 
 "-----------------------------------------------------------------------------
 
