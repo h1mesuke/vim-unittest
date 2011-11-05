@@ -8,11 +8,11 @@
 let tc = unittest#testcase#new('test_should')
 
 function! tc.one_should_be_true()
-  call assert#true(1)
+  call self.assert_true(1)
 endfunction
 
 function! tc.zero_should_be_false()
-  call assert#false(0)
+  call self.assert_false(0)
 endfunction
 
 unlet tc
