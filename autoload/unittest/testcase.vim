@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-05-05
+" Updated : 2011-11-03
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -54,6 +54,7 @@ let s:SID = s:get_SID()
 delfunction s:get_SID
 
 let s:TestCase = unittest#oop#class#new('TestCase', s:SID)
+call s:TestCase.include(unittest#assertions#module())
 
 function! s:TestCase_initialize(tc_name) dict
   let self.name = a:tc_name
