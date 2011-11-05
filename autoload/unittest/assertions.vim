@@ -396,7 +396,7 @@ function! s:Assertions_assert_not_match(pattern, str, ...)
 endfunction
 call s:Assertions.function('assert_not_match')
 
-function! s:Assertions_assert_raise(exception, ex_command, ...)
+function! s:Assertions_assert_throw(exception, ex_command, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
@@ -407,38 +407,35 @@ function! s:Assertions_assert_raise(exception, ex_command, ...)
     else
       call s:add_failure(
             \ unittest#oop#string(a:ex_command) .
-            \   " didn't raise /" . a:exception . "/, but raised:\n" .
+            \   " didn't throw /" . a:exception . "/, but threw:\n" .
             \ v:exception,
             \ hint)
     endif
     return
   endtry
   call s:add_failure(
-        \ unittest#oop#string(a:ex_command) . " didn't raise /" . a:exception . "/\n" .
-        \ "Nothing raised.",
+        \ unittest#oop#string(a:ex_command) . " didn't throw /" . a:exception . "/\n" .
+        \ "Nothing thrown.",
         \ hint)
 endfunction
-call s:Assertions.function('assert_raise')
+call s:Assertions.function('assert_throw')
 
-function! s:Assertions_assert_not_raise(ex_command, ...)
+function! s:Assertions_assert_not_throw(ex_command, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
     execute a:ex_command
   catch
     call s:add_failure(
-          \ unittest#oop#string(a:ex_command) . " raised:\n" .
+          \ unittest#oop#string(a:ex_command) . " threw:\n" .
           \ v:exception,
           \ hint)
     return
   endtry
   call s:add_success()
 endfunction
-call s:Assertions.function('assert_not_raise')
-
-function! s:Assertions_assert_nothing_raised(...)
-  call call('assert#not_raise', a:000)
-endfunction
+call s:Assertions.function('assert_not_throw')
+call s:Assertions.alias('assert_nothing_thrown', 'assert_not_throw')
 
 "-----------------------------------------------------------------------------
 " vim-oop
