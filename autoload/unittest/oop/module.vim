@@ -4,8 +4,8 @@
 "
 " File    : oop/module.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-05-05
-" Version : 0.2.0
+" Updated : 2011-11-04
+" Version : 0.2.1
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -77,7 +77,7 @@ let s:Module = {
 " underscore. This convention helps you to distinguish module functions from
 " other functions.
 "
-"   function! s:Fizz_hello()
+"   function! s:Fizz_hello() dict
 "   endfunction
 "   call s:Fizz.function('hello')
 "
@@ -86,8 +86,9 @@ let s:Module = {
 "
 "   call s:Fizz.hello()
 "
-function! s:Module_bind(func_name) dict
-  let self[a:func_name] = function(self.__prefix__  . a:func_name)
+function! s:Module_bind(func_name, ...) dict
+  let mfunc_name = (a:0 ? a:1 : a:func_name)
+  let self[mfunc_name] = function(self.__prefix__  . a:func_name)
 endfunction
 let s:Module.__bind__ = function(s:SID . 'Module_bind')
 let s:Module.function = s:Module.__bind__ | " syntax sugar
@@ -96,12 +97,12 @@ let s:Module.function = s:Module.__bind__ | " syntax sugar
 "
 "   call s:Fizz.alias('hi', 'hello')
 "
-function! s:Module_alias(alias, method_name) dict
-  if has_key(self, a:method_name) &&
-        \ type(self[a:method_name]) == type(function('tr'))
-    let self[a:alias] = self[a:method_name]
+function! s:Module_alias(alias, meth_name) dict
+  if has_key(self, a:meth_name) &&
+        \ type(self[a:meth_name]) == type(function('tr'))
+    let self[a:alias] = self[a:meth_name]
   else
-    throw "oop: " . self.__name__ . "." . a:method_name . "() is not defined."
+    throw "vim-oop: " . self.__name__ . "." . a:meth_name . "() is not defined."
   endif
 endfunction
 let s:Module.alias = function(s:SID . 'Module_alias')
