@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-05-06
+" Updated : 2011-11-08
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -31,30 +31,30 @@
 function! unittest#run(...)
   let args = a:000
   if empty(filter(copy(args), "v:val !~ '^[gv]/'"))
-    " if no argument was given, process the current buffer
+    " If no argument was given, process the current buffer.
     let args += ['%']
   endif
 
   let tc_files = []
   let test_filters = { 'g_pattern': "", 'v_pattern': "" }
   for value in args
-    " filtering pattern
-    let matched_list = matchlist(value, '^\([gv]\)/\(.*\)$')
-    if len(matched_list) > 0
-      if matched_list[1] ==# 'g'
-        let test_filters.g_pattern = matched_list[2]
+    " Filtering pattern
+    let matched = matchlist(value, '^\([gv]\)/\(.*\)$')
+    if len(matched) > 0
+      if matched[1] ==# 'g'
+        let test_filters.g_pattern = matched[2]
       else
-        let test_filters.v_pattern = matched_list[2]
+        let test_filters.v_pattern = matched[2]
       endif
       continue
     endif
-    " testcase
+    " Testcase file
     let path = expand(value)
     if path =~# '\<\(test_\|t[cs]_\)\w\+\.vim$'
       call add(tc_files, path)
       continue
     endif
-    " invalid value
+    " Invalid value
     call unittest#print_error("unittest: Sourced file is not a testcase.")
     return
   endfor
@@ -62,7 +62,7 @@ function! unittest#run(...)
   try
     let s:test_runner = s:TestRunner.new(test_filters)
     for tc_file in tc_files
-      execute 'source' tc_file
+      source `=tc_file`
     endfor
     call s:test_runner.run()
   catch
@@ -75,23 +75,9 @@ endfunction
 
 function! unittest#runner()
   if !unittest#is_running()
-    throw "unittest: :UnitTest is not running."
+    throw "unittest: :UnitTest is not running now."
   endif
   return s:test_runner
-endfunction
-
-function! unittest#testcase()
-  if !unittest#is_running()
-    throw "unittest: :UnitTest is not running."
-  endif
-  return s:test_runner.context.testcase
-endfunction
-
-function! unittest#results()
-  if !unittest#is_running()
-    throw "unittest: :UnitTest is not running."
-  endif
-  return s:test_runner.results
 endfunction
 
 function! unittest#is_running()
@@ -117,7 +103,8 @@ function! s:TestRunner_initialize(test_filters) dict
   let self.testcases = []
   let self.test_filters = a:test_filters
   let self.context = {}
-  let self.results = s:TestResults.new(self)
+  let self.results = s:TestResults.new()
+  let self.out = s:OutBuffer.new()
 endfunction
 call s:TestRunner.method('initialize')
 
@@ -130,45 +117,36 @@ function! s:TestRunner_run() dict
   if has("reltime")
     let start_time = reltime()
   endif
-  let s:Failure.id = 1 | let s:Error.id = 1
-  call self.results.open_window()
+  call self.out.open()
   for tc in self.testcases
-    let self.context.testcase = tc
-    call self.results.print_header(1, tc.name)
-    call self.results.puts()
+    let self.current_testcase = tc
+    call self.out.print_header(1, tc.name)
     call tc.__initialize__()
-    let tests = self._filter_tests(tc.tests())
+    let tests = self.filter_tests(tc.tests())
     for test in tests
-      let self.context.test = test
-      call self.results.count_test()
-      call self.results.print_header(2, test)
-      let self.context.test_header_lnum = self.results.append(" => ")
+      let self.current_test = test
+      call self.out.print_header(2, test)
       try
         call tc.__setup__(test)
         call call(tc[test], [], tc)
-      catch
-        call self.results.add_error()
-      endtry
-      try
         call tc.__teardown__(test)
       catch
         call self.results.add_error()
       endtry
-      call self.results.flush()
+      call self.print_results_of(tc, test)
     endfor
     call tc.__finalize__()
   endfor
-  call self.results.print_stats()
+  call self.print_results()
   if has("reltime")
     let used_time = split(reltimestr(reltime(start_time)))[0]
-    call self.results.puts("Finished in " . used_time . " seconds.")
+    call self.out.puts("Finished in " . used_time . " seconds.")
   endif
-  call self.results.focus_window()
-  normal! z-
+  call self.out.close()
 endfunction
 call s:TestRunner.method('run')
 
-function! s:TestRunner__filter_tests(tests) dict
+function! s:TestRunner_filter_tests(tests) dict
   let tests = copy(a:tests)
   if self.test_filters.g_pattern != ""
     call filter(tests, 'v:val =~# self.test_filters.g_pattern')
@@ -178,182 +156,265 @@ function! s:TestRunner__filter_tests(tests) dict
   endif
   return tests
 endfunction
-call s:TestRunner.method('_filter_tests')
+call s:TestRunner.method('filter_tests')
 
-"-----------------------------------------------------------------------------
-" TestResults
-
-let s:TestResults = unittest#oop#class#new('TestResults', s:SID)
-
-function! s:TestResults_initialize(runner) dict
-  let self.context = a:runner.context
-  let self.stats = {
-        \ 'n_tests'     : 0,
-        \ 'n_assertions': 0,
-        \ 'n_failures'  : 0,
-        \ 'n_errors'    : 0,
-        \ }
-  let self.buffer = []
+function! s:TestRunner_count_assertion() dict
+  call self.results.count_assertion()
 endfunction
-call s:TestResults.method('initialize')
+call s:TestRunner.method('count_assertion')
 
-function! s:TestResults_open_window() dict
-  if !exists('s:results_bufnr') || !bufexists(s:results_bufnr)
-    " the buffer doesn't exist
-    split
-    edit `='[unittest results]'`
-    let s:results_bufnr = bufnr('%')
-  elseif bufwinnr(s:results_bufnr) != -1
-    " the buffer exists, and it has a window
-    execute bufwinnr(s:results_bufnr) 'wincmd w'
-  else
-    " the buffer exists, but it has no window
-    split
-    execute 'buffer' s:results_bufnr
-  endif
-  call self._init_results_buffer()
+function! s:TestRunner_report_success() dict
+  call self.results.add_success()
 endfunction
-call s:TestResults.method('open_window')
+call s:TestRunner.method('report_success')
 
-function! s:TestResults_focus_window() dict
-  execute bufwinnr(s:results_bufnr) 'wincmd w'
+function! s:TestRunner_report_failure(reason, hint) dict
+  call self.results.add_failure(a:reason, a:hint)
 endfunction
-call s:TestResults.method('focus_window')
+call s:TestRunner.method('report_failure')
 
-function! s:TestResults__init_results_buffer() dict
-  nnoremap <buffer> q <C-w>c
-  setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
-  setlocal filetype=unittest
-  silent! %delete _
-endfunction
-call s:TestResults.method('_init_results_buffer')
-
-function! s:TestResults_count_test() dict
-  let self.stats.n_tests += 1
-endfunction
-call s:TestResults.method('count_test')
-
-function! s:TestResults_count_assertion() dict
-  let self.stats.n_assertions += 1
-endfunction
-call s:TestResults.method('count_assertion')
-
-function! s:TestResults_add_success() dict
-  call self.append(".", self.context.test_header_lnum)
-endfunction
-call s:TestResults.method('add_success')
-
-function! s:TestResults_add_failure(reason, hint) dict
-  let fail = s:Failure.new(a:reason, a:hint)
-  call add(self.buffer, fail)
-  call self.append("F", self.context.test_header_lnum)
-endfunction
-call s:TestResults.method('add_failure')
-
-function! s:TestResults_add_error() dict
-  let err = s:Error.new()
-  call add(self.buffer, err)
-  call self.append("E", self.context.test_header_lnum)
-endfunction
-call s:TestResults.method('add_error')
-
-function! s:TestResults_puts(...) dict
-  let save_winnr =  bufwinnr('%')
-  execute bufwinnr(s:results_bufnr) 'wincmd w'
-  let str = (a:0 ? a:1 : "")
-  call append('$', str)
-  normal! G
-  setlocal nomodified
-  execute save_winnr 'wincmd w'
-  if g:unittest_smooth_redraw_results
-    redraw
-  endif
-endfunction
-call s:TestResults.method('puts')
-
-function! s:TestResults_append(str, ...) dict
-  let save_winnr =  bufwinnr('%')
-  execute bufwinnr(s:results_bufnr) 'wincmd w'
-  let lnum = (a:0 ? a:1 : line('$'))
-  call setline(lnum, getline(lnum) . a:str)
-  setlocal nomodified
-  execute save_winnr 'wincmd w'
-  return lnum
-endfunction
-call s:TestResults.method('append')
-
-function! s:TestResults_flush() dict
-  for err in self.buffer
-    if err.is_a(s:Failure)
-      let self.stats.n_failures = err.id
-      call self.print_failure(err)
-    elseif err.is_a(s:Error)
-      let self.stats.n_errors = err.id
-      call self.print_error(err)
+function! s:TestRunner_print_results_of(tc, test) dict
+  let line = ''
+  for result in self.results.of(a:tc, a:test)
+    if result.is_a(s:Failure)
+      let line .= 'F'
+    elseif result.is_a(s:Error)
+      let line .= 'E'
+    else
+      let line .= '.'
     endif
   endfor
+  if !empty(line)
+    call self.out.puts('=> ' . line)
+  endif
+
+  for result in self.results.of(a:tc, a:test)
+    if result.is_a(s:Failure)
+      call self.out.print_failure(result)
+    elseif result.is_a(s:Error)
+      call self.out.print_error(result)
+    endif
+  endfor
+endfunction
+call s:TestRunner.method('print_results_of')
+
+function! s:TestRunner_print_results() dict
+  call self.out.puts()
+  call self.out.print_separator('-')
+  let number_of = self.results.number_of
+  call self.out.puts(number_of.tests . " tests, " . number_of.assertions . " assertions, " .
+        \ number_of.failures . " failures, " . number_of.errors . " errors")
+  call self.out.puts()
+endfunction
+call s:TestRunner.method('print_results')
+
+"-----------------------------------------------------------------------------
+" Output
+
+let s:Output = unittest#oop#class#new('Output', s:SID)
+
+function! s:Output_get_width() dict
+  return 78
+endfunction
+call s:Output.method('get_width')
+
+function! s:Output_puts() dict
+  throw "unittest: Abstract method was called unexpectedly!"
+endfunction
+call s:Output.method('puts')
+
+function! s:Output_print_separator(ch) dict
+  call self.puts(repeat(a:ch, self.get_width()))
+endfunction
+call s:Output.method('print_separator')
+
+function! s:Output_print_header(level, title) dict
   call self.puts()
-  let self.buffer = []
-endfunction
-call s:TestResults.method('flush')
-
-function! s:TestResults_print_separator(ch) dict
-  let winw = winwidth(bufwinnr(s:results_bufnr))
-  let seplen = min([80, winw]) - 2
-  call self.puts(substitute(printf('%*s', seplen, ''), ' ', a:ch, 'g'))
-endfunction
-call s:TestResults.method('print_separator')
-
-function! s:TestResults_print_header(level, title) dict
   if a:level == 1
     call self.print_separator('=')
     call self.puts(toupper(a:title))
-  elseif a:level == 2
+  else
     call self.print_separator('-')
     call self.puts(a:title)
   endif
 endfunction
-call s:TestResults.method('print_header')
+call s:Output.method('print_header')
 
-function! s:TestResults_print_failure(fail) dict
+function! s:Output_print_failure(fail) dict
   call self.puts()
-  let idx = printf('%3d) ', a:fail.id)
-  let head = idx . "Failure: " . a:fail.test . ": " . a:fail.assert
+  let nr = printf('%3d) ', a:fail.nr)
+  let head = nr . "Failure: " . a:fail.test . ": " . a:fail.assert
   if a:fail.hint != ""
     let head .= ": " . a:fail.hint
   endif
   call self.puts(head)
   call self.puts(split(a:fail.reason, "\n"))
 endfunction
-call s:TestResults.method('print_failure')
+call s:Output.method('print_failure')
 
-function! s:TestResults_print_error(err) dict
+function! s:Output_print_error(err) dict
   call self.puts()
-  let idx = printf('%3d) ', a:err.id)
-  call self.puts(idx . "Error: " . a:err.throwpoint)
+  let nr = printf('%3d) ', a:err.nr)
+  call self.puts(nr . "Error: " . a:err.throwpoint)
   call self.puts(a:err.exception)
 endfunction
-call s:TestResults.method('print_error')
+call s:Output.method('print_error')
 
-function! s:TestResults_print_stats() dict
-  call self.print_separator('-')
-  let stats = self.stats
-  call self.puts(stats.n_tests . " tests, " . stats.n_assertions . " assertions, " .
-        \ stats.n_failures . " failures, " . stats.n_errors . " errors")
-  call self.puts()
+"---------------------------------------
+" OutBuffer < Output
+
+let s:OutBuffer = unittest#oop#class#new('OutBuffer', s:SID, s:Output)
+let s:OutBuffer.nr = -1
+
+function! s:OutBuffer_get_width() dict
+  let winw = winwidth(bufwinnr(s:OutBuffer.nr))
+  return (min([80, winw]) - 2)
 endfunction
-call s:TestResults.method('print_stats')
+call s:OutBuffer.method('get_width')
+
+function! s:OutBuffer_open() dict
+  call self.open_window()
+endfunction
+call s:OutBuffer.method('open')
+
+function! s:OutBuffer_open_window() dict
+  if !bufexists(s:OutBuffer.nr)
+    " The results buffer doesn't exist.
+    split
+    edit `='[unittest results]'`
+    let s:OutBuffer.nr = bufnr('%')
+  elseif bufwinnr(s:OutBuffer.nr) != -1
+    " The results buffer exists, and it has a window.
+    call self.focus_window()
+  else
+    " The results buffer exists, but it has no window.
+    split
+    execute 'buffer' s:OutBuffer.nr
+  endif
+  call self.init_buffer()
+endfunction
+call s:OutBuffer.method('open_window')
+
+function! s:OutBuffer_focus_window() dict
+  execute bufwinnr(s:OutBuffer.nr) 'wincmd w'
+endfunction
+call s:OutBuffer.method('focus_window')
+
+function! s:OutBuffer_init_buffer() dict
+  nnoremap <buffer> q <C-w>c
+  setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
+  setlocal filetype=unittest
+  silent! %delete _
+endfunction
+call s:OutBuffer.method('init_buffer')
+
+function! s:OutBuffer_close() dict
+  call self.focus_window()
+  normal! gg"_2ddGz-
+endfunction
+call s:OutBuffer.method('close')
+
+function! s:OutBuffer_puts(...) dict
+  let save_winnr =  bufwinnr('%')
+  execute bufwinnr(s:OutBuffer.nr) 'wincmd w'
+  let str  = (a:0 ? a:1 : "")
+  call append('$', str)
+  setlocal nomodified
+  execute save_winnr 'wincmd w'
+  if g:unittest_smooth_redraw_results
+    normal! G
+    redraw
+  endif
+endfunction
+call s:OutBuffer.method('puts')
+
+"---------------------------------------
+" OutFile < Output
+
+" TODO: 
 
 "-----------------------------------------------------------------------------
+" TestResults
+
+let s:TestResults = unittest#oop#class#new('TestResults', s:SID)
+
+function! s:TestResults_initialize() dict
+  let self.results = {}
+  let self.number_of = {
+        \ 'tests'     : 0,
+        \ 'assertions': 0,
+        \ 'failures'  : 0,
+        \ 'errors'    : 0,
+        \ }
+endfunction
+call s:TestResults.method('initialize')
+
+function! s:TestResults_of(tc, test) dict
+  try
+    let results = self.results[a:tc.name][a:test]
+    return results
+  catch /^Vim\%((\a\+)\)\=:E716:/
+    " E716: Key not present in Dictionary:
+    return []
+  endtry
+endfunction
+call s:TestResults.method('of')
+
+function! s:TestResults_count_assertion() dict
+  let self.number_of.assertions += 1
+endfunction
+call s:TestResults.method('count_assertion')
+
+function! s:TestResults_add_success() dict
+  call self.append(s:succ)
+endfunction
+call s:TestResults.method('add_success')
+
+function! s:TestResults_add_failure(reason, hint) dict
+  let self.number_of.failures += 1
+  let fail = s:Failure.new(a:reason, a:hint)
+  let fail.nr = self.number_of.failures
+  call self.append(fail)
+endfunction
+call s:TestResults.method('add_failure')
+
+function! s:TestResults_add_error() dict
+  let self.number_of.errors += 1
+  let err = s:Error.new()
+  let err.nr = self.number_of.errors
+  call self.append(err)
+endfunction
+call s:TestResults.method('add_error')
+
+function! s:TestResults_append(result) dict
+  let tc_name = s:test_runner.current_testcase.name
+  if !has_key(self.results, tc_name)
+    let self.results[tc_name] = {}
+  endif
+  let tc_results = self.results[tc_name]
+  let test = s:test_runner.current_test
+  if !has_key(tc_results, test)
+    let tc_results[test] = []
+    let self.number_of.tests += 1
+  endif
+  call add(tc_results[test], a:result)
+endfunction
+call s:TestResults.method('append')
+
+"---------------------------------------
+" Success
+
+let s:Success = unittest#oop#class#new('Success', s:SID)
+let s:succ = s:Success.new()
+
+"---------------------------------------
 " Failure
 
 let s:Failure = unittest#oop#class#new('Failure', s:SID)
-let s:Failure.id = 1
 
 function! s:Failure_initialize(reason, hint) dict
-  let self.id = s:Failure.id | let s:Failure.id += 1
-  let self.testcase = s:test_runner.context.testcase
-  let self.test = s:test_runner.context.test
+  let self.testcase = s:test_runner.current_testcase
+  let self.test = s:test_runner.current_test
   let self.failpoint = expand('<sfile>')
   let self.assert = matchstr(self.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
   let self.reason = a:reason
@@ -361,16 +422,14 @@ function! s:Failure_initialize(reason, hint) dict
 endfunction
 call s:Failure.method('initialize')
 
-"-----------------------------------------------------------------------------
+"---------------------------------------
 " Error
 
 let s:Error = unittest#oop#class#new('Error', s:SID)
-let s:Error.id = 1
 
 function! s:Error_initialize() dict
-  let self.id = s:Error.id | let s:Error.id += 1
-  let self.testcase = s:test_runner.context.testcase
-  let self.test = s:test_runner.context.test
+  let self.testcase = s:test_runner.current_testcase
+  let self.test = s:test_runner.current_test
   let self.throwpoint = v:throwpoint
   let self.exception = v:exception
 endfunction
