@@ -37,7 +37,13 @@ function! unittest#run(...)
 
   let tc_files = []
   let test_filters = { 'g_pattern': "", 'v_pattern': "" }
+  let output = 'buffer'
   for value in args
+    " Output
+    if value =~ '^>>\='
+      let output = value
+      continue
+    endif
     " Filtering pattern
     let matched = matchlist(value, '^\([gv]\)/\(.*\)$')
     if len(matched) > 0
@@ -60,7 +66,7 @@ function! unittest#run(...)
   endfor
 
   try
-    let s:test_runner = s:TestRunner.new(test_filters)
+    let s:test_runner = s:TestRunner.new(test_filters, output)
     for tc_file in tc_files
       source `=tc_file`
     endfor
@@ -99,12 +105,19 @@ delfunction s:get_SID
 
 let s:TestRunner = unittest#oop#class#new('TestRunner', s:SID)
 
-function! s:TestRunner_initialize(test_filters) dict
+function! s:TestRunner_initialize(test_filters, output) dict
   let self.testcases = []
   let self.test_filters = a:test_filters
   let self.context = {}
   let self.results = s:TestResults.new()
-  let self.out = s:OutBuffer.new()
+  let matched = matchlist(a:output, '^\(>>\=\)\(.*\)$')
+  if len(matched) > 0
+    let file = matched[2]
+    let mode = (matched[1] == '>>' ? 'a' : 'w')
+    let self.out = s:OutFile.new(file, mode)
+  else
+    let self.out = s:OutBuffer.new()
+  endif
 endfunction
 call s:TestRunner.method('initialize')
 
@@ -249,7 +262,7 @@ function! s:Output_print_failure(fail) dict
     let head .= ": " . a:fail.hint
   endif
   call self.puts(head)
-  call self.puts(split(a:fail.reason, "\n"))
+  call self.puts(a:fail.reason)
 endfunction
 call s:Output.method('print_failure')
 
@@ -311,15 +324,15 @@ call s:OutBuffer.method('init_buffer')
 
 function! s:OutBuffer_close() dict
   call self.focus_window()
-  normal! gg"_2ddGz-
+  normal! z-
 endfunction
 call s:OutBuffer.method('close')
 
 function! s:OutBuffer_puts(...) dict
   let save_winnr =  bufwinnr('%')
   execute bufwinnr(s:OutBuffer.nr) 'wincmd w'
-  let str  = (a:0 ? a:1 : "")
-  call append('$', str)
+  let lines  = (a:0 ? split(a:1, "\n") : "")
+  call append('$', lines)
   setlocal nomodified
   execute save_winnr 'wincmd w'
   if g:unittest_smooth_redraw_results
@@ -332,7 +345,33 @@ call s:OutBuffer.method('puts')
 "---------------------------------------
 " OutFile < Output
 
-" TODO: 
+let s:OutFile = unittest#oop#class#new('OutFile', s:SID, s:Output)
+
+function! s:OutFile_initialize(file, mode) dict
+  let self.file = a:file
+  let self.mode = a:mode
+endfunction
+call s:OutFile.method('initialize')
+
+function! s:OutFile_open() dict
+  if self.mode == 'a'
+    execute 'redir >>' self.file
+  else
+    execute 'redir! >' self.file
+  endif
+endfunction
+call s:OutFile.method('open')
+
+function! s:OutFile_close() dict
+  redir END
+endfunction
+call s:OutFile.method('close')
+
+function! s:OutFile_puts(...) dict
+  let str  = (a:0 ? a:1 : "")
+  silent echomsg str
+endfunction
+call s:OutFile.method('puts')
 
 "-----------------------------------------------------------------------------
 " TestResults
