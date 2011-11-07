@@ -118,6 +118,7 @@ function! s:TestRunner_run() dict
     let start_time = reltime()
   endif
   call self.out.open()
+  call self.out.puts("Started at " . strftime('%c'))
   for tc in self.testcases
     let self.current_testcase = tc
     call self.out.print_header(1, tc.name)
