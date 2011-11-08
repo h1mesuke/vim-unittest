@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-08
+" Updated : 2011-11-09
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -34,8 +34,8 @@ endfunction
 let s:SID = s:get_SID()
 delfunction s:get_SID
 
-function! unittest#assertions#sid()
-  return s:SID
+function! unittest#assertions#context()
+  return { 'sid': s:SID, 'scope': s: }
 endfunction
 
 function! unittest#assertions#module()
