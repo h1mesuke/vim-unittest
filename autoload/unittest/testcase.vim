@@ -32,19 +32,8 @@ function! unittest#testcase#class()
   return s:TestCase
 endfunction
 
-function! unittest#testcase#new(tc_name, ...)
-  if !unittest#is_running()
-    call unittest#print_error(
-          \ "unittest: Don't source the testcase directly, use :UnitTest command.")
-    return {}
-  endif
-  let tc_class = (a:0 ? a:1 : s:TestCase)
-  if !(tc_class.is_descendant_of(s:TestCase) || tc_class is s:TestCase)
-    throw "unittest: Testcase required, but got " . string(tc_class)
-  endif
-  let tc = tc_class.new(a:tc_name)
-  call unittest#runner().add_testcase(tc)
-  return tc
+function! unittest#testcase#new(...)
+  return call(s:TestCase.new, a:000, s:TestCase)
 endfunction
 
 function! s:get_SID()
@@ -56,10 +45,17 @@ delfunction s:get_SID
 let s:TestCase = unittest#oop#class#new('TestCase', s:SID)
 call s:TestCase.include(unittest#assertions#module())
 
-function! s:TestCase_initialize(tc_name) dict
-  let self.name = a:tc_name
-  let self.context_file = ""
-  let self.cache = {}
+function! s:TestCase_initialize(name) dict
+  if !unittest#is_running()
+    call unittest#print_error(
+          \ "unittest: Don't source a testcase directly, please use :UnitTest command.")
+  else
+    let self.name = a:name
+    let self.context_file = ""
+    let self.cache = {}
+    let runner = unittest#runner()
+    call runner.add_testcase(self)
+  endif
 endfunction
 call s:TestCase.method('initialize')
 
