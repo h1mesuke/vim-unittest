@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-08
+" Updated : 2011-11-09
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -42,16 +42,19 @@ endfunction
 let s:SID = s:get_SID()
 delfunction s:get_SID
 
+"-----------------------------------------------------------------------------
+" TestCase
+
 let s:TestCase = unittest#oop#class#new('TestCase', s:SID)
 call s:TestCase.include(unittest#assertions#module())
 
-function! s:TestCase_initialize(name) dict
+function! s:TestCase_initialize(name, ...) dict
   if !unittest#is_running()
     call unittest#print_error(
           \ "unittest: Don't source a testcase directly, please use :UnitTest command.")
   else
     let self.name = a:name
-    let self.context_file = ""
+    let self.context = (a:0 ? a:1 : {})
     let self.__cache__ = {}
     let runner = unittest#runner()
     call runner.add_testcase(self)
@@ -70,18 +73,18 @@ endfunction
 call s:TestCase.method('tests')
 
 function! s:TestCase___initialize__() dict
-  if !empty(self.context_file)
+  if has_key(self.context, 'file')
     call self.__open_context_window__()
   endif
 endfunction
 call s:TestCase.method('__initialize__')
 
 function! s:TestCase___open_context_window__() dict
-  let context_file = s:escape_file_pattern(self.context_file)
+  let context_file = s:escape_file_pattern(self.context.file)
   if !bufexists(context_file)
     " The buffer doesn't exist.
     split
-    edit `=self.context_file`
+    edit `=self.context.file`
   elseif bufwinnr(context_file) != -1
     " The buffer exists, and it has a window.
     execute bufwinnr(context_file) 'wincmd w'
@@ -94,14 +97,14 @@ endfunction
 call s:TestCase.method('__open_context_window__')
 
 function! s:TestCase___finalize__() dict
-  if !empty(self.context_file)
+  if has_key(self.context, 'file')
     call self.__close_context_window__()
   endif
 endfunction
 call s:TestCase.method('__finalize__')
 
 function! s:TestCase___close_context_window__() dict
-  let context_file = s:escape_file_pattern(self.context_file)
+  let context_file = s:escape_file_pattern(self.context.file)
   if bufwinnr(context_file) != -1
     execute bufwinnr(context_file) 'wincmd c'
   endif
@@ -165,5 +168,24 @@ function! s:compare_strlen(str1, str2)
   let len2 = strlen(a:str2)
   return len1 == len2 ? 0 : len1 > len2 ? 1 : -1
 endfunction
+
+"---------------------------------------
+" Script-local Accessors
+
+function! s:TestCase_call(func, args) dict
+  let func = self.context.sid . a:func
+  return call(func, a:args)
+endfunction
+call s:TestCase.method('call')
+
+function! s:TestCase_get(name, ...) dict
+  return get(self.context.scope, a:name, (a:0 ? a:1 : 0))
+endfunction
+call s:TestCase.method('get')
+
+function! s:TestCase_set(name, value) dict
+  let self.context.scope[a:name] = a:value
+endfunction
+call s:TestCase.method('set')
 
 " vim: filetype=vim
