@@ -81,7 +81,7 @@ function! s:TestCase___open_context_window__() dict
   if !bufexists(context_file)
     " The buffer doesn't exist.
     split
-    edit `=context_file`
+    edit `=self.context_file`
   elseif bufwinnr(context_file) != -1
     " The buffer exists, and it has a window.
     execute bufwinnr(context_file) 'wincmd w'
