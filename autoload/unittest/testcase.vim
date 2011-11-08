@@ -52,7 +52,7 @@ function! s:TestCase_initialize(name) dict
   else
     let self.name = a:name
     let self.context_file = ""
-    let self.cache = {}
+    let self.__cache__ = {}
     let runner = unittest#runner()
     call runner.add_testcase(self)
   endif
@@ -60,23 +60,23 @@ endfunction
 call s:TestCase.method('initialize')
 
 function! s:TestCase_tests() dict
-  if !has_key(self.cache, 'tests')
+  if !has_key(self.__cache__, 'tests')
     let tests = s:grep(keys(self), '^\(\(setup\|teardown\)_\)\@!')
     let tests = s:grep(tests, '\(^test\|\(^\|[^_]_\)should\)_')
-    let self.cache.tests = sort(tests)
+    let self.__cache__.tests = sort(tests)
   endif
-  return self.cache.tests
+  return self.__cache__.tests
 endfunction
 call s:TestCase.method('tests')
 
 function! s:TestCase___initialize__() dict
   if !empty(self.context_file)
-    call self._open_context_window()
+    call self.__open_context_window__()
   endif
 endfunction
 call s:TestCase.method('__initialize__')
 
-function! s:TestCase__open_context_window() dict
+function! s:TestCase___open_context_window__() dict
   let context_file = s:escape_file_pattern(self.context_file)
   if !bufexists(context_file)
     " the buffer doesn't exist
@@ -91,22 +91,22 @@ function! s:TestCase__open_context_window() dict
     execute 'buffer' bufnr(context_file)
   endif
 endfunction
-call s:TestCase.method('_open_context_window')
+call s:TestCase.method('__open_context_window__')
 
 function! s:TestCase___finalize__() dict
   if !empty(self.context_file)
-    call self._close_context_window()
+    call self.__close_context_window__()
   endif
 endfunction
 call s:TestCase.method('__finalize__')
 
-function! s:TestCase__close_context_window() dict
+function! s:TestCase___close_context_window__() dict
   let context_file = s:escape_file_pattern(self.context_file)
   if bufwinnr(context_file) != -1
     execute bufwinnr(context_file) 'wincmd c'
   endif
 endfunction
-call s:TestCase.method('_close_context_window')
+call s:TestCase.method('__close_context_window__')
 
 function! s:escape_file_pattern(path)
   return escape(a:path, '*[]?{},')
@@ -116,11 +116,11 @@ function! s:TestCase___setup__(test) dict
   if has_key(self, 'setup')
     call self.setup()
   endif
-  if !has_key(self.cache, 'setup_suffixes')
+  if !has_key(self.__cache__, 'setup_suffixes')
     let setups = sort(s:grep(keys(self), '^setup_'), 's:compare_strlen')
-    let self.cache.setup_suffixes = s:map_matchstr(setups, '^setup_\zs.*$')
+    let self.__cache__.setup_suffixes = s:map_matchstr(setups, '^setup_\zs.*$')
   endif
-  for suffix in self.cache.setup_suffixes
+  for suffix in self.__cache__.setup_suffixes
     if a:test =~# suffix
       call call(self['setup_' . suffix], [], self)
     endif
@@ -129,11 +129,11 @@ endfunction
 call s:TestCase.method('__setup__')
 
 function! s:TestCase___teardown__(test) dict
-  if !has_key(self.cache, 'teardown_suffixes')
+  if !has_key(self.__cache__, 'teardown_suffixes')
     let teardowns = reverse(sort(s:grep(keys(self), '^teardown_'), 's:compare_strlen'))
-    let self.cache.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
+    let self.__cache__.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
   endif
-  for suffix in self.cache.teardown_suffixes
+  for suffix in self.__cache__.teardown_suffixes
     if a:test =~# suffix
       call call(self['teardown_' . suffix], [], self)
     endif
