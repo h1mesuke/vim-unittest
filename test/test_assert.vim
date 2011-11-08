@@ -6,7 +6,7 @@
 " {T} tests, {A} assertions, {A/2} failures, 1 errors
 "
 " NOTE: The tests in this TestCase are ones of assertions themselves. I expect
-" not only successes of them but also failures.
+" not only successes but also failures.
 
 function! s:get_SID()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
