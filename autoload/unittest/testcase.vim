@@ -79,14 +79,14 @@ call s:TestCase.method('__initialize__')
 function! s:TestCase___open_context_window__() dict
   let context_file = s:escape_file_pattern(self.context_file)
   if !bufexists(context_file)
-    " the buffer doesn't exist
+    " The buffer doesn't exist.
     split
     edit `=context_file`
   elseif bufwinnr(context_file) != -1
-    " the buffer exists, and it has a window
+    " The buffer exists, and it has a window.
     execute bufwinnr(context_file) 'wincmd w'
   else
-    " the buffer exists, but it has no window
+    " The buffer exists, but it has no window.
     split
     execute 'buffer' bufnr(context_file)
   endif
