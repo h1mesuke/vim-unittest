@@ -1,6 +1,9 @@
 " unittest.vim's test suite
 
-" Testcase sample of shoulda style
+" TestCase of shoulda style tests
+"
+" Expected results:
+" Green
 "
 " thoughtbot/shoulda - GitHub
 " https://github.com/thoughtbot/shoulda

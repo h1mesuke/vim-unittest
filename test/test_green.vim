@@ -1,6 +1,6 @@
 " unittest.vim's test suite
 
-" Testcase of the green state
+" TestCase of the green state
 "
 " Expected results:
 " Green
