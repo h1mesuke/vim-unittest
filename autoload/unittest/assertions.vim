@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-09
+" Updated : 2011-11-14
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -550,7 +550,7 @@ function! s:report_failure(reason, hint)
     if !empty(a:hint)
       let msg .= " (" . a:hint . ")"
     endif
-    throw "AssertionFailedError: " . msg
+    throw "AssertionFailed: " . msg
   endif
 endfunction
 
