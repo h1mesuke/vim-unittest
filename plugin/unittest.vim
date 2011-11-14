@@ -3,7 +3,7 @@
 "
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
-" Updated : 2011-02-27
+" Updated : 2011-11-14
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -28,8 +28,8 @@
 " }}}
 "=============================================================================
 
-if v:version < 700 || &cp
-  echoerr "unittest: Vim 7.0 or later required"
+if v:version < 702 || &cp
+  echoerr "unittest: Vim 7.2 or later required"
   finish
 elseif exists('g:loaded_unittest')
   finish
