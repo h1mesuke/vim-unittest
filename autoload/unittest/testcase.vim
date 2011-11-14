@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-09
+" Updated : 2011-11-14
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -54,7 +54,7 @@ function! s:TestCase_initialize(name, ...) dict
           \ "unittest: Don't source a testcase directly, please use :UnitTest command.")
   else
     let self.name = a:name
-    let self.context = (a:0 ? a:1 : {})
+    let self.context = s:Context.new(a:0 ? a:1 : {})
     let self.__cache__ = {}
     let runner = unittest#runner()
     call runner.add_testcase(self)
@@ -169,23 +169,70 @@ function! s:compare_strlen(str1, str2)
   return len1 == len2 ? 0 : len1 > len2 ? 1 : -1
 endfunction
 
-"---------------------------------------
-" Script-local Accessors
+"-----------------------------------------------------------------------------
+" Context
 
-function! s:TestCase_call(func, args) dict
-  let func = self.context.sid . a:func
+let s:Context = unittest#oop#class#new('Context', s:SID)
+
+function! s:Context_initialize(context) dict
+  if has_key(a:context, 'sid')
+    call self.set_sid(a:context.sid)
+  endif
+  if has_key(a:context, 'scope')
+    let self.scope = a:context.scope
+  endif
+  if has_key(a:context, 'file')
+    let self.file = a:context.file
+  endif
+endfunction
+call s:Context.method('initialize')
+
+function! s:Context_set_sid(sid) dict
+  if type(a:sid) == type(0)
+    let self.sid = '<SNR>' . a:sid . '_'
+  else
+    let self.sid = '<SNR>' . matchstr(a:sid, '\d\+') . '_'
+  endif
+endfunction
+call s:Context.method('set_sid')
+
+function! s:Context_call(func, args) dict
+  if !has_key(self, 'sid')
+    throw "InvalidScopeAccess: Context SID is not specified."
+  endif
+  let func = self.sid . substitute(a:func, '^s:', '', '')
   return call(func, a:args)
 endfunction
-call s:TestCase.method('call')
+call s:Context.method('call')
 
-function! s:TestCase_get(name, ...) dict
-  return get(self.context.scope, a:name, (a:0 ? a:1 : 0))
+function! s:Context_get(name, ...) dict
+  let scope = self.get_scope_for(a:name)
+  let name = substitute(a:name, '^[bs]:', '', '')
+  return get(scope, name, (a:0 ? a:1 : 0))
 endfunction
-call s:TestCase.method('get')
+call s:Context.method('get')
 
-function! s:TestCase_set(name, value) dict
-  let self.context.scope[a:name] = a:value
+function! s:Context_set(name, value) dict
+  let scope = self.get_scope_for(a:name)
+  let name = substitute(a:name, '^[bs]:', '', '')
+  let scope[name] = a:value
 endfunction
-call s:TestCase.method('set')
+call s:Context.method('set')
+
+function! s:Context_get_scope_for(name) dict
+  if a:name =~# '^b:'
+    if !has_key(self, 'file')
+      throw "InvalidScopeAccess: Context file is not specified."
+    endif
+    let scope = b:
+  else
+    if !has_key(self, 'scope')
+      throw "InvalidScopeAccess: Context scope is not specified."
+    endif
+    let scope = self.scope
+  endif
+  return scope
+endfunction
+call s:Context.method('get_scope_for')
 
 " vim: filetype=vim
