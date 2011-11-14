@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-08
+" Updated : 2011-11-15
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -143,6 +143,10 @@ function! s:TestRunner_run() dict
       try
         call tc.__setup__(test)
         call call(tc[test], [], tc)
+      catch
+        call self.results.add_error()
+      endtry
+      try
         call tc.__teardown__(test)
       catch
         call self.results.add_error()
