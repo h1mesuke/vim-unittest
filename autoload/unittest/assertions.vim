@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-14
+" Updated : 2011-11-27
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -137,6 +137,7 @@ function! s:Assertions_assert_equal_c(expected, actual, ...)
   endif
 endfunction
 call s:Assertions.function('assert_equal_c')
+call s:Assertions.alias('assert_equal_q', 'assert_equal_c')
 
 function! s:Assertions_assert_not_equal_c(expected, actual, ...)
   call s:count_assertion()
@@ -151,6 +152,7 @@ function! s:Assertions_assert_not_equal_c(expected, actual, ...)
   endif
 endfunction
 call s:Assertions.function('assert_not_equal_c')
+call s:Assertions.alias('assert_not_equal_q', 'assert_not_equal_c')
 
 function! s:Assertions_assert_equal_C(expected, actual, ...)
   call s:count_assertion()
@@ -165,6 +167,7 @@ function! s:Assertions_assert_equal_C(expected, actual, ...)
   endif
 endfunction
 call s:Assertions.function('assert_equal_C')
+call s:Assertions.alias('assert_equal_s', 'assert_equal_C')
 
 function! s:Assertions_assert_not_equal_C(expected, actual, ...)
   call s:count_assertion()
@@ -179,6 +182,7 @@ function! s:Assertions_assert_not_equal_C(expected, actual, ...)
   endif
 endfunction
 call s:Assertions.function('assert_not_equal_C')
+call s:Assertions.alias('assert_not_equal_s', 'assert_not_equal_C')
 
 function! s:Assertions_assert_exists(expr, ...)
   call s:count_assertion()

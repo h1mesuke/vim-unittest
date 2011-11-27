@@ -106,20 +106,36 @@ function! tc.test_assert_equal_c()
   call self.assert_equal_c("a", "A")
   call self.assert_equal_c("a", "b")
 endfunction
+function! tc.test_assert_equal_q()
+  call self.assert_equal_q("a", "A")
+  call self.assert_equal_q("a", "b")
+endfunction
 
 function! tc.test_assert_not_equal_c()
   call self.assert_not_equal_c("a", "b")
   call self.assert_not_equal_c("a", "A")
+endfunction
+function! tc.test_assert_not_equal_q()
+  call self.assert_not_equal_q("a", "b")
+  call self.assert_not_equal_q("a", "A")
 endfunction
 
 function! tc.test_assert_equal_C()
   call self.assert_equal_C("a", "a")
   call self.assert_equal_C("a", "b")
 endfunction
+function! tc.test_assert_equal_s()
+  call self.assert_equal_s("a", "a")
+  call self.assert_equal_s("a", "b")
+endfunction
 
 function! tc.test_assert_not_equal_C()
   call self.assert_not_equal_C("a", "b")
   call self.assert_not_equal_C("a", "a")
+endfunction
+function! tc.test_assert_not_equal_s()
+  call self.assert_not_equal_s("a", "b")
+  call self.assert_not_equal_s("a", "a")
 endfunction
 
 function! tc.test_assert_exists()
