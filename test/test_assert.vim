@@ -253,7 +253,6 @@ function! tc.test_assert_not_throw()
   call self.assert_not_throw('nohl')
   call self.assert_not_throw('FooBarBaz')
 endfunction
-
 function! tc.test_assert_nothing_thrown()
   call self.assert_nothing_thrown('nohl')
   call self.assert_nothing_thrown('FooBarBaz')
