@@ -413,6 +413,66 @@ function! s:Assertions_assert_not_match(pattern, str, ...)
 endfunction
 call s:Assertions.function('assert_not_match')
 
+function! s:Assertions_assert_match_c(pattern, str, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if a:str !~? a:pattern
+    call s:report_failure(
+          \ unittest#oop#string(a:str) . " didn't match the pattern " .
+          \ unittest#oop#string(a:pattern),
+          \ hint)
+  else
+    call s:report_success()
+  endif
+endfunction
+call s:Assertions.function('assert_match_c')
+call s:Assertions.alias('assert_match_q', 'assert_match_c')
+
+function! s:Assertions_assert_not_match_c(pattern, str, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if a:str =~? a:pattern
+    call s:report_failure(
+          \ unittest#oop#string(a:str) . " matched the pattern " .
+          \ unittest#oop#string(a:pattern),
+          \ hint)
+  else
+    call s:report_success()
+  endif
+endfunction
+call s:Assertions.function('assert_not_match_c')
+call s:Assertions.alias('assert_not_match_q', 'assert_not_match_c')
+
+function! s:Assertions_assert_match_C(pattern, str, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if a:str !~# a:pattern
+    call s:report_failure(
+          \ unittest#oop#string(a:str) . " didn't match the pattern " .
+          \ unittest#oop#string(a:pattern),
+          \ hint)
+  else
+    call s:report_success()
+  endif
+endfunction
+call s:Assertions.function('assert_match_C')
+call s:Assertions.alias('assert_match_s', 'assert_match_C')
+
+function! s:Assertions_assert_not_match_C(pattern, str, ...)
+  call s:count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if a:str =~# a:pattern
+    call s:report_failure(
+          \ unittest#oop#string(a:str) . " matched the pattern " .
+          \ unittest#oop#string(a:pattern),
+          \ hint)
+  else
+    call s:report_success()
+  endif
+endfunction
+call s:Assertions.function('assert_not_match_C')
+call s:Assertions.alias('assert_not_match_s', 'assert_not_match_C')
+
 function! s:Assertions_assert_throw(exception, ex_command, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")

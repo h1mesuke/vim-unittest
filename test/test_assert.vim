@@ -208,6 +208,42 @@ function! tc.test_assert_not_match()
   call self.assert_not_match('e', "hello")
 endfunction
 
+function! tc.test_assert_match_c()
+  call self.assert_match_c('e', "HELLO")
+  call self.assert_match_c('x', "HELLO")
+endfunction
+function! tc.test_assert_match_q()
+  call self.assert_match_q('e', "HELLO")
+  call self.assert_match_q('x', "HELLO")
+endfunction
+
+function! tc.test_assert_not_match_c()
+  call self.assert_not_match_c('x', "HELLO")
+  call self.assert_not_match_c('e', "HELLO")
+endfunction
+function! tc.test_assert_not_match_q()
+  call self.assert_not_match_q('x', "HELLO")
+  call self.assert_not_match_q('e', "HELLO")
+endfunction
+
+function! tc.test_assert_match_C()
+  call self.assert_match_C('E', "HELLO")
+  call self.assert_match_C('e', "HELLO")
+endfunction
+function! tc.test_assert_match_s()
+  call self.assert_match_s('E', "HELLO")
+  call self.assert_match_s('e', "HELLO")
+endfunction
+
+function! tc.test_assert_not_match_C()
+  call self.assert_not_match_C('e', "HELLO")
+  call self.assert_not_match_C('E', "HELLO")
+endfunction
+function! tc.test_assert_not_match_s()
+  call self.assert_not_match_s('e', "HELLO")
+  call self.assert_not_match_s('E', "HELLO")
+endfunction
+
 function! tc.test_assert_throw()
   call self.assert_throw('E492', 'FooBarBaz')
   call self.assert_throw('E492', 'nohl')
