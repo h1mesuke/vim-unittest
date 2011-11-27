@@ -42,6 +42,19 @@ function! unittest#assertions#module()
   return s:Assertions
 endfunction
 
+"-----------------------------------------------------------------------------
+" Constants
+
+let s:TYPE_NUM  = type(0)
+let s:TYPE_STR  = type("")
+let s:TYPE_FUNC = type(function('tr'))
+let s:TYPE_DICT = type({})
+let s:TYPE_LIST = type([])
+let s:TYPE_FLT  = type(0.0)
+
+"-----------------------------------------------------------------------------
+" Assertions
+
 let s:Assertions = unittest#oop#module#new('Assertions', s:SID)
 
 function! s:Assertions_assert_true(expr, ...)
@@ -77,7 +90,7 @@ call s:Assertions.alias('assert_not', 'assert_false')
 function! s:Assertions_assert_equal(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if type(a:expected) == type("") && type(a:actual) == type("")
+  if type(a:expected) == s:TYPE_STR && type(a:actual) == s:TYPE_STR
     if a:expected !=# a:actual
       call s:report_failure(
             \ unittest#oop#string(a:expected) . " expected but was\n" .
@@ -102,7 +115,7 @@ call s:Assertions.function('assert_equal')
 function! s:Assertions_assert_not_equal(expected, actual, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if type(a:expected) == type("") && type(a:actual) == type("")
+  if type(a:expected) == s:TYPE_STR && type(a:actual) == s:TYPE_STR
     if a:expected ==# a:actual
       call s:report_failure(
             \ unittest#oop#string(a:expected) . " not expected but was\n" .
@@ -267,7 +280,7 @@ call s:Assertions.function('assert_is_not')
 function! s:Assertions_assert_is_Number(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if type(a:value) != type(0)
+  if type(a:value) != s:TYPE_NUM
     call s:report_failure(
           \ "Number expected, but was\n" .
           \ s:typestr(a:value),
@@ -281,7 +294,7 @@ call s:Assertions.function('assert_is_Number')
 function! s:Assertions_assert_is_String(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if type(a:value) != type("")
+  if type(a:value) != s:TYPE_STR
     call s:report_failure(
           \ "String expected, but was\n" .
           \ s:typestr(a:value),
@@ -295,7 +308,7 @@ call s:Assertions.function('assert_is_String')
 function! s:Assertions_assert_is_Funcref(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if type(a:value) != type(function('tr'))
+  if type(a:value) != s:TYPE_FUNC
     call s:report_failure(
           \ "Funcref expected, but was\n" .
           \ s:typestr(a:value),
@@ -309,7 +322,7 @@ call s:Assertions.function('assert_is_Funcref')
 function! s:Assertions_assert_is_List(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if type(a:value) != type([])
+  if type(a:value) != s:TYPE_LIST
     call s:report_failure(
           \ "List expected, but was\n" .
           \ s:typestr(a:value),
@@ -322,7 +335,7 @@ call s:Assertions.function('assert_is_List')
 
 function! s:Assertions_assert_is_Dictionary(value, ...)
   call s:count_assertion()
-  if type(a:value) != type({})
+  if type(a:value) != s:TYPE_DICT
     let hint = (a:0 ? a:1 : "")
     call s:report_failure(
           \ "Dictionary expected, but was\n" .
@@ -338,7 +351,7 @@ call s:Assertions.alias('assert_is_Dict', 'assert_is_Dictionary')
 function! s:Assertions_assert_is_Float(value, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if type(a:value) != type(0.0)
+  if type(a:value) != s:TYPE_FLT
     call s:report_failure(
           \ "Float expected, but was\n" .
           \ s:typestr(a:value),
@@ -351,13 +364,13 @@ call s:Assertions.function('assert_is_Float')
 
 function! s:typestr(value)
   let value_type = type(a:value)
-  if value_type == type(0)
+  if value_type == s:TYPE_NUM
     return 'Number'
-  elseif value_type == type("")
+  elseif value_type == s:TYPE_STR
     return 'String'
-  elseif value_type == type(function("tr"))
+  elseif value_type == s:TYPE_FUNC
     return 'Funcref'
-  elseif value_type == type([])
+  elseif value_type == s:TYPE_LIST
     return 'List'
   elseif unittest#oop#is_class(a:value)
     return 'Class'
@@ -365,9 +378,9 @@ function! s:typestr(value)
     return 'Instance'
   elseif unittest#oop#is_module(a:value)
     return 'Module'
-  elseif value_type == type({})
+  elseif value_type == s:TYPE_DICT
     return 'Dictionary'
-  elseif value_type == type(0.0)
+  elseif value_type == s:TYPE_FLT
     return 'Float'
   endif
 endfunction
