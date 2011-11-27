@@ -388,7 +388,7 @@ endfunction
 function! s:Assertions_assert_match(pattern, str, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if match(a:str, a:pattern) < 0
+  if a:str !~ a:pattern
     call s:report_failure(
           \ unittest#oop#string(a:str) . " didn't match the pattern " .
           \ unittest#oop#string(a:pattern),
@@ -402,7 +402,7 @@ call s:Assertions.function('assert_match')
 function! s:Assertions_assert_not_match(pattern, str, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if match(a:str, a:pattern) >= 0
+  if a:str =~ a:pattern
     call s:report_failure(
           \ unittest#oop#string(a:str) . " matched the pattern " .
           \ unittest#oop#string(a:pattern),

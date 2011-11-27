@@ -201,17 +201,11 @@ endfunction
 function! tc.test_assert_match()
   call self.assert_match('e', "hello")
   call self.assert_match('x', "hello")
-
-  call self.assert_match('e', ["hello", "goodbye"])
-  call self.assert_match('x', ["hello", "goodbye"])
 endfunction
 
 function! tc.test_assert_not_match()
   call self.assert_not_match('x', "hello")
   call self.assert_not_match('e', "hello")
-
-  call self.assert_not_match('x', ["hello", "goodbye"])
-  call self.assert_not_match('e', ["hello", "goodbye"])
 endfunction
 
 function! tc.test_assert_throw()
