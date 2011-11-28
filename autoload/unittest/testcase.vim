@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-14
+" Updated : 2011-11-28
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -148,9 +148,8 @@ endfunction
 call s:TestCase.method('__teardown__')
 
 function! s:TestCase_puts(...) dict
-  let str = (a:0 ? a:1 : "")
   let runner = unittest#runner()
-  call runner.out.puts(str)
+  call call(runner.out.puts, a:000, runner.out)
 endfunction
 call s:TestCase.method('puts')
 
