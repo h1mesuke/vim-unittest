@@ -151,7 +151,7 @@ function! s:TestRunner_run() dict
       catch
         call self.results.add_error()
       endtry
-      call self.print_results_of(tc, test)
+      call self.print_status_line(tc, test)
     endfor
     call tc.__finalize__()
   endfor
@@ -191,7 +191,7 @@ function! s:TestRunner_report_failure(reason, hint) dict
 endfunction
 call s:TestRunner.method('report_failure')
 
-function! s:TestRunner_print_results_of(tc, test) dict
+function! s:TestRunner_print_status_line(tc, test) dict
   let line = ''
   for result in self.results.of(a:tc, a:test)
     if result.is_a(s:Failure)
@@ -214,7 +214,7 @@ function! s:TestRunner_print_results_of(tc, test) dict
     endif
   endfor
 endfunction
-call s:TestRunner.method('print_results_of')
+call s:TestRunner.method('print_status_line')
 
 function! s:TestRunner_print_results() dict
   call self.out.puts()
