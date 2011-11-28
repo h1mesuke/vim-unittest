@@ -1,0 +1,127 @@
+#!/bin/sh
+#=============================================================================
+# Simple Unit Testing Framework for Vim script
+#
+# File    : bin/vunit
+# Author  : h1mesuke
+# Updated : 2011-11-28
+# Version : 0.3.2
+# License : MIT license {{{
+#
+#   Permission is hereby granted, free of charge, to any person obtaining
+#   a copy of this software and associated documentation files (the
+#   "Software"), to deal in the Software without restriction, including
+#   without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to
+#   permit persons to whom the Software is furnished to do so, subject to
+#   the following conditions:
+#
+#   The above copyright notice and this permission notice shall be included
+#   in all copies or substantial portions of the Software.
+#
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+#   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+#   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+#   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+#   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# }}}
+#=============================================================================
+
+NAME=vunit
+USAGE="$NAME [options] TESTCASE.vim"
+VERSION=0.0.1
+
+print_help() {
+  cat 1>&2 << EOF
+
+  $NAME - Run a testcase of unittest.vim
+
+  Usage:
+    $USAGE
+
+  Options:
+    -V={Vim_command}  Executes tests with {Vim_command}.
+    -C                Output test results witout colors.
+    -b                Output test results using Vim's buffer.
+
+    -h                Print this help.
+    -v                Print the version of this program.
+EOF
+}
+
+print_usage() {
+  echo "Usage: $USAGE" 1>&2
+}
+
+print_version() {
+  echo "$NAME $VERSION" 1>&2
+}
+
+VIM=vim
+OUTPUT=file
+COLOR=TRUE
+
+OPT=
+
+# Parse command-line options.
+if [ "$OPTIND" = 1 ]; then
+  while getopts V:Cihv OPT; do
+    case $OPT in
+      V)
+        VIM=$OPTARG
+        ;;
+      C)
+        COLOR=FALSE
+        ;;
+      b)
+        OUTPUT=buffer
+        ;;
+      h | \?)
+        print_help
+        status=0
+        if [ $OPT != "h" ]; then
+          status=1
+        fi
+        exit $status
+        ;;
+      v)
+        print_version
+        exit 0
+        ;;
+    esac
+  done
+  shift `expr $OPTIND - 1`
+else
+  echo "$NAME: getopts is not available." 1>&2
+  exit 1
+fi
+
+if [ $# -ne 1 ]; then
+  print_usage
+  exit 1
+fi
+
+tcfile=$1
+
+if [ $OUTPUT = "file" ]; then
+  outfile=`mktemp -t vunit_results.XXXXXXXXXX`
+  trap "rm -f '$outfile'" 0
+  trap "rm -f '$outfile'; exit 1" 1 2 3 15
+
+  $VIM -c "UnitTest $tcfile >$outfile" -c "qall!"
+  if [ $COLOR = "TRUE" ]; then
+    cat $outfile | sed \
+      -e '/^=> /s/\([EF]\)/[01;31m\1[0m/g' \
+      -e 's/^\([01-9]\+) \(Failure\|Error\): .*\)$/[01;31m\1[0m/' \
+      -e '/^[01-9]\+ tests, [01-9]\+ assertions, /s/\(0 failures, 0 errors\)/[32m\1[0m/g' \
+      -e '/^[01-9]\+ tests, [01-9]\+ assertions, /s/\([1-9][01-9]* \(failures,\|errors\)\)/[01;31m\1[0m/g'
+  else
+    cat $outfile
+  fi
+else
+  $VIM -c "UnitTest $tcfile"
+fi
+
+# vim: filetype=sh
