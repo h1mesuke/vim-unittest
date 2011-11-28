@@ -1,76 +1,14 @@
 " unittest.vim's test suite
-
+"
 " TestCase of Assertions module
 "
-" Expected results are:
-" {T} tests, {A} assertions, {A/2} failures, 1 errors
+" Expected results:
+"   {T} tests, {A} assertions, {A/2} failures, 1 errors
 "
-" NOTE: The tests in this TestCase are ones of assertions themselves. I expect
-" not only successes but also failures.
-
-function! s:get_SID()
-  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
-endfunction
-let s:SID = s:get_SID()
-delfunction s:get_SID
-
-let s:Foo = oop#class#new('Foo', s:SID)
-let s:Bar = oop#class#new('Bar', s:SID, s:Foo)
-
-let s:Fizz = oop#module#new('Fizz', s:SID)
-
-"-----------------------------------------------------------------------------
+" NOTE: The tests in this file are written to test assertions themselves, so
+" not only successes but also failures are expected as the results.
 
 let tc = unittest#testcase#new('test_assert')
-
-function! tc.setup()
-  call self.puts()
-  call self.puts("setup")
-endfunction
-
-function! tc.setup_foo_bar_baz()
-  call self.puts("setup_foo_bar_baz")
-endfunction
-
-function! tc.setup_foo()
-  call self.puts("setup_foo")
-endfunction
-
-function! tc.setup_foo_bar()
-  call self.puts("setup_foo_bar")
-endfunction
-
-function! tc.teardown()
-  call self.puts("teardown")
-endfunction
-
-function! tc.teardown_foo_bar_baz()
-  call self.puts("teardown_foo_bar_baz")
-endfunction
-
-function! tc.teardown_foo()
-  call self.puts("teardown_foo")
-endfunction
-
-function! tc.teardown_foo_bar()
-  call self.puts("teardown_foo_bar")
-endfunction
-
-function! tc.test_foo_bar_baz()
-  " Expected:
-  "
-  " setup
-  " setup_foo
-  " setup_foo_bar
-  " setup_foo_bar_baz
-  "
-  " test_foo_bar_baz
-  "
-  " teardown_foo_bar_baz
-  " teardown_foo_bar
-  " teardown_foo
-  " teardown
-endfunction
 
 function! tc.test_assert_true()
   call self.assert_true(1)
@@ -268,12 +206,22 @@ endfunction
 " h1mesuke/vim-oop - GitHub
 " https://github.com/h1mesuke/vim-oop
 
+function! s:get_SID()
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+endfunction
+let s:SID = s:get_SID()
+delfunction s:get_SID
+
+let s:Foo = oop#class#new('Foo', s:SID)
+let s:Bar = oop#class#new('Bar', s:SID, s:Foo)
+
+let s:Fizz = oop#module#new('Fizz', s:SID)
+
+let tc = unittest#testcase#new('test_assert_oop')
+
 function! tc.setup()
   let self.foo = s:Foo.new()
   let self.bar = s:Bar.new()
-
-  call self.puts()
-  call self.puts("setup")
 endfunction
 
 function! tc.test_assert_is_Object()
