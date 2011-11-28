@@ -1,9 +1,9 @@
 " unittest.vim's test suite
-
-" TestCase of script-local scope
+"
+" TestCase of script-local accessors
 "
 " Expected results:
-" Green
+"   Green
 "
 " WARNING: Using Context's get/set methods in Vim 7.2 causes deadly signal
 " SEGV. You had better use Vim 7.3 or later when you run the tests that need
