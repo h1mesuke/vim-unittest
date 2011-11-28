@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-15
+" Updated : 2011-11-28
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -335,14 +335,17 @@ call s:OutBuffer.method('close')
 function! s:OutBuffer_puts(...) dict
   let save_winnr =  bufwinnr('%')
   execute bufwinnr(s:OutBuffer.nr) 'wincmd w'
-  let lines  = (a:0 ? split(a:1, "\n") : "")
-  call append('$', lines)
-  setlocal nomodified
-  execute save_winnr 'wincmd w'
-  if g:unittest_smooth_redraw_results
-    normal! G
-    redraw
-  endif
+  try
+    let lines  = (a:0 ? split(a:1, "\n") : "")
+    call append(line('$'), lines)
+    setlocal nomodified
+    if g:unittest_smooth_redraw_results
+      normal! G
+      redraw
+    endif
+  finally
+    execute save_winnr 'wincmd w'
+  endtry
 endfunction
 call s:OutBuffer.method('puts')
 
