@@ -260,7 +260,7 @@ call s:Output.method('print_header')
 
 function! s:Output_print_failure(fail) dict
   call self.puts()
-  let nr = printf('%3d) ', a:fail.nr)
+  let nr = printf('%d) ', a:fail.nr)
   let head = nr . "Failure: " . a:fail.test . ": " . a:fail.assert
   if a:fail.hint != ""
     let head .= ": " . a:fail.hint
@@ -272,7 +272,7 @@ call s:Output.method('print_failure')
 
 function! s:Output_print_error(err) dict
   call self.puts()
-  let nr = printf('%3d) ', a:err.nr)
+  let nr = printf('%d) ', a:err.nr)
   call self.puts(nr . "Error: " . a:err.throwpoint)
   call self.puts(a:err.exception)
 endfunction
