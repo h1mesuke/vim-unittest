@@ -3,7 +3,7 @@
 "
 " File    : syntax/unittest.vim
 " Author  : h1mesuke
-" Updated : 2011-01-22
+" Updated : 2011-11-28
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -37,38 +37,31 @@ endif
 highlight default UnitTestGreen ctermfg=Green guifg=Green
 highlight default UnitTestRed   ctermfg=Red   guifg=Red
 
-syntax match UnitTestHeader
-      \ '^TEST_.*'
-      \ contains=UnitTestResults
-      \ keepend
+syntax match UnitTestStatusLine
+      \ '^=> \zs[.FE]\+'
+      \ contains=UnitTestStatusFailure,UnitTestStatusError
 
-syntax match UnitTestResults
-      \ '\( => \)\@<=[.FE]\+'
-      \ contained
-      \ contains=UnitTestFailure,UnitTestError
-
-syntax match UnitTestFailure
+syntax match UnitTestStatusFailure
       \ 'F'
       \ contained
 
-syntax match UnitTestError
+syntax match UnitTestStatusError
       \ 'E'
       \ contained
 
-syntax match UnitTestErrorHeader
-      \ '^\s*\d\+) \(Failure\|Error\):.*'
+syntax match UnitTestFailure
+      \ '^\s*\d\+) Failure:.*'
 
-syntax match UnitTestStats
+syntax match UnitTestError
+      \ '^\s*\d\+) Error:.*'
+
+syntax match UnitTestResults
       \ '^\d\+ tests, \d\+ assertions, \d\+ failures, \d\+ errors$'
-      \ contains=UnitTestNoFailures,UnitTestNoErrors,UnitTestSomeFailures,UnitTestSomeErrors
+      \ contains=UnitTestAllGreen,UnitTestSomeFailures,UnitTestSomeErrors
       \ keepend
 
-syntax match UnitTestNoFailures
-      \ ' \@<=0 failures,\( 0 errors\)\@='
-      \ contained
-
-syntax match UnitTestNoErrors
-      \ '\( 0 failures, \)\@<=0 errors'
+syntax match UnitTestAllGreen
+      \ '0 failures, 0 errors'
       \ contained
 
 syntax match UnitTestSomeFailures
@@ -79,15 +72,15 @@ syntax match UnitTestSomeErrors
       \ '[1-9]\d* errors'
       \ contained
 
-highlight default link UnitTestFailure      UnitTestRed
-highlight default link UnitTestError        UnitTestRed
+highlight default link UnitTestStatusFailure UnitTestRed
+highlight default link UnitTestStatusError   UnitTestRed
 
-highlight default link UnitTestErrorHeader  ErrorMsg
+highlight default link UnitTestFailure       UnitTestRed
+highlight default link UnitTestError         UnitTestRed
 
-highlight default link UnitTestNoFailures   UnitTestGreen
-highlight default link UnitTestNoErrors     UnitTestGreen
-highlight default link UnitTestSomeFailures UnitTestRed
-highlight default link UnitTestSomeErrors   UnitTestRed
+highlight default link UnitTestAllGreen      UnitTestGreen
+highlight default link UnitTestSomeFailures  UnitTestRed
+highlight default link UnitTestSomeErrors    UnitTestRed
 
 let b:current_syntax = 'unittest'
 
