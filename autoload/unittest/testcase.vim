@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-19
+" Updated : 2011-12-20
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -55,29 +55,53 @@ function! s:TestCase_initialize(name, ...) dict
   else
     let self.name = a:name
     let self.context = s:Context.new(a:0 ? a:1 : {})
-    let self.__cache__ = {}
+    let self.__private__ = {}
     let runner = unittest#runner()
     call runner.add_testcase(self)
   endif
 endfunction
 call s:TestCase.method('initialize')
 
-function! s:TestCase___tests__() dict
-  if !has_key(self.__cache__, 'tests')
-    let tests = s:grep(keys(self), '^\(\(setup\|teardown\)_\)\@!')
-    let tests = s:grep(tests, '\(^test\|\(^\|[^_]_\)should\)_')
-    let self.__cache__.tests = sort(tests)
-  endif
-  return self.__cache__.tests
-endfunction
-call s:TestCase.method('__tests__')
-
 function! s:TestCase___initialize__() dict
+  let funcs = s:funcs(self)
+  let tests = s:grep(funcs, '\%(^test\|\%(^\|[^_]_\)should\)_')
+  let tests = s:grep(tests, '^\%(\%(assert\|setup\|teardown\)_\)\@!')
+  let self.__private__.tests = sort(tests)
+
+  let setups = sort(s:grep(funcs, '^setup_'), 's:compare_strlen')
+  let self.__private__.setup_suffixes = s:map_matchstr(setups, '^setup_\zs.*$')
+
+  let teardowns = reverse(sort(s:grep(funcs, '^teardown_'), 's:compare_strlen'))
+  let self.__private__.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
+
   if has_key(self.context, 'file')
     call self.__open_context_window__()
   endif
 endfunction
 call s:TestCase.method('__initialize__')
+
+function! s:funcs(obj)
+  return filter(keys(a:obj), 'type(a:obj[v:val]) == type(function("tr"))')
+endfunction
+
+function! s:grep(list, pat)
+  return filter(copy(a:list), 'match(v:val, a:pat) != -1')
+endfunction
+
+function! s:map_matchstr(list, pat)
+  return map(copy(a:list), 'matchstr(v:val, a:pat)')
+endfunction
+
+function! s:compare_strlen(str1, str2)
+  let len1 = strlen(a:str1)
+  let len2 = strlen(a:str2)
+  return (len1 == len2 ? 0 : (len1 > len2 ? 1 : -1))
+endfunction
+
+function! s:TestCase___tests__() dict
+  return self.__private__.tests
+endfunction
+call s:TestCase.method('__tests__')
 
 function! s:TestCase___open_context_window__() dict
   let context_file = s:escape_file_pattern(self.context.file)
@@ -119,11 +143,7 @@ function! s:TestCase___setup__(test) dict
   if has_key(self, 'setup')
     call self.setup()
   endif
-  if !has_key(self.__cache__, 'setup_suffixes')
-    let setups = sort(s:grep(keys(self), '^setup_'), 's:compare_strlen')
-    let self.__cache__.setup_suffixes = s:map_matchstr(setups, '^setup_\zs.*$')
-  endif
-  for suffix in self.__cache__.setup_suffixes
+  for suffix in self.__private__.setup_suffixes
     if a:test =~# suffix
       call call(self['setup_' . suffix], [], self)
     endif
@@ -132,11 +152,7 @@ endfunction
 call s:TestCase.method('__setup__')
 
 function! s:TestCase___teardown__(test) dict
-  if !has_key(self.__cache__, 'teardown_suffixes')
-    let teardowns = reverse(sort(s:grep(keys(self), '^teardown_'), 's:compare_strlen'))
-    let self.__cache__.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
-  endif
-  for suffix in self.__cache__.teardown_suffixes
+  for suffix in self.__private__.teardown_suffixes
     if a:test =~# suffix
       call call(self['teardown_' . suffix], [], self)
     endif
@@ -152,21 +168,6 @@ function! s:TestCase_puts(...) dict
   call call(runner.out.puts, a:000, runner.out)
 endfunction
 call s:TestCase.method('puts')
-
-function! s:grep(list, pat, ...)
-  let op = (a:0 ? a:1 : '=~#')
-  return filter(a:list, 'v:val ' . op . ' a:pat')
-endfunction
-
-function! s:map_matchstr(list, pat)
-  return map(a:list, 'matchstr(v:val, a:pat)')
-endfunction
-
-function! s:compare_strlen(str1, str2)
-  let len1 = strlen(a:str1)
-  let len2 = strlen(a:str2)
-  return (len1 == len2 ? 0 : (len1 > len2 ? 1 : -1))
-endfunction
 
 "-----------------------------------------------------------------------------
 " Context
