@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-28
+" Updated : 2011-12-19
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -136,7 +136,7 @@ function! s:TestRunner_run() dict
     let self.current_testcase = tc
     call self.out.print_header(1, tc.name)
     call tc.__initialize__()
-    let tests = self.filter_tests(tc.tests())
+    let tests = self.filter_tests(tc.__tests__())
     for test in tests
       let self.current_test = test
       call self.out.print_header(2, test)

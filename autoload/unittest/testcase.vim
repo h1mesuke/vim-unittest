@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-28
+" Updated : 2011-12-19
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -62,7 +62,7 @@ function! s:TestCase_initialize(name, ...) dict
 endfunction
 call s:TestCase.method('initialize')
 
-function! s:TestCase_tests() dict
+function! s:TestCase___tests__() dict
   if !has_key(self.__cache__, 'tests')
     let tests = s:grep(keys(self), '^\(\(setup\|teardown\)_\)\@!')
     let tests = s:grep(tests, '\(^test\|\(^\|[^_]_\)should\)_')
@@ -70,7 +70,7 @@ function! s:TestCase_tests() dict
   endif
   return self.__cache__.tests
 endfunction
-call s:TestCase.method('tests')
+call s:TestCase.method('__tests__')
 
 function! s:TestCase___initialize__() dict
   if has_key(self.context, 'file')
