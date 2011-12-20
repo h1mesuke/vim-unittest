@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-27
+" Updated : 2011-12-21
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -34,8 +34,12 @@ endfunction
 let s:SID = s:get_SID()
 delfunction s:get_SID
 
-function! unittest#assertions#context()
-  return { 'sid': s:SID, 'scope': s: }
+function! unittest#assertions#context() abort
+  if v:version >= 703
+    return { 'sid': s:SID, 'scope': s: }
+  else
+    throw "Can't export s:, please use Vim 7.3 or later."
+  endif
 endfunction
 
 function! unittest#assertions#module()
