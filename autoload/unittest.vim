@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-19
+" Updated : 2011-12-20
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -463,7 +463,7 @@ function! s:Failure_initialize(reason, hint) dict
   let self.testcase = s:test_runner.current_testcase
   let self.test = s:test_runner.current_test
   let self.failpoint = expand('<sfile>')
-  let self.assert = matchstr(self.failpoint, '\.\.\zsassert#\w\+\ze\.\.')
+  let self.assert = matchstr(self.failpoint, '\.\.<SNR>\d\+_Assertions_\zsassert\w\+\ze\.\.')
   let self.reason = a:reason
   let self.hint = (type(a:hint) == type("") ? a:hint : unittest#oop#string(a:hint))
 endfunction
