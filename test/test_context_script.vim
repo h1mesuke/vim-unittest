@@ -10,7 +10,7 @@
 " to access any of script-local variables.
 
 let context = unittest#assertions#context()
-let tc = unittest#testcase#new('test_context_script', context)
+let tc = unittest#testcase#new("Context", context)
 
 function! tc.test_context_call()
   call self.context.call('s:Assertions_assert_true', [1])

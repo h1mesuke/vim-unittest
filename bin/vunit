@@ -4,7 +4,7 @@
 #
 # File    : bin/vunit
 # Author  : h1mesuke
-# Updated : 2011-11-28
+# Updated : 2011-12-20
 # Version : 0.3.2
 # License : MIT license {{{
 #
@@ -113,10 +113,11 @@ if [ $OUTPUT = "file" ]; then
   $VIM -c "UnitTest $tcfile >$outfile" -c "qall!"
   if [ $COLOR = "TRUE" ]; then
     cat $outfile | sed \
-      -e '/^=> /s/\([EF]\)/[01;31m\1[0m/g' \
-      -e 's/^\([01-9]\+) \(Failure\|Error\): .*\)$/[01;31m\1[0m/' \
-      -e '/^[01-9]\+ tests, [01-9]\+ assertions, /s/\(0 failures, 0 errors\)/[32m\1[0m/g' \
-      -e '/^[01-9]\+ tests, [01-9]\+ assertions, /s/\([1-9][01-9]* \(failures,\|errors\)\)/[01;31m\1[0m/g'
+      -e 's/^\(\w\+\)\( => \.*[FE].*$\)/[31m\1[0m\2/' \
+      -e '/^[^[:space:]]\+ => [.FE]/s/\([EF]\)/[31m\1[0m/g' \
+      -e 's/^\(\s\+\)\(\(Failed\|Error\): .*\)$/\1[31m\2[0m/' \
+      -e '/^[01-9]\+ tests, [01-9]\+ assertions, /s/\(0 failures, 0 errors\)/[32m\1[0m/' \
+      -e '/^[01-9]\+ tests, [01-9]\+ assertions, /s/\([1-9][01-9]* \(failures,\|errors\)\)/[31m\1[0m/'
   else
     cat $outfile
   fi

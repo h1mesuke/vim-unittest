@@ -5,7 +5,7 @@
 " Expected results:
 "   Green
 
-let tc = unittest#testcase#new('test_green')
+let tc = unittest#testcase#new("Green")
 
 function! tc.test_foo()
   call self.assert_true(1)

@@ -8,7 +8,7 @@
 " NOTE: The tests in this file are written to test assertions themselves, so
 " not only successes but also failures are expected as the results.
 
-let tc = unittest#testcase#new('test_assert')
+let tc = unittest#testcase#new("Assertions")
 
 function! tc.test_assert_true()
   call self.assert_true(1)
@@ -217,7 +217,7 @@ let s:Bar = oop#class#new('Bar', s:SID, s:Foo)
 
 let s:Fizz = oop#module#new('Fizz', s:SID)
 
-let tc = unittest#testcase#new('test_assert_oop')
+let tc = unittest#testcase#new("Assertions for vim-oop")
 
 function! tc.setup()
   let self.foo = s:Foo.new()

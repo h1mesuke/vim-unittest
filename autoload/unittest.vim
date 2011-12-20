@@ -130,16 +130,18 @@ function! s:TestRunner_run() dict
   if has("reltime")
     let start_time = reltime()
   endif
+
   call self.out.open()
   call self.out.puts("Started at " . strftime('%c'))
+
   for tc in self.testcases
     let self.current_testcase = tc
-    call self.out.print_header(1, tc.name)
+    call self.out.print_header(tc.name)
+    call self.out.puts()
     call tc.__initialize__()
     let tests = self.filter_tests(tc.__tests__())
     for test in tests
       let self.current_test = test
-      call self.out.print_header(2, test)
       try
         call tc.__setup__(test)
         call call(tc[test], [], tc)
@@ -151,15 +153,19 @@ function! s:TestRunner_run() dict
       catch
         call self.results.add_error()
       endtry
+      " Example: test_foo => ..F..F..
       call self.print_status_line(tc, test)
     endfor
     call tc.__finalize__()
   endfor
+
   call self.print_results()
+
   if has("reltime")
     let used_time = split(reltimestr(reltime(start_time)))[0]
     call self.out.puts("Finished in " . used_time . " seconds.")
   endif
+
   call self.out.close()
 endfunction
 call s:TestRunner.method('run')
@@ -192,7 +198,7 @@ endfunction
 call s:TestRunner.method('report_failure')
 
 function! s:TestRunner_print_status_line(tc, test) dict
-  let line = ''
+  let line = a:test . ' => '
   for result in self.results.of(a:tc, a:test)
     if result.is_a(s:Failure)
       let line .= 'F'
@@ -202,29 +208,60 @@ function! s:TestRunner_print_status_line(tc, test) dict
       let line .= '.'
     endif
   endfor
-  if !empty(line)
-    call self.out.puts('=> ' . line)
-  endif
-
-  for result in self.results.of(a:tc, a:test)
-    if result.is_a(s:Failure)
-      call self.out.print_failure(result)
-    elseif result.is_a(s:Error)
-      call self.out.print_error(result)
-    endif
-  endfor
+  call self.out.puts(line)
 endfunction
 call s:TestRunner.method('print_status_line')
 
 function! s:TestRunner_print_results() dict
-  call self.out.puts()
-  call self.out.print_separator('-')
+  call self.out.print_header("Results")
+
   let number_of = self.results.number_of
+  if number_of.failures > 0
+    call self.out.puts()
+    call self.out.puts("Failures:")
+    let nr = 1
+    for fail in self.results.failures
+      call self.print_failure(fail, nr)
+      let nr += 1
+    endfor
+  endif
+
+  if number_of.errors > 0
+    call self.out.puts()
+    call self.out.puts("Errors:")
+    let nr = 1
+    for err in self.results.errors
+      call self.print_error(err, nr)
+      let nr += 1
+    endfor
+  endif
+
+  call self.out.puts()
   call self.out.puts(number_of.tests . " tests, " . number_of.assertions . " assertions, " .
         \ number_of.failures . " failures, " . number_of.errors . " errors")
   call self.out.puts()
 endfunction
 call s:TestRunner.method('print_results')
+
+function! s:TestRunner_print_failure(fail, nr) dict
+  call self.out.puts()
+  let nr = printf('%d) ', a:nr)
+  let tc_name = a:fail.testcase.name
+  call self.out.puts("  " . nr . tc_name . ": " . a:fail.test)
+  call self.out.puts("    Failed: " . a:fail.assert . " " . a:fail.hint)
+  call self.out.puts("    " . substitute(a:fail.reason, '\n', "\n    ", 'g'))
+endfunction
+call s:TestRunner.method('print_failure')
+
+function! s:TestRunner_print_error(err, nr) dict
+  call self.out.puts()
+  let nr = printf('%d) ', a:nr)
+  let tc_name = a:err.testcase.name
+  call self.out.puts("  " . nr . tc_name . ": " . a:err.test)
+  call self.out.puts("    Error: " . a:err.throwpoint)
+  call self.out.puts("    " . a:err.exception)
+endfunction
+call s:TestRunner.method('print_error')
 
 "-----------------------------------------------------------------------------
 " Output
@@ -241,42 +278,17 @@ function! s:Output_puts() dict
 endfunction
 call s:Output.method('puts')
 
-function! s:Output_print_separator(ch) dict
-  call self.puts(repeat(a:ch, self.get_width()))
+function! s:Output_print_separator() dict
+  call self.puts(repeat('-', self.get_width()))
 endfunction
 call s:Output.method('print_separator')
 
-function! s:Output_print_header(level, title) dict
+function! s:Output_print_header(title) dict
   call self.puts()
-  if a:level == 1
-    call self.print_separator('=')
-    call self.puts(toupper(a:title))
-  else
-    call self.print_separator('-')
-    call self.puts(a:title)
-  endif
+  call self.print_separator()
+  call self.puts(a:title)
 endfunction
 call s:Output.method('print_header')
-
-function! s:Output_print_failure(fail) dict
-  call self.puts()
-  let nr = printf('%d) ', a:fail.nr)
-  let head = nr . "Failure: " . a:fail.test . ": " . a:fail.assert
-  if a:fail.hint != ""
-    let head .= ": " . a:fail.hint
-  endif
-  call self.puts(head)
-  call self.puts(a:fail.reason)
-endfunction
-call s:Output.method('print_failure')
-
-function! s:Output_print_error(err) dict
-  call self.puts()
-  let nr = printf('%d) ', a:err.nr)
-  call self.puts(nr . "Error: " . a:err.throwpoint)
-  call self.puts(a:err.exception)
-endfunction
-call s:Output.method('print_error')
 
 "---------------------------------------
 " OutBuffer < Output
@@ -370,13 +382,15 @@ endfunction
 call s:OutFile.method('open')
 
 function! s:OutFile_close() dict
+  call self.puts()
   redir END
 endfunction
 call s:OutFile.method('close')
 
 function! s:OutFile_puts(...) dict
-  let str  = (a:0 ? a:1 : "")
-  silent echomsg str
+  for line in (a:0 ? split(a:1, "\n") : [""])
+    silent echomsg line
+  endfor
 endfunction
 call s:OutFile.method('puts')
 
@@ -387,6 +401,8 @@ let s:TestResults = unittest#oop#class#new('TestResults', s:SID)
 
 function! s:TestResults_initialize() dict
   let self.results = {}
+  let self.failures = []
+  let self.errors   = []
   let self.number_of = {
         \ 'tests'     : 0,
         \ 'assertions': 0,
@@ -413,22 +429,18 @@ endfunction
 call s:TestResults.method('count_assertion')
 
 function! s:TestResults_add_success() dict
-  call self.append(s:succ)
+  call self.append(s:SUCCESS)
 endfunction
 call s:TestResults.method('add_success')
 
 function! s:TestResults_add_failure(reason, hint) dict
-  let self.number_of.failures += 1
   let fail = s:Failure.new(a:reason, a:hint)
-  let fail.nr = self.number_of.failures
   call self.append(fail)
 endfunction
 call s:TestResults.method('add_failure')
 
 function! s:TestResults_add_error() dict
-  let self.number_of.errors += 1
   let err = s:Error.new()
-  let err.nr = self.number_of.errors
   call self.append(err)
 endfunction
 call s:TestResults.method('add_error')
@@ -445,14 +457,21 @@ function! s:TestResults_append(result) dict
     let self.number_of.tests += 1
   endif
   call add(tc_results[test], a:result)
+
+  if a:result.is_a(s:Failure)
+    call add(self.failures, a:result)
+    let self.number_of.failures += 1
+  elseif a:result.is_a(s:Error)
+    call add(self.errors, a:result)
+    let self.number_of.errors += 1
+  endif
 endfunction
 call s:TestResults.method('append')
 
 "---------------------------------------
 " Success
 
-let s:Success = unittest#oop#class#new('Success', s:SID)
-let s:succ = s:Success.new()
+let s:SUCCESS = unittest#oop#class#new('Success', s:SID).new()
 
 "---------------------------------------
 " Failure

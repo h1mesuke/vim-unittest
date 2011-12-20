@@ -13,10 +13,9 @@
 "   teardown_foo
 "   teardown
 
-let tc = unittest#testcase#new('test_setup')
+let tc = unittest#testcase#new("Setup and Teardown")
 
 function! tc.setup()
-  call self.puts()
   call self.puts("setup")
 endfunction
 
@@ -34,6 +33,7 @@ endfunction
 
 function! tc.teardown()
   call self.puts("teardown")
+  call self.puts()
 endfunction
 
 function! tc.teardown_foo_bar_baz()
