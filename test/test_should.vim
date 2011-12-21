@@ -9,7 +9,7 @@
 "   thoughtbot/shoulda - GitHub
 "   https://github.com/thoughtbot/shoulda
 
-let tc = unittest#testcase#new("Shoulda-style Assertions")
+let tc = unittest#testcase#new("Shoulda-style Test Names")
 
 function! tc.one_should_be_true()
   call self.assert_true(1)
