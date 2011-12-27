@@ -79,14 +79,14 @@ function! unittest#run(...)
   endtry
 endfunction
 
-function! unittest#runner()
+function! unittest#runner() abort
   if !unittest#is_running()
     throw "unittest: :UnitTest is not running now."
   endif
   return s:test_runner
 endfunction
 
-function! unittest#testcase()
+function! unittest#testcase() abort
   if !unittest#is_running()
     throw "unittest: :UnitTest is not running now."
   endif
