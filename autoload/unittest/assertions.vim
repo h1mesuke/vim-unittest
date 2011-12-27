@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-21
+" Updated : 2011-12-28
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -483,14 +483,14 @@ function! s:Assertions_assert_throw(exception, ex_command, ...)
   try
     execute a:ex_command
   catch
-    if v:exception =~# a:exception
-      call s:report_success()
-    else
+    if v:exception !~# a:exception
       call s:report_failure(
             \ unittest#oop#string(a:ex_command) .
             \   " didn't throw /" . a:exception . "/, but threw:\n" .
             \ v:exception,
             \ hint)
+    else
+      call s:report_success()
     endif
     return
   endtry
