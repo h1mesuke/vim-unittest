@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-20
+" Updated : 2011-12-27
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -86,6 +86,13 @@ function! unittest#runner()
   return s:test_runner
 endfunction
 
+function! unittest#testcase()
+  if !unittest#is_running()
+    throw "unittest: :UnitTest is not running now."
+  endif
+  return s:test_runner.current.testcase
+endfunction
+
 function! unittest#is_running()
   return exists('s:test_runner')
 endfunction
@@ -108,7 +115,7 @@ let s:TestRunner = unittest#oop#class#new('TestRunner', s:SID)
 function! s:TestRunner_initialize(test_filters, output) dict
   let self.testcases = []
   let self.test_filters = a:test_filters
-  let self.context = {}
+  let self.current = {}
   let self.results = s:TestResults.new()
   let matched = matchlist(a:output, '^\(>>\=\)\(.*\)$')
   if len(matched) > 0
@@ -135,13 +142,13 @@ function! s:TestRunner_run() dict
   call self.out.puts("Started at " . strftime('%c'))
 
   for tc in self.testcases
-    let self.current_testcase = tc
+    let self.current.testcase = tc
     call self.out.print_header(tc.name)
     call self.out.puts()
     call tc.__initialize__()
     let tests = self.filter_tests(tc.__tests__())
     for test in tests
-      let self.current_test = test
+      let self.current.test = test
       try
         call tc.__setup__(test)
         call call(tc[test], [], tc)
@@ -446,12 +453,12 @@ endfunction
 call s:TestResults.method('add_error')
 
 function! s:TestResults_append(result) dict
-  let tc_name = s:test_runner.current_testcase.name
+  let tc_name = s:test_runner.current.testcase.name
   if !has_key(self.results, tc_name)
     let self.results[tc_name] = {}
   endif
   let tc_results = self.results[tc_name]
-  let test = s:test_runner.current_test
+  let test = s:test_runner.current.test
   if !has_key(tc_results, test)
     let tc_results[test] = []
     let self.number_of.tests += 1
@@ -479,8 +486,8 @@ let s:SUCCESS = unittest#oop#class#new('Success', s:SID).new()
 let s:Failure = unittest#oop#class#new('Failure', s:SID)
 
 function! s:Failure_initialize(reason, hint) dict
-  let self.testcase = s:test_runner.current_testcase
-  let self.test = s:test_runner.current_test
+  let self.testcase = s:test_runner.current.testcase
+  let self.test = s:test_runner.current.test
   let self.failpoint = expand('<sfile>')
   let self.assert = matchstr(self.failpoint, '\.\.<SNR>\d\+_Assertions_\zsassert\w\+\ze\.\.')
   let self.reason = a:reason
@@ -494,8 +501,8 @@ call s:Failure.method('initialize')
 let s:Error = unittest#oop#class#new('Error', s:SID)
 
 function! s:Error_initialize() dict
-  let self.testcase = s:test_runner.current_testcase
-  let self.test = s:test_runner.current_test
+  let self.testcase = s:test_runner.current.testcase
+  let self.test = s:test_runner.current.test
   let self.throwpoint = v:throwpoint
   let self.exception = v:exception
 endfunction
