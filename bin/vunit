@@ -4,7 +4,7 @@
 #
 # File    : bin/vunit
 # Author  : h1mesuke
-# Updated : 2011-12-20
+# Updated : 2011-12-28
 # Version : 0.3.2
 # License : MIT license {{{
 #
@@ -112,12 +112,27 @@ if [ $OUTPUT = "file" ]; then
 
   $VIM -c "UnitTest $tcfile >$outfile" -c "qall!"
   if [ $COLOR = "TRUE" ]; then
-    cat $outfile | sed \
-      -e 's/^\(\w\+\)\( => \.*[FE].*$\)/[31m\1[0m\2/' \
-      -e '/^[^[:space:]]\+ => [.FE]/s/\([EF]\)/[31m\1[0m/g' \
-      -e 's/^\(\s\+\)\(\(Failed\|Error\): .*\)$/\1[31m\2[0m/' \
-      -e '/^[01-9]\+ tests, [01-9]\+ assertions, /s/\(0 failures, 0 errors\)/[32m\1[0m/' \
-      -e '/^[01-9]\+ tests, [01-9]\+ assertions, /s/\([1-9][01-9]* \(failures,\|errors\)\)/[31m\1[0m/'
+    cat $outfile | awk '
+
+      # Status Line
+      /^[[:alpha:]_][[:alnum:]_]* => \.*[FE][.FE]*$/ {
+        $1 = "\x1b[31m" $1 "\x1b[0m"
+        gsub(/[FE]/, "\x1b[31m&\x1b[0m", $3)
+      }
+
+      # Failure/Error Reason
+      /^[[:space:]]+(Failed|Error): / {
+        $0 = "\x1b[31m" $0 "\x1b[0m"
+      }
+
+      # Results
+      /^[01-9]+ tests, [01-9]+ assertions, [01-9]+ failures, [01-9]+ errors$/ {
+        sub(/0 failures, 0 errors/,           "\x1b[32m&\x1b[0m")
+        sub(/[1-9][01-9]* (failures|errors)/, "\x1b[31m&\x1b[0m")
+      }
+
+      { print $0 }
+    '
   else
     cat $outfile
   fi

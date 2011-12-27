@@ -3,7 +3,7 @@
 "
 " File    : syntax/unittest.vim
 " Author  : h1mesuke
-" Updated : 2011-12-20
+" Updated : 2011-12-28
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -37,13 +37,12 @@ endif
 highlight default UnitTestGreen ctermfg=Green   guifg=Green
 highlight default UnitTestRed   ctermfg=DarkRed guifg=DarkRed
 
-syntax match UnitTestStatusLine
-      \ '^\h\w* => [.FE]\+$'
-      \ contains=UnitTestFailedTest,UnitTestStatusFailure,UnitTestStatusError
+syntax match UnitTestGreenStatusLine
+      \ '^\h\w* => \.\+$'
 
-syntax match UnitTestFailedTest
-      \ '^\zs\h\w*\ze => \.*[FE]'
-      \ contained
+syntax match UnitTestRedStatusLine
+      \ '^\h\w* => \.*[FE][.FE]*$'
+      \ contains=UnitTestRedTest,UnitTestStatusFailure,UnitTestStatusError
 
 syntax match UnitTestStatusFailure
       \ 'F'
@@ -51,6 +50,10 @@ syntax match UnitTestStatusFailure
 
 syntax match UnitTestStatusError
       \ 'E'
+      \ contained
+
+syntax match UnitTestRedTest
+      \ '^\zs\h\w*\ze => \.*[FE]'
       \ contained
 
 syntax match UnitTestFailure
@@ -75,7 +78,7 @@ syntax match UnitTestSomeErrors
       \ '[1-9]\d* errors'
       \ contained
 
-highlight default link UnitTestFailedTest    UnitTestRed
+highlight default link UnitTestRedTest       UnitTestRed
 highlight default link UnitTestStatusFailure UnitTestRed
 highlight default link UnitTestStatusError   UnitTestRed
 
