@@ -13,44 +13,44 @@
 "   teardown_foo
 "   teardown
 
-let tc = unittest#testcase#new("Setup and Teardown")
+let s:tc = unittest#testcase#new("Setup and Teardown")
 
-function! tc.setup()
+function! s:tc.setup()
   call self.puts("setup")
 endfunction
 
-function! tc.setup_foo_bar_baz()
+function! s:tc.setup_foo_bar_baz()
   call self.puts("setup_foo_bar_baz")
 endfunction
 
-function! tc.setup_foo()
+function! s:tc.setup_foo()
   call self.puts("setup_foo")
 endfunction
 
-function! tc.setup_foo_bar()
+function! s:tc.setup_foo_bar()
   call self.puts("setup_foo_bar")
 endfunction
 
-function! tc.teardown()
+function! s:tc.teardown()
   call self.puts("teardown")
   call self.puts()
 endfunction
 
-function! tc.teardown_foo_bar_baz()
+function! s:tc.teardown_foo_bar_baz()
   call self.puts("teardown_foo_bar_baz")
 endfunction
 
-function! tc.teardown_foo()
+function! s:tc.teardown_foo()
   call self.puts("teardown_foo")
 endfunction
 
-function! tc.teardown_foo_bar()
+function! s:tc.teardown_foo_bar()
   call self.puts("teardown_foo_bar")
 endfunction
 
-function! tc.test_foo_bar_baz()
+function! s:tc.test_foo_bar_baz()
 endfunction
 
-unlet tc
+unlet s:tc
 
 " vim: filetype=vim

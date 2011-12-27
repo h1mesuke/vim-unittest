@@ -9,16 +9,16 @@
 "   thoughtbot/shoulda - GitHub
 "   https://github.com/thoughtbot/shoulda
 
-let tc = unittest#testcase#new("Shoulda-style Test Names")
+let s:tc = unittest#testcase#new("Shoulda-style Test Names")
 
-function! tc.one_should_be_true()
+function! s:tc.one_should_be_true()
   call self.assert_true(1)
 endfunction
 
-function! tc.zero_should_be_false()
+function! s:tc.zero_should_be_false()
   call self.assert_false(0)
 endfunction
 
-unlet tc
+unlet s:tc
 
 " vim: filetype=vim

@@ -8,75 +8,75 @@
 " NOTE: The tests in this file are written to test assertions themselves, so
 " not only successes but also failures are expected as the results.
 
-let tc = unittest#testcase#new("Assertions")
+let s:tc = unittest#testcase#new("Assertions")
 
-function! tc.test_assert_true()
+function! s:tc.test_assert_true()
   call self.assert_true(1)
   call self.assert_true(0)
 endfunction
 
-function! tc.test_assert_false()
+function! s:tc.test_assert_false()
   call self.assert_false(0)
   call self.assert_false(1)
 endfunction
 
-function! tc.test_assert()
+function! s:tc.test_assert()
   call self.assert(1)
   call self.assert(0)
 endfunction
 
-function! tc.test_assert_not()
+function! s:tc.test_assert_not()
   call self.assert_not(0)
   call self.assert_not(1)
 endfunction
 
-function! tc.test_assert_equal()
+function! s:tc.test_assert_equal()
   call self.assert_equal(1, 1)
   call self.assert_equal(1, 2)
 endfunction
 
-function! tc.test_assert_not_equal()
+function! s:tc.test_assert_not_equal()
   call self.assert_not_equal(1, 2)
   call self.assert_not_equal(1, 1)
 endfunction
 
-function! tc.test_assert_equal_c()
+function! s:tc.test_assert_equal_c()
   call self.assert_equal_c("a", "A")
   call self.assert_equal_c("a", "b")
 endfunction
-function! tc.test_assert_equal_q()
+function! s:tc.test_assert_equal_q()
   call self.assert_equal_q("a", "A")
   call self.assert_equal_q("a", "b")
 endfunction
 
-function! tc.test_assert_not_equal_c()
+function! s:tc.test_assert_not_equal_c()
   call self.assert_not_equal_c("a", "b")
   call self.assert_not_equal_c("a", "A")
 endfunction
-function! tc.test_assert_not_equal_q()
+function! s:tc.test_assert_not_equal_q()
   call self.assert_not_equal_q("a", "b")
   call self.assert_not_equal_q("a", "A")
 endfunction
 
-function! tc.test_assert_equal_C()
+function! s:tc.test_assert_equal_C()
   call self.assert_equal_C("a", "a")
   call self.assert_equal_C("a", "b")
 endfunction
-function! tc.test_assert_equal_s()
+function! s:tc.test_assert_equal_s()
   call self.assert_equal_s("a", "a")
   call self.assert_equal_s("a", "b")
 endfunction
 
-function! tc.test_assert_not_equal_C()
+function! s:tc.test_assert_not_equal_C()
   call self.assert_not_equal_C("a", "b")
   call self.assert_not_equal_C("a", "a")
 endfunction
-function! tc.test_assert_not_equal_s()
+function! s:tc.test_assert_not_equal_s()
   call self.assert_not_equal_s("a", "b")
   call self.assert_not_equal_s("a", "a")
 endfunction
 
-function! tc.test_assert_exists()
+function! s:tc.test_assert_exists()
   call self.assert_exists('*tr')
   call self.assert_exists('*foo#bar#baz')
 
@@ -84,7 +84,7 @@ function! tc.test_assert_exists()
   call self.assert_exists(':bn')
 endfunction
 
-function! tc.test_assert_not_exists()
+function! s:tc.test_assert_not_exists()
   call self.assert_not_exists('*foo#bar#baz')
   call self.assert_not_exists('*tr')
 
@@ -92,111 +92,111 @@ function! tc.test_assert_not_exists()
   call self.assert_not_exists(':bnext')
 endfunction
 
-function! tc.test_assert_is()
+function! s:tc.test_assert_is()
   let a = []
   let b = []
   call self.assert_is(a, a)
   call self.assert_is(a, b)
 endfunction
 
-function! tc.test_assert_is_not()
+function! s:tc.test_assert_is_not()
   let a = []
   let b = []
   call self.assert_is_not(a, b)
   call self.assert_is_not(a, a)
 endfunction
 
-function! tc.test_assert_is_Number()
+function! s:tc.test_assert_is_Number()
   call self.assert_is_Number(1)
   call self.assert_is_Number("a")
 endfunction
 
-function! tc.test_assert_is_String()
+function! s:tc.test_assert_is_String()
   call self.assert_is_String("a")
   call self.assert_is_String(1)
 endfunction
 
-function! tc.test_assert_is_Funcref()
+function! s:tc.test_assert_is_Funcref()
   call self.assert_is_Funcref(function("type"))
   call self.assert_is_Funcref(1)
 endfunction
 
-function! tc.test_assert_is_List()
+function! s:tc.test_assert_is_List()
   call self.assert_is_List([1,2,3])
   call self.assert_is_List(1)
 endfunction
 
-function! tc.test_assert_is_Dictionary()
+function! s:tc.test_assert_is_Dictionary()
   call self.assert_is_Dictionary({ 1:'a', 2:'b' })
   call self.assert_is_Dictionary(1)
 endfunction
 
-function! tc.test_assert_is_Float()
+function! s:tc.test_assert_is_Float()
   call self.assert_is_Float(3.14)
   call self.assert_is_Float(1)
 endfunction
 
-function! tc.test_assert_match()
+function! s:tc.test_assert_match()
   call self.assert_match('e', "hello")
   call self.assert_match('x', "hello")
 endfunction
 
-function! tc.test_assert_not_match()
+function! s:tc.test_assert_not_match()
   call self.assert_not_match('x', "hello")
   call self.assert_not_match('e', "hello")
 endfunction
 
-function! tc.test_assert_match_c()
+function! s:tc.test_assert_match_c()
   call self.assert_match_c('e', "HELLO")
   call self.assert_match_c('x', "HELLO")
 endfunction
-function! tc.test_assert_match_q()
+function! s:tc.test_assert_match_q()
   call self.assert_match_q('e', "HELLO")
   call self.assert_match_q('x', "HELLO")
 endfunction
 
-function! tc.test_assert_not_match_c()
+function! s:tc.test_assert_not_match_c()
   call self.assert_not_match_c('x', "HELLO")
   call self.assert_not_match_c('e', "HELLO")
 endfunction
-function! tc.test_assert_not_match_q()
+function! s:tc.test_assert_not_match_q()
   call self.assert_not_match_q('x', "HELLO")
   call self.assert_not_match_q('e', "HELLO")
 endfunction
 
-function! tc.test_assert_match_C()
+function! s:tc.test_assert_match_C()
   call self.assert_match_C('E', "HELLO")
   call self.assert_match_C('e', "HELLO")
 endfunction
-function! tc.test_assert_match_s()
+function! s:tc.test_assert_match_s()
   call self.assert_match_s('E', "HELLO")
   call self.assert_match_s('e', "HELLO")
 endfunction
 
-function! tc.test_assert_not_match_C()
+function! s:tc.test_assert_not_match_C()
   call self.assert_not_match_C('e', "HELLO")
   call self.assert_not_match_C('E', "HELLO")
 endfunction
-function! tc.test_assert_not_match_s()
+function! s:tc.test_assert_not_match_s()
   call self.assert_not_match_s('e', "HELLO")
   call self.assert_not_match_s('E', "HELLO")
 endfunction
 
-function! tc.test_assert_throw()
+function! s:tc.test_assert_throw()
   call self.assert_throw('E492', 'FooBarBaz')
   call self.assert_throw('E492', 'nohl')
 endfunction
 
-function! tc.test_assert_not_throw()
+function! s:tc.test_assert_not_throw()
   call self.assert_not_throw('nohl')
   call self.assert_not_throw('FooBarBaz')
 endfunction
-function! tc.test_assert_nothing_thrown()
+function! s:tc.test_assert_nothing_thrown()
   call self.assert_nothing_thrown('nohl')
   call self.assert_nothing_thrown('FooBarBaz')
 endfunction
 
-function! tc.test_error()
+function! s:tc.test_error()
   call foo#bar#baz()
 endfunction
 
@@ -217,43 +217,43 @@ let s:Bar = oop#class#new('Bar', s:SID, s:Foo)
 
 let s:Fizz = oop#module#new('Fizz', s:SID)
 
-let tc = unittest#testcase#new("Assertions for vim-oop")
+let s:tc = unittest#testcase#new("Assertions for vim-oop")
 
-function! tc.setup()
+function! s:tc.setup()
   let self.foo = s:Foo.new()
   let self.bar = s:Bar.new()
 endfunction
 
-function! tc.test_assert_is_Object()
+function! s:tc.test_assert_is_Object()
   call self.assert_is_Object(s:Foo)
   call self.assert_is_Object({})
 endfunction
 
-function! tc.test_assert_is_Class()
+function! s:tc.test_assert_is_Class()
   call self.assert_is_Class(s:Foo)
   call self.assert_is_Class(self.foo)
 endfunction
 
-function! tc.test_assert_is_Instance()
+function! s:tc.test_assert_is_Instance()
   call self.assert_is_Class(self.foo)
   call self.assert_is_Class(s:Foo)
 endfunction
 
-function! tc.test_assert_is_Module()
+function! s:tc.test_assert_is_Module()
   call self.assert_is_Module(s:Fizz)
   call self.assert_is_Module({})
 endfunction
 
-function! tc.test_assert_is_kind_of()
+function! s:tc.test_assert_is_kind_of()
   call self.assert_is_kind_of(s:Foo, self.bar)
   call self.assert_is_kind_of(s:Bar, self.foo)
 endfunction
 
-function! tc.test_assert_is_instance_of()
+function! s:tc.test_assert_is_instance_of()
   call self.assert_is_instance_of(s:Foo, self.foo)
   call self.assert_is_instance_of(s:Bar, self.foo)
 endfunction
 
-unlet tc
+unlet s:tc
 
 " vim: filetype=vim
