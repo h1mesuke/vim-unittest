@@ -235,8 +235,8 @@ function! s:tc.test_assert_is_Class()
 endfunction
 
 function! s:tc.test_assert_is_Instance()
-  call self.assert_is_Class(self.foo)
-  call self.assert_is_Class(s:Foo)
+  call self.assert_is_Instance(self.foo)
+  call self.assert_is_Instance(s:Foo)
 endfunction
 
 function! s:tc.test_assert_is_Module()
