@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-20
+" Updated : 2011-12-28
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -74,7 +74,7 @@ function! s:TestCase___initialize__() dict
   let teardowns = reverse(sort(s:grep(funcs, '^teardown_'), 's:compare_strlen'))
   let self.__private__.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
 
-  if has_key(self.context, 'file')
+  if has_key(self.context, 'data')
     call self.__open_context_window__()
   endif
 endfunction
@@ -104,11 +104,11 @@ endfunction
 call s:TestCase.method('__tests__')
 
 function! s:TestCase___open_context_window__() dict
-  let context_file = s:escape_file_pattern(self.context.file)
+  let context_file = s:escape_file_pattern(self.context.data)
   if !bufexists(context_file)
     " The buffer doesn't exist.
     split
-    edit `=self.context.file`
+    edit `=self.context.data`
   elseif bufwinnr(context_file) != -1
     " The buffer exists, and it has a window.
     execute bufwinnr(context_file) 'wincmd w'
@@ -121,14 +121,14 @@ endfunction
 call s:TestCase.method('__open_context_window__')
 
 function! s:TestCase___finalize__() dict
-  if has_key(self.context, 'file')
+  if has_key(self.context, 'data')
     call self.__close_context_window__()
   endif
 endfunction
 call s:TestCase.method('__finalize__')
 
 function! s:TestCase___close_context_window__() dict
-  let context_file = s:escape_file_pattern(self.context.file)
+  let context_file = s:escape_file_pattern(self.context.data)
   if bufwinnr(context_file) != -1
     execute bufwinnr(context_file) 'wincmd c'
   endif
@@ -160,6 +160,7 @@ function! s:TestCase___teardown__(test) dict
   if has_key(self, 'teardown')
     call self.teardown()
   endif
+  call self.context.revert()
 endfunction
 call s:TestCase.method('__teardown__')
 
@@ -175,15 +176,12 @@ call s:TestCase.method('puts')
 let s:Context = unittest#oop#class#new('Context', s:SID)
 
 function! s:Context_initialize(context) dict
+  call extend(self, a:context, 'keep')
   if has_key(a:context, 'sid')
     call self.set_sid(a:context.sid)
   endif
-  if has_key(a:context, 'scope')
-    let self.scope = a:context.scope
-  endif
-  if has_key(a:context, 'file')
-    let self.file = a:context.file
-  endif
+  let self.saved = {}
+  let self.defined = {}
 endfunction
 call s:Context.method('initialize')
 
@@ -197,42 +195,99 @@ endfunction
 call s:Context.method('set_sid')
 
 function! s:Context_call(func, args) dict
-  if !has_key(self, 'sid')
-    throw "InvalidScopeAccess: Context SID is not specified."
+  if a:func =~ '^s:'
+    if !has_key(self, 'sid')
+      throw "InvalidContextAccess: Context SID is not given."
+    endif
+    let func = substitute(a:func, '^s:', self.sid, '')
+  else
+    let func = a:func
   endif
-  let func = self.sid . substitute(a:func, '^s:', '', '')
   return call(func, a:args)
 endfunction
 call s:Context.method('call')
 
+function! s:Context_exists(name) dict
+  if a:name =~ '^[bwtgs]:'
+    let scope = self.get_scope_for(a:name)
+    let name = substitute(a:name, '^\w:', '', '')
+    return has_key(scope, name)
+  else
+    execute 'let value = exists(' . a:name . ')'
+    return value
+  endif
+endfunction
+call s:Context.method('exists')
+
 function! s:Context_get(name, ...) dict
-  let scope = self.get_scope_for(a:name)
-  let name = substitute(a:name, '^[bs]:', '', '')
-  return get(scope, name, (a:0 ? a:1 : 0))
+  if a:name =~ '^[bwtgs]:'
+    let scope = self.get_scope_for(a:name)
+    let name = substitute(a:name, '^\w:', '', '')
+    return get(scope, name, (a:0 ? a:1 : 0))
+  elseif a:name =~ '^&\%([lg]:\)\='
+    execute 'let value = ' . a:name
+    return value
+  endif
 endfunction
 call s:Context.method('get')
 
-function! s:Context_set(name, value) dict
-  let scope = self.get_scope_for(a:name)
-  let name = substitute(a:name, '^[bs]:', '', '')
-  let scope[name] = a:value
+function! s:Context_set(name, value, ...) dict
+  let should_save = (a:0 ? a:1 : 1)
+  if a:name =~ '^[bwtgs]:'
+    let scope = self.get_scope_for(a:name)
+    let name = substitute(a:name, '^\w:', '', '')
+    if should_save && !has_key(self.saved, a:name)
+      if has_key(scope, name)
+        let self.saved[a:name] = scope[name]
+      else
+        let self.saved[a:name] = a:value
+        let self.defined[a:name] = 1
+      endif
+    endif
+    let scope[name] = a:value
+  elseif a:name =~ '^&\%([lg]:\)\='
+    if should_save && !has_key(self.saved, a:name)
+      execute 'let self.saved[a:name] = ' . a:name
+    endif
+    execute 'let ' . a:name . ' = a:value'
+  endif
 endfunction
 call s:Context.method('set')
 
 function! s:Context_get_scope_for(name) dict
   if a:name =~# '^b:'
-    if !has_key(self, 'file')
-      throw "InvalidScopeAccess: Context file is not specified."
+    if !has_key(self, 'data')
+      throw "InvalidContextAccess: Context data is not given."
     endif
     let scope = b:
-  else
+  elseif a:name =~# '^s:'
     if !has_key(self, 'scope')
-      throw "InvalidScopeAccess: Context scope is not specified."
+      throw "InvalidContextAccess: Context scope is not given."
     endif
     let scope = self.scope
+  elseif a:name =~# '^[wtg]:'
+    execute 'let scope = ' . matchstr(a:name, '^\w:')
   endif
   return scope
 endfunction
 call s:Context.method('get_scope_for')
+
+function! s:Context_revert() dict
+  if empty(self.saved)
+    return
+  endif
+  for [name, value] in items(self.saved)
+    if has_key(self.defined, name)
+      let scope = self.get_scope_for(name)
+      let name = substitute(name, '^\w:', '', '')
+      unlet scope[name]
+    else
+      call self.set(name, value, 0)
+    endif
+  endfor
+  let self.saved = {}
+  let self.defined = {}
+endfunction
+call s:Context.method('revert')
 
 " vim: filetype=vim
