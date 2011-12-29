@@ -4,7 +4,7 @@
 #
 # File    : bin/vunit
 # Author  : h1mesuke
-# Updated : 2011-12-28
+# Updated : 2011-12-29
 # Version : 0.3.2
 # License : MIT license {{{
 #
@@ -31,7 +31,7 @@
 
 NAME=vunit
 USAGE="$NAME [options] TESTCASE.vim"
-VERSION=0.0.1
+VERSION=0.1.0
 
 print_help() {
   cat 1>&2 << EOF
@@ -42,11 +42,19 @@ print_help() {
     $USAGE
 
   Options:
-    -V={Vim_command}  Executes tests with {Vim_command}.
-    -C                Output test results witout colors.
-    -b                Output test results using Vim's buffer.
+    -V {Vim_command}  Executes tests with {Vim_command}.
+
+    -c {color_set}    Change the color set used for colorizing the results.
+
+                      Available color sets:
+                        n[one]    Disable colorzing.
+                        d[ark]    Use dark  colors.   [Default]
+                        l[ight]   Use light colors.
+
+    -b                Output the results using Vim's buffer.
 
     -h                Print this help.
+
     -v                Print the version of this program.
 EOF
 }
@@ -60,23 +68,33 @@ print_version() {
 }
 
 VIM=vim
-OUTPUT=file
-COLOR=TRUE
+OUTPUT=FILE   # FILE | BUFFER
+COLOR=DARK    # NONE | DARK | LIGHT
 
 OPT=
 
 # Parse command-line options.
 if [ "$OPTIND" = 1 ]; then
-  while getopts V:Cihv OPT; do
+  while getopts V:c:bhv OPT; do
     case $OPT in
       V)
         VIM=$OPTARG
         ;;
-      C)
-        COLOR=FALSE
+      c)
+        case "$OPTARG" in
+          [nN]*)
+            COLOR=NONE
+            ;;
+          [dD]*)
+            COLOR=DARK
+            ;;
+          [lL]*)
+            COLOR=LIGHT
+            ;;
+        esac
         ;;
       b)
-        OUTPUT=buffer
+        OUTPUT=BUFFER
         ;;
       h | \?)
         print_help
@@ -105,36 +123,45 @@ fi
 
 tcfile=$1
 
-if [ $OUTPUT = "file" ]; then
+if [ $OUTPUT = "FILE" ]; then
   outfile=`mktemp -t vunit_results.XXXXXXXXXX`
   trap "rm -f '$outfile'" 0
   trap "rm -f '$outfile'; exit 1" 1 2 3 15
 
   $VIM -c "UnitTest $tcfile >$outfile" -c "qall!"
-  if [ $COLOR = "TRUE" ]; then
-    cat $outfile | awk '
+  if [ $COLOR = "NONE" ]; then
+    cat $outfile
+  else
+    cat $outfile | awk -v color_set=$COLOR '
+
+      BEGIN {
+        if (color_set == "DARK") {
+          red="\x1b[31m"; green="\x1b[32m"
+        } else {
+          red="\x1b[31;01m"; green="\x1b[32;01m"
+        }
+        endcolor="\x1b[0m"
+      }
 
       # Status Line
       /^[[:alpha:]_][[:alnum:]_]* => \.*[FE][.FE]*$/ {
-        $1 = "\x1b[31m" $1 "\x1b[0m"
-        gsub(/[FE]/, "\x1b[31m&\x1b[0m", $3)
+        $1 = red $1 endcolor
+        gsub(/[FE]/, red "&" endcolor, $3)
       }
 
       # Failure/Error Reason
       /^[[:space:]]+(Failed|Error): / {
-        $0 = "\x1b[31m" $0 "\x1b[0m"
+        $0 = red $0 endcolor
       }
 
       # Results
       /^[01-9]+ tests, [01-9]+ assertions, [01-9]+ failures, [01-9]+ errors$/ {
-        sub(/0 failures, 0 errors/,           "\x1b[32m&\x1b[0m")
-        sub(/[1-9][01-9]* (failures|errors)/, "\x1b[31m&\x1b[0m")
+        sub(/0 failures, 0 errors/,           green "&" endcolor)
+        sub(/[1-9][01-9]* (failures|errors)/, red "&" endcolor)
       }
 
       { print $0 }
     '
-  else
-    cat $outfile
   fi
 else
   $VIM -c "UnitTest $tcfile"

@@ -3,7 +3,7 @@
 "
 " File    : syntax/unittest.vim
 " Author  : h1mesuke
-" Updated : 2011-12-28
+" Updated : 2011-12-29
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -34,8 +34,10 @@ elseif exists('b:current_syntax')
   finish
 endif
 
-highlight default UnitTestGreen ctermfg=Green   guifg=Green
-highlight default UnitTestRed   ctermfg=DarkRed guifg=DarkRed
+execute 'highlight default UnitTestRed'
+      \ 'ctermfg=' . g:unittest_color_red   'guifg=' . g:unittest_color_red
+execute 'highlight default UnitTestGreen'
+      \ 'ctermfg=' . g:unittest_color_green 'guifg=' . g:unittest_color_green
 
 syntax match UnitTestGreenStatusLine
       \ '^\h\w* => \.\+$'
@@ -64,11 +66,7 @@ syntax match UnitTestError
 
 syntax match UnitTestResults
       \ '^\d\+ tests, \d\+ assertions, \d\+ failures, \d\+ errors$'
-      \ contains=UnitTestAllGreen,UnitTestSomeFailures,UnitTestSomeErrors
-
-syntax match UnitTestAllGreen
-      \ '0 failures, 0 errors'
-      \ contained
+      \ contains=UnitTestSomeFailures,UnitTestSomeErrors,UnitTestAllGreen
 
 syntax match UnitTestSomeFailures
       \ '[1-9]\d* failures,'
@@ -78,6 +76,10 @@ syntax match UnitTestSomeErrors
       \ '[1-9]\d* errors'
       \ contained
 
+syntax match UnitTestAllGreen
+      \ '0 failures, 0 errors'
+      \ contained
+
 highlight default link UnitTestRedTest       UnitTestRed
 highlight default link UnitTestStatusFailure UnitTestRed
 highlight default link UnitTestStatusError   UnitTestRed
@@ -85,9 +87,9 @@ highlight default link UnitTestStatusError   UnitTestRed
 highlight default link UnitTestFailure       UnitTestRed
 highlight default link UnitTestError         UnitTestRed
 
-highlight default link UnitTestAllGreen      UnitTestGreen
 highlight default link UnitTestSomeFailures  UnitTestRed
 highlight default link UnitTestSomeErrors    UnitTestRed
+highlight default link UnitTestAllGreen      UnitTestGreen
 
 let b:current_syntax = 'unittest'
 

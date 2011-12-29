@@ -3,7 +3,7 @@
 "
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
-" Updated : 2011-11-14
+" Updated : 2011-12-29
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -43,6 +43,14 @@ set cpo&vim
 
 if !exists('g:unittest_smooth_redraw_results')
   let g:unittest_smooth_redraw_results = 1
+endif
+
+if !exists('g:unittest_color_red')
+  let g:unittest_color_red = "DarkRed"
+endif
+
+if !exists('g:unittest_color_green')
+  let g:unittest_color_green = "Green"
 endif
 
 "-----------------------------------------------------------------------------
