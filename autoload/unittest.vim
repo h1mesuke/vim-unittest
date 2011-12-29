@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-28
+" Updated : 2011-12-29
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -94,6 +94,13 @@ function! unittest#testcase()
 endfunction
 function! unittest#self()
   return unittest#testcase()
+endfunction
+
+function! unittest#test()
+  if !unittest#is_running()
+    throw "unittest: :UnitTest is not running now."
+  endif
+  return s:test_runner.current.test
 endfunction
 
 function! unittest#is_running()
