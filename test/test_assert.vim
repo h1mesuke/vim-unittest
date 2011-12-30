@@ -1,12 +1,16 @@
 " unittest.vim's test suite
 "
-" TestCase of Assertions module
+" Test case of assertions
 "
+"-----------------------------------------------------------------------------
 " Expected results:
+"
 "   {T} tests, {A} assertions, {A/2} failures, 1 errors
 "
 " NOTE: The tests in this file are written to test assertions themselves, so
 " not only successes but also failures are expected as the results.
+"
+"-----------------------------------------------------------------------------
 
 let s:tc = unittest#testcase#new("Assertions")
 

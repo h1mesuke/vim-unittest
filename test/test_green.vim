@@ -1,9 +1,13 @@
 " unittest.vim's test suite
 "
-" TestCase of the green state
+" Test case of the green state
 "
+"-----------------------------------------------------------------------------
 " Expected results:
+"
 "   Green
+"
+"-----------------------------------------------------------------------------
 
 let s:tc = unittest#testcase#new("Green")
 

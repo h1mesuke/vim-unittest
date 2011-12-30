@@ -1,13 +1,17 @@
 " unittest.vim's test suite
 "
-" TestCase of shoulda style tests
+" Test case of shoulda style tests
 "
+"-----------------------------------------------------------------------------
 " Expected results:
+"
 "   Green
 "
 " See also:
 "   thoughtbot/shoulda - GitHub
 "   https://github.com/thoughtbot/shoulda
+"
+"-----------------------------------------------------------------------------
 
 let s:tc = unittest#testcase#new("Shoulda-style Test Names")
 

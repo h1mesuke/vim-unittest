@@ -32,6 +32,8 @@
 "   teardown
 "
 "   Teardown
+"
+"-----------------------------------------------------------------------------
 
 let s:tc = unittest#testcase#new("Setup and Teardown")
 

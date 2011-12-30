@@ -1,13 +1,16 @@
 " unittest.vim's test suite
 "
-" TestCase of context accessors
+" Test case of context accessors
 "
+"-----------------------------------------------------------------------------
 " Expected results:
 "   Green
 "
 " WARNING: Using Context's get/set methods in Vim 7.2 causes deadly signal
 " SEGV. You had better use Vim 7.3 or later when you run the tests that need
 " to access any of script-local variables.
+"
+"-----------------------------------------------------------------------------
 
 let s:tc = unittest#testcase#new("Context", unittest#assertions#context())
 
