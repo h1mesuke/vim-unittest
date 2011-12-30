@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-29
+" Updated : 2011-12-30
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -155,7 +155,7 @@ function! s:TestRunner_run() dict
     let self.current.testcase = tc
     call self.out.print_header(tc.name)
     call self.out.puts()
-    call tc.__initialize__()
+    call tc.__setup_all__()
     let tests = self.filter_tests(tc.__tests__())
     for test in tests
       let self.current.test = test
@@ -173,7 +173,7 @@ function! s:TestRunner_run() dict
       " Example: test_foo => ..F..F..
       call self.print_status_line(tc, test)
     endfor
-    call tc.__finalize__()
+    call tc.__teardown_all__()
   endfor
 
   call self.print_results()

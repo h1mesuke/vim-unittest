@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-28
+" Updated : 2011-12-31
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -62,7 +62,7 @@ function! s:TestCase_initialize(name, ...) dict
 endfunction
 call s:TestCase.method('initialize')
 
-function! s:TestCase___initialize__() dict
+function! s:TestCase___setup_all__() dict
   let funcs = s:funcs(self)
   let tests = s:grep(funcs, '\%(^test\|\%(^\|[^_]_\)should\)_')
   let tests = s:grep(tests, '^\%(\%(assert\|setup\|teardown\)_\)\@!')
@@ -77,8 +77,11 @@ function! s:TestCase___initialize__() dict
   if has_key(self.context, 'data')
     call self.__open_context_window__()
   endif
+  if has_key(self, 'Setup')
+    call self.Setup()
+  endif
 endfunction
-call s:TestCase.method('__initialize__')
+call s:TestCase.method('__setup_all__')
 
 function! s:funcs(obj)
   return filter(keys(a:obj), 'type(a:obj[v:val]) == type(function("tr"))')
@@ -120,12 +123,15 @@ function! s:TestCase___open_context_window__() dict
 endfunction
 call s:TestCase.method('__open_context_window__')
 
-function! s:TestCase___finalize__() dict
+function! s:TestCase___teardown_all__() dict
+  if has_key(self, 'Teardown')
+    call self.Teardown()
+  endif
   if has_key(self.context, 'data')
     call self.__close_context_window__()
   endif
 endfunction
-call s:TestCase.method('__finalize__')
+call s:TestCase.method('__teardown_all__')
 
 function! s:TestCase___close_context_window__() dict
   let context_file = s:escape_file_pattern(self.context.data)
