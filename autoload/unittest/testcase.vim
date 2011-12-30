@@ -54,7 +54,7 @@ function! s:TestCase_initialize(name, ...) dict
           \ "unittest: Don't source a testcase directly, please use :UnitTest command.")
   else
     let self.name = a:name
-    let self.context = s:Context.new(a:0 ? a:1 : {})
+    let self.__context__ = s:Context.new(a:0 ? a:1 : {})
     let self.__private__ = {}
     let runner = unittest#runner()
     call runner.add_testcase(self)
@@ -74,7 +74,7 @@ function! s:TestCase___setup_all__() dict
   let teardowns = reverse(sort(s:grep(funcs, '^teardown_'), 's:compare_strlen'))
   let self.__private__.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
 
-  if has_key(self.context, 'data')
+  if has_key(self.__context__, 'data')
     call self.__open_context_window__()
   endif
   if has_key(self, 'Setup')
@@ -107,11 +107,11 @@ endfunction
 call s:TestCase.method('__tests__')
 
 function! s:TestCase___open_context_window__() dict
-  let context_file = s:escape_file_pattern(self.context.data)
+  let context_file = s:escape_file_pattern(self.__context__.data)
   if !bufexists(context_file)
     " The buffer doesn't exist.
     split
-    edit `=self.context.data`
+    edit `=self.__context__.data`
   elseif bufwinnr(context_file) != -1
     " The buffer exists, and it has a window.
     execute bufwinnr(context_file) 'wincmd w'
@@ -127,14 +127,14 @@ function! s:TestCase___teardown_all__() dict
   if has_key(self, 'Teardown')
     call self.Teardown()
   endif
-  if has_key(self.context, 'data')
+  if has_key(self.__context__, 'data')
     call self.__close_context_window__()
   endif
 endfunction
 call s:TestCase.method('__teardown_all__')
 
 function! s:TestCase___close_context_window__() dict
-  let context_file = s:escape_file_pattern(self.context.data)
+  let context_file = s:escape_file_pattern(self.__context__.data)
   if bufwinnr(context_file) != -1
     execute bufwinnr(context_file) 'wincmd c'
   endif
@@ -166,9 +166,29 @@ function! s:TestCase___teardown__(test) dict
   if has_key(self, 'teardown')
     call self.teardown()
   endif
-  call self.context.revert()
+  call self.__context__.revert()
 endfunction
 call s:TestCase.method('__teardown__')
+
+function! s:TestCase_call(...) dict
+  return call(self.__context__.call, a:000, self.__context__)
+endfunction
+call s:TestCase.method('call')
+
+function! s:TestCase_exists(...) dict
+  return call(self.__context__.exists, a:000, self.__context__)
+endfunction
+call s:TestCase.method('exists')
+
+function! s:TestCase_get(...) dict
+  return call(self.__context__.get, a:000, self.__context__)
+endfunction
+call s:TestCase.method('get')
+
+function! s:TestCase_set(...) dict
+  call call(self.__context__.set, a:000, self.__context__)
+endfunction
+call s:TestCase.method('set')
 
 function! s:TestCase_puts(...) dict
   let runner = unittest#runner()
