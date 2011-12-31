@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-31
+" Updated : 2012-01-01
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -55,6 +55,7 @@ function! s:TestCase_initialize(name, ...) dict
   else
     let self.name = a:name
     let self.__context__ = s:Context.new(a:0 ? a:1 : {})
+    let self.data = self.__context__.data
     let self.__private__ = {}
     let runner = unittest#runner()
     call runner.add_testcase(self)
@@ -63,7 +64,7 @@ endfunction
 call s:TestCase.method('initialize')
 
 function! s:TestCase___setup_all__() dict
-  let funcs = s:funcs(self)
+  let funcs = s:get_funcs(self)
   let tests = s:grep(funcs, '\%(^test\|\%(^\|[^_]_\)should\)_')
   let tests = s:grep(tests, '^\%(\%(assert\|setup\|teardown\)_\)\@!')
   let self.__private__.tests = sort(tests)
@@ -74,8 +75,8 @@ function! s:TestCase___setup_all__() dict
   let teardowns = reverse(sort(s:grep(funcs, '^teardown_'), 's:compare_strlen'))
   let self.__private__.teardown_suffixes = s:map_matchstr(teardowns, '^teardown_\zs.*$')
 
-  if has_key(self.__context__, 'data')
-    call self.__open_context_window__()
+  if self.__context__.data.is_given()
+    call self.__open_data_window__()
   endif
   if has_key(self, 'Setup')
     call self.Setup()
@@ -83,67 +84,49 @@ function! s:TestCase___setup_all__() dict
 endfunction
 call s:TestCase.method('__setup_all__')
 
-function! s:funcs(obj)
-  return filter(keys(a:obj), 'type(a:obj[v:val]) == type(function("tr"))')
-endfunction
-
-function! s:grep(list, pat)
-  return filter(copy(a:list), 'match(v:val, a:pat) != -1')
-endfunction
-
-function! s:map_matchstr(list, pat)
-  return map(copy(a:list), 'matchstr(v:val, a:pat)')
-endfunction
-
-function! s:compare_strlen(str1, str2)
-  let len1 = strlen(a:str1)
-  let len2 = strlen(a:str2)
-  return (len1 == len2 ? 0 : (len1 > len2 ? 1 : -1))
-endfunction
-
 function! s:TestCase___tests__() dict
   return self.__private__.tests
 endfunction
 call s:TestCase.method('__tests__')
 
-function! s:TestCase___open_context_window__() dict
-  let context_file = s:escape_file_pattern(self.__context__.data)
-  if !bufexists(context_file)
+function! s:TestCase___open_data_window__() abort dict
+  echomsg "__open_data_window__"
+  let data_file = s:escape_file_pattern(self.__context__.data.file)
+  if !bufexists(data_file)
     " The buffer doesn't exist.
     split
-    edit `=self.__context__.data`
-  elseif bufwinnr(context_file) != -1
+    edit `=self.__context__.data.file`
+  elseif bufwinnr(data_file) != -1
     " The buffer exists, and it has a window.
-    execute bufwinnr(context_file) 'wincmd w'
+    execute bufwinnr(data_file) 'wincmd w'
   else
     " The buffer exists, but it has no window.
     split
-    execute 'buffer' bufnr(context_file)
+    execute 'buffer' bufnr(data_file)
   endif
+  autocmd! * <buffer>
+  autocmd BufWritePre <buffer>
+        \ throw "InvalidDataWrite: Overwriting of the test data is prohibited."
 endfunction
-call s:TestCase.method('__open_context_window__')
+call s:TestCase.method('__open_data_window__')
 
 function! s:TestCase___teardown_all__() dict
   if has_key(self, 'Teardown')
     call self.Teardown()
   endif
-  if has_key(self.__context__, 'data')
+  if self.__context__.data.is_given()
     call self.__close_context_window__()
   endif
 endfunction
 call s:TestCase.method('__teardown_all__')
 
 function! s:TestCase___close_context_window__() dict
-  let context_file = s:escape_file_pattern(self.__context__.data)
-  if bufwinnr(context_file) != -1
-    execute bufwinnr(context_file) 'wincmd c'
+  let data_file = s:escape_file_pattern(self.__context__.data.file)
+  if bufwinnr(data_file) != -1
+    execute bufwinnr(data_file) 'wincmd c'
   endif
 endfunction
 call s:TestCase.method('__close_context_window__')
-
-function! s:escape_file_pattern(path)
-  return escape(a:path, '*[]?{},')
-endfunction
 
 function! s:TestCase___setup__(test) dict
   if has_key(self, 'setup')
@@ -202,28 +185,30 @@ call s:TestCase.method('puts')
 let s:Context = unittest#oop#class#new('Context', s:SID)
 
 function! s:Context_initialize(context) dict
-  call extend(self, a:context, 'keep')
   if has_key(a:context, 'sid')
-    call self.set_sid(a:context.sid)
+    let self.sid = s:sid_prefix(a:context.sid)
   endif
+  if has_key(a:context, 'scope')
+    let self.scope = a:context.scope
+  endif
+  let self.data = s:Data.new(get(a:context, 'data', ''))
   let self.saved = {}
   let self.defined = {}
 endfunction
 call s:Context.method('initialize')
 
-function! s:Context_set_sid(sid) dict
+function! s:sid_prefix(sid)
   if type(a:sid) == type(0)
-    let self.sid = '<SNR>' . a:sid . '_'
+    return '<SNR>' . a:sid . '_'
   else
-    let self.sid = '<SNR>' . matchstr(a:sid, '\d\+') . '_'
+    return '<SNR>' . matchstr(a:sid, '\d\+') . '_'
   endif
 endfunction
-call s:Context.method('set_sid')
 
 function! s:Context_call(func, args) dict
   if a:func =~ '^s:'
     if !has_key(self, 'sid')
-      throw "InvalidContextAccess: Context SID is not given."
+      throw "InvalidSIDAccess: Context SID is not given."
     endif
     let func = substitute(a:func, '^s:', self.sid, '')
   else
@@ -282,13 +267,13 @@ call s:Context.method('set')
 
 function! s:Context_get_scope_for(name) dict
   if a:name =~# '^b:'
-    if !has_key(self, 'data')
-      throw "InvalidContextAccess: Context data is not given."
+    if !self.data.is_given()
+      throw "InvalidScopeAccess: Test data is not given."
     endif
     let scope = b:
   elseif a:name =~# '^s:'
     if !has_key(self, 'scope')
-      throw "InvalidContextAccess: Context scope is not given."
+      throw "InvalidScopeAccess: Context scope is not given."
     endif
     let scope = self.scope
   elseif a:name =~# '^[wtg]:'
@@ -299,21 +284,209 @@ endfunction
 call s:Context.method('get_scope_for')
 
 function! s:Context_revert() dict
-  if empty(self.saved)
-    return
+  if !empty(self.saved)
+    for [name, value] in items(self.saved)
+      if has_key(self.defined, name)
+        let scope = self.get_scope_for(name)
+        let name = substitute(name, '^\w:', '', '')
+        unlet scope[name]
+      else
+        call self.set(name, value, 0)
+      endif
+    endfor
+    let self.saved = {}
+    let self.defined = {}
   endif
-  for [name, value] in items(self.saved)
-    if has_key(self.defined, name)
-      let scope = self.get_scope_for(name)
-      let name = substitute(name, '^\w:', '', '')
-      unlet scope[name]
-    else
-      call self.set(name, value, 0)
-    endif
-  endfor
-  let self.saved = {}
-  let self.defined = {}
+  call self.data.revert()
 endfunction
 call s:Context.method('revert')
+
+"---------------------------------------
+" Data
+
+let s:Data = unittest#oop#class#new('Data', s:SID)
+
+function! s:Data_initialize(file) dict
+  let self.file = (filereadable(a:file) ? fnamemodify(a:file, ':p') : '')
+  let self.marker_formats = ['# %s', '# end_%s']
+endfunction
+call s:Data.method('initialize')
+
+function! s:Data_is_given() dict
+  return !empty(self.file)
+endfunction
+call s:Data.method('is_given')
+
+function! s:Data___check__() dict
+  if !self.is_given()
+    throw "InvalidDataAccess: Test data is not given."
+  endif
+endfunction
+call s:Data.method('__check__')
+
+function! s:Data_bufnr() dict
+  return bufnr(s:escape_file_pattern(self.file))
+endfunction
+call s:Data.method('bufnr')
+
+" data.goto( {marker} [, {char}])
+function! s:Data_goto(marker, ...) dict
+  call self.__check__()
+  let marker = printf(self.marker_formats[0], a:marker)
+  let mkpat = '^' . s:escape_pattern(marker) . '$'
+  let lnum = search(mkpat, 'w')
+  if lnum > 0
+    call cursor(lnum + 1, 1)
+  else
+    throw "InvalidMarker: Marker '" . marker . "' not found."
+  endif
+  if a:0
+    let char = a:000[0]
+    " NOTE: a:000 may contain {mode} argument at [1], which is the last
+    " argument of data.select()/get()/execute() and meaningless here.
+    if len(char) != 1
+      throw "InvalidMarker: '" . char . "' is not a character."
+    endif
+    execute 'normal! f' . char . 'l'
+  endif
+endfunction
+call s:Data.method('goto')
+
+" data.goto_end( {marker} [, {char}])
+function! s:Data_goto_end(marker, ...) dict
+  call self.__check__()
+  let marker = printf(self.marker_formats[1], a:marker)
+  let mkpat = '^' . s:escape_pattern(marker) . '$'
+  let lnum = search(mkpat, 'w')
+  if lnum > 0
+    call cursor(lnum - 1, 1)
+  else
+    throw "InvalidMarker: Marker '" . marker . "' not found."
+  endif
+  if a:0
+    let char = a:000[0]
+    if len(char) != 1
+      throw "InvalidMarker: '" . char . "' is not a character."
+    endif
+    execute 'normal! $F' . s:end_char(char) . 'h'
+  endif
+endfunction
+call s:Data.method('goto_end')
+
+function! s:end_char(char)
+  return get({ '(': ')', '[': ']', '{': '}', '<': '>' }, a:char, a:char)
+endfunction
+
+" data.range( {marker} [, {char}])
+function! s:Data_range(...) dict
+  let args = a:000
+  call call(self.goto, args, self)
+  let beg = getpos('.')
+  call call(self.goto_end, args, self)
+  let end = getpos('.')
+  return [beg, end]
+endfunction
+call s:Data.method('range')
+
+" data.select( {marker} [, {char} [, {mode}]])
+function! s:Data_select(...) dict
+  let args = a:000
+  let [beg, end] = call(self.range, args, self)
+  if len(args) > 1
+    let mode = get(args, 2, "\<C-v>")
+  else
+    let mode = 'V'
+  endif
+  let mode = get({ 'line': 'V', 'block': "\<C-v>", 'char': 'v' }, mode, mode)
+  call setpos('.', beg)
+  execute 'normal!' mode
+  call setpos('.', end)
+endfunction
+call s:Data.method('select')
+
+" data.get( {marker} [, {char} [, {mode}]])
+function! s:Data_get(...) dict
+  let args = a:000
+  call call(self.select, args, self)
+  let save_regv = { 'value': getreg('v'), 'type': getregtype('v') }
+  normal! "vy
+  let lines = split(@v, "\<NL>")
+  call setreg('v', save_regv.value, save_regv.type)
+  if has_key(self, 'uncomment')
+    call map(lines, 'self.uncomment(v:val)')
+  endif
+  return lines
+endfunction
+call s:Data.method('get')
+
+" data.execute( {command}, {marker} [, {char} [, {mode}]])
+function! s:Data_execute(command, ...) dict
+  let args = a:000
+  let range_str = join(call(self.line_range, args, self), ',')
+  execute range_str . a:command
+endfunction
+call s:Data.method('execute')
+
+" data.visual_execute( {command}, {marker} [, {char} [, {mode}]])
+function! s:Data_visual_execute(command, ...) dict
+  let args = a:000
+  call call(self.select, args, self)
+  execute "normal! \<Esc>"
+  execute "'<,'>" . a:command
+endfunction
+call s:Data.method('visual_execute')
+
+" data.line_range( {marker})
+function! s:Data_line_range(...) dict
+  let args = a:000
+  let [beg, end] = call(self.range, args, self)
+  return [beg[1], end[1]]
+endfunction
+call s:Data.method('line_range')
+
+" data.block_range( {marker}, {char})
+function! s:Data_block_range(...) dict
+  let args = a:000
+  let [beg, end] = call(self.range, args, self)
+  return [beg[1:2], end[1:2]]
+endfunction
+call s:Data.method('block_range')
+call s:Data.alias('char_range', 'block_range')
+
+function! s:Data_revert() dict
+  if &l:modified
+    edit!
+  endif
+endfunction
+call s:Data.method('revert')
+
+"-----------------------------------------------------------------------------
+" Utils
+
+function! s:get_funcs(obj)
+  return filter(keys(a:obj), 'type(a:obj[v:val]) == type(function("tr"))')
+endfunction
+
+function! s:grep(list, pat)
+  return filter(copy(a:list), 'match(v:val, a:pat) != -1')
+endfunction
+
+function! s:map_matchstr(list, pat)
+  return map(copy(a:list), 'matchstr(v:val, a:pat)')
+endfunction
+
+function! s:compare_strlen(str1, str2)
+  let len1 = strlen(a:str1)
+  let len2 = strlen(a:str2)
+  return (len1 == len2 ? 0 : (len1 > len2 ? 1 : -1))
+endfunction
+
+function! s:escape_file_pattern(path)
+  return escape(a:path, '*[]?{},')
+endfunction
+
+function! s:escape_pattern(str)
+  return escape(a:str, '~"\.^$[]*')
+endfunction
 
 " vim: filetype=vim
