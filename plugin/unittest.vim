@@ -3,7 +3,7 @@
 "
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
-" Updated : 2011-12-29
+" Updated : 2012-01-01
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -51,6 +51,10 @@ endif
 
 if !exists('g:unittest_color_green')
   let g:unittest_color_green = "Green"
+endif
+
+if !exists('g:unittest_color_pending')
+  let g:unittest_color_pending = "DarkYellow"
 endif
 
 "-----------------------------------------------------------------------------

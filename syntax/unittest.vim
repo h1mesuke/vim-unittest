@@ -3,7 +3,7 @@
 "
 " File    : syntax/unittest.vim
 " Author  : h1mesuke
-" Updated : 2011-12-29
+" Updated : 2012-01-01
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -34,59 +34,60 @@ elseif exists('b:current_syntax')
   finish
 endif
 
+" Colors
+execute 'highlight default UnitTestPending'
+      \ 'ctermfg=' . g:unittest_color_pending
+      \   'guifg=' . g:unittest_color_pending
+
 execute 'highlight default UnitTestRed'
-      \ 'ctermfg=' . g:unittest_color_red   'guifg=' . g:unittest_color_red
+      \ 'ctermfg=' . g:unittest_color_red
+      \   'guifg=' . g:unittest_color_red
+
 execute 'highlight default UnitTestGreen'
-      \ 'ctermfg=' . g:unittest_color_green 'guifg=' . g:unittest_color_green
+      \ 'ctermfg=' . g:unittest_color_green
+      \   'guifg=' . g:unittest_color_green
 
-syntax match UnitTestGreenStatusLine
-      \ '^\h\w* => \.\+$'
+" Status lines
+syntax match UnitTestPendingStatusLine '^\h\w* => \*$'
+      \ contains=UnitTestPendingTest,UnitTestStatusPending
 
-syntax match UnitTestRedStatusLine
-      \ '^\h\w* => \.*[FE][.FE]*$'
+syntax match UnitTestRedStatusLine '^\h\w* => \.*[FE][.FE]*$'
       \ contains=UnitTestRedTest,UnitTestStatusFailure,UnitTestStatusError
 
-syntax match UnitTestStatusFailure
-      \ 'F'
-      \ contained
+syntax match UnitTestGreenStatusLine '^\h\w* => \.\+$'
 
-syntax match UnitTestStatusError
-      \ 'E'
-      \ contained
+syntax match UnitTestStatusPending '\*' contained
+syntax match UnitTestStatusFailure 'F'  contained
+syntax match UnitTestStatusError   'E'  contained
 
-syntax match UnitTestRedTest
-      \ '^\zs\h\w*\ze => \.*[FE]'
-      \ contained
+syntax match UnitTestPendingTest '^\h\w*' contained
+syntax match UnitTestRedTest     '^\h\w*' contained
 
-syntax match UnitTestFailure
-      \ '^\s\+\zsFailed:.*$'
+syntax match UnitTestPending '^\s\+\zs# Not Yet Implemented$'
+syntax match UnitTestFailure '^\s\+\zsFailed:.*$'
+syntax match UnitTestError   '^\s\+\zsError:.*$'
 
-syntax match UnitTestError
-      \ '^\s\+\zsError:.*$'
-
+" Results
 syntax match UnitTestResults
-      \ '^\d\+ tests, \d\+ assertions, \d\+ failures, \d\+ errors$'
-      \ contains=UnitTestSomeFailures,UnitTestSomeErrors,UnitTestAllGreen
+      \ '^\d\+ tests, \d\+ assertions, \d\+ failures, \d\+ errors\%( (\d\+ pending)\)\=$'
+      \ contains=UnitTestSomePendings,UnitTestSomeFailures,UnitTestSomeErrors,UnitTestAllGreen
 
-syntax match UnitTestSomeFailures
-      \ '[1-9]\d* failures,'
-      \ contained
+syntax match UnitTestSomePendings '([1-9]\d* pending)'   contained
+syntax match UnitTestSomeFailures '[1-9]\d* failures,'   contained
+syntax match UnitTestSomeErrors   '[1-9]\d* errors'      contained
+syntax match UnitTestAllGreen     '0 failures, 0 errors' contained
 
-syntax match UnitTestSomeErrors
-      \ '[1-9]\d* errors'
-      \ contained
-
-syntax match UnitTestAllGreen
-      \ '0 failures, 0 errors'
-      \ contained
-
+highlight default link UnitTestPendingTest   UnitTestPending
 highlight default link UnitTestRedTest       UnitTestRed
+
+highlight default link UnitTestStatusPending UnitTestPending
 highlight default link UnitTestStatusFailure UnitTestRed
 highlight default link UnitTestStatusError   UnitTestRed
 
 highlight default link UnitTestFailure       UnitTestRed
 highlight default link UnitTestError         UnitTestRed
 
+highlight default link UnitTestSomePendings  UnitTestPending
 highlight default link UnitTestSomeFailures  UnitTestRed
 highlight default link UnitTestSomeErrors    UnitTestRed
 highlight default link UnitTestAllGreen      UnitTestGreen

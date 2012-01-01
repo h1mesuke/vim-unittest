@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-30
+" Updated : 2012-01-01
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -170,6 +170,9 @@ function! s:TestRunner_run() dict
       catch
         call self.results.add_error()
       endtry
+      if empty(self.results.of(tc, test))
+        call self.results.add_pending()
+      endif
       " Example: test_foo => ..F..F..
       call self.print_status_line(tc, test)
     endfor
@@ -221,6 +224,8 @@ function! s:TestRunner_print_status_line(tc, test) dict
       let line .= 'F'
     elseif result.is_a(s:Error)
       let line .= 'E'
+    elseif result.is_a(s:Pending)
+      let line .= '*'
     else
       let line .= '.'
     endif
@@ -231,7 +236,6 @@ call s:TestRunner.method('print_status_line')
 
 function! s:TestRunner_print_results() dict
   call self.out.print_header("Results")
-
   let number_of = self.results.number_of
   if number_of.failures > 0
     call self.out.puts()
@@ -242,7 +246,6 @@ function! s:TestRunner_print_results() dict
       let nr += 1
     endfor
   endif
-
   if number_of.errors > 0
     call self.out.puts()
     call self.out.puts("Errors:")
@@ -252,10 +255,19 @@ function! s:TestRunner_print_results() dict
       let nr += 1
     endfor
   endif
-
+  if number_of.pendings > 0
+    call self.out.puts()
+    call self.out.puts("Pending:")
+    let nr = 1
+    for pend in self.results.pendings
+      call self.print_pending(pend, nr)
+      let nr += 1
+    endfor
+  endif
   call self.out.puts()
   call self.out.puts(number_of.tests . " tests, " . number_of.assertions . " assertions, " .
-        \ number_of.failures . " failures, " . number_of.errors . " errors")
+        \ number_of.failures . " failures, " . number_of.errors . " errors" .
+        \ (number_of.pendings > 0 ? " (" . number_of.pendings . " pending)" : ""))
   call self.out.puts()
 endfunction
 call s:TestRunner.method('print_results')
@@ -279,6 +291,15 @@ function! s:TestRunner_print_error(err, nr) dict
   call self.out.puts("    " . a:err.exception)
 endfunction
 call s:TestRunner.method('print_error')
+
+function! s:TestRunner_print_pending(pend, nr) dict
+  call self.out.puts()
+  let nr = printf('%d) ', a:nr)
+  let tc_name = a:pend.testcase.name
+  call self.out.puts("  " . nr . tc_name . ": " . a:pend.test)
+  call self.out.puts("    # Not Yet Implemented")
+endfunction
+call s:TestRunner.method('print_pending')
 
 "-----------------------------------------------------------------------------
 " Output
@@ -420,11 +441,13 @@ function! s:TestResults_initialize() dict
   let self.results = {}
   let self.failures = []
   let self.errors   = []
+  let self.pendings = []
   let self.number_of = {
         \ 'tests'     : 0,
         \ 'assertions': 0,
         \ 'failures'  : 0,
         \ 'errors'    : 0,
+        \ 'pendings'  : 0,
         \ }
 endfunction
 call s:TestResults.method('initialize')
@@ -462,6 +485,12 @@ function! s:TestResults_add_error() dict
 endfunction
 call s:TestResults.method('add_error')
 
+function! s:TestResults_add_pending() dict
+  let pend = s:Pending.new()
+  call self.append(pend)
+endfunction
+call s:TestResults.method('add_pending')
+
 function! s:TestResults_append(result) dict
   let tc_name = s:test_runner.current.testcase.name
   if !has_key(self.results, tc_name)
@@ -475,12 +504,11 @@ function! s:TestResults_append(result) dict
   endif
   call add(tc_results[test], a:result)
 
-  if a:result.is_a(s:Failure)
-    call add(self.failures, a:result)
-    let self.number_of.failures += 1
-  elseif a:result.is_a(s:Error)
-    call add(self.errors, a:result)
-    let self.number_of.errors += 1
+  if a:result isnot s:SUCCESS
+    let kind_s = tolower(a:result.__class__.__name__) . 's'
+    " => failures, errors, pendings
+    call add(self[kind_s], a:result)
+    let self.number_of[kind_s] += 1
   endif
 endfunction
 call s:TestResults.method('append')
@@ -517,5 +545,16 @@ function! s:Error_initialize() dict
   let self.exception = v:exception
 endfunction
 call s:Error.method('initialize')
+
+"---------------------------------------
+" Pending
+
+let s:Pending = unittest#oop#class#new('Pending', s:SID)
+
+function! s:Pending_initialize() dict
+  let self.testcase = s:test_runner.current.testcase
+  let self.test = s:test_runner.current.test
+endfunction
+call s:Pending.method('initialize')
 
 " vim: filetype=vim

@@ -4,7 +4,7 @@
 #
 # File    : bin/vunit
 # Author  : h1mesuke
-# Updated : 2011-12-29
+# Updated : 2012-01-01
 # Version : 0.3.2
 # License : MIT license {{{
 #
@@ -31,7 +31,7 @@
 
 NAME=vunit
 USAGE="$NAME [options] TESTCASE.vim"
-VERSION=0.1.0
+VERSION=0.1.1
 
 print_help() {
   cat 1>&2 << EOF
@@ -136,28 +136,41 @@ if [ $OUTPUT = "FILE" ]; then
 
       BEGIN {
         if (color_set == "DARK") {
-          red="\x1b[31m"; green="\x1b[32m"
+          color_pending = "\x1b[33m"
+          color_red     = "\x1b[31m"
+          color_green   = "\x1b[32m"
         } else {
-          red="\x1b[31;01m"; green="\x1b[32;01m"
+          color_pending = "\x1b[33;01m"
+          color_red     = "\x1b[31;01m"
+          color_green   = "\x1b[32;01m"
         }
-        endcolor="\x1b[0m"
+        end_color="\x1b[0m"
       }
 
-      # Status Line
+      # Status lines
+      /^[[:alpha:]_][[:alnum:]_]* => \*$/ {
+        $1 = color_pending $1 end_color
+        $3 = color_pending $3 end_color
+      }
       /^[[:alpha:]_][[:alnum:]_]* => \.*[FE][.FE]*$/ {
-        $1 = red $1 endcolor
-        gsub(/[FE]/, red "&" endcolor, $3)
+        $1 = color_red $1 end_color
+        gsub(/[FE]/, color_red "&" end_color, $3)
       }
 
-      # Failure/Error Reason
+      # NYI
+      /^[[:space:]]+# Not Yet Implemented$/ {
+        $0 = color_pending $0 end_color
+      }
+      # Failure/Error reason
       /^[[:space:]]+(Failed|Error): / {
-        $0 = red $0 endcolor
+        $0 = color_red $0 end_color
       }
 
       # Results
-      /^[01-9]+ tests, [01-9]+ assertions, [01-9]+ failures, [01-9]+ errors$/ {
-        sub(/0 failures, 0 errors/,           green "&" endcolor)
-        sub(/[1-9][01-9]* (failures|errors)/, red "&" endcolor)
+      /^[01-9]+ tests, [01-9]+ assertions, [01-9]+ failures, [01-9]+ errors( \([01-9]+ pending\))?$/ {
+        sub(/\([1-9][01-9]* pending\)/,       color_pending "&" end_color)
+        sub(/0 failures, 0 errors/,           color_green   "&" end_color)
+        sub(/[1-9][01-9]* (failures|errors)/, color_red     "&" end_color)
       }
 
       { print $0 }
