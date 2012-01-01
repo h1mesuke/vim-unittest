@@ -389,10 +389,9 @@ function! s:OutBuffer_puts(...) dict
     let lines  = (a:0 ? split(a:1, "\n") : "")
     call append(line('$'), lines)
     setlocal nomodified
-    if g:unittest_smooth_redraw_results
-      normal! G
-      redraw
-    endif
+    " Redraw smoothly.
+    normal! G
+    redraw
   finally
     execute save_winnr 'wincmd w'
   endtry

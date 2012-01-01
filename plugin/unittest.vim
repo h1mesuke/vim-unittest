@@ -41,10 +41,6 @@ set cpo&vim
 "-----------------------------------------------------------------------------
 " Variables
 
-if !exists('g:unittest_smooth_redraw_results')
-  let g:unittest_smooth_redraw_results = 1
-endif
-
 if !exists('g:unittest_color_red')
   let g:unittest_color_red = "DarkRed"
 endif

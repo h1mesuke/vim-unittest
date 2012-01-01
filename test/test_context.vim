@@ -4,18 +4,21 @@
 "
 "-----------------------------------------------------------------------------
 " Expected results:
+"
 "   Green
 "
-" WARNING: Using Context's get/set methods in Vim 7.2 causes deadly signal
-" SEGV. You had better use Vim 7.3 or later when you run the tests that need
-" to access any of script-local variables.
+"   WARNING:
+"   Exporting s: in Vim 7.2 causes deadly signal SEGV. You had better use Vim
+"   7.3 or later when you run the tests that access any script-local
+"   variables.
 "
 "-----------------------------------------------------------------------------
 
-let s:tc = unittest#testcase#new("Context", unittest#assertions#context())
+let s:tc = unittest#testcase#new("Context Accessors", unittest#assertions#context())
 
+let g:unittest_test_flag = 1
 let s:current = {
-      \ 'g:unittest_smooth_redraw_results': g:unittest_smooth_redraw_results,
+      \ 'g:unittest_test_flag': g:unittest_test_flag,
       \ '&ignorecase': &ignorecase,
       \ '&g:ignorecase': &g:ignorecase,
       \ '&l:ignorecase': &l:ignorecase,
@@ -30,8 +33,7 @@ function! s:tc.test_context_call_script_local_function()
 endfunction
 
 function! s:tc.test_context_get_global_variable()
-  call self.assert_equal(g:unittest_smooth_redraw_results,
-        \ self.get('g:unittest_smooth_redraw_results'))
+  call self.assert_equal(g:unittest_test_flag, self.get('g:unittest_test_flag'))
 endfunction
 
 function! s:tc.test_context_get_script_local_variable()
@@ -51,14 +53,11 @@ function! s:tc.test_context_get_local_option()
 endfunction
 
 function! s:tc.test_context_set_global_variable()
-  call self.set('g:unittest_smooth_redraw_results',
-        \ !s:current['g:unittest_smooth_redraw_results'])
-  call self.assert_equal(!s:current['g:unittest_smooth_redraw_results'],
-        \ self.get('g:unittest_smooth_redraw_results'))
+  call self.set('g:unittest_test_flag', !s:current['g:unittest_test_flag'])
+  call self.assert_equal(!s:current['g:unittest_test_flag'], g:unittest_test_flag)
 endfunction
 function! s:tc.test_context_set_global_variable_revert()
-  call self.assert_equal(s:current['g:unittest_smooth_redraw_results'],
-        \ self.get('g:unittest_smooth_redraw_results'))
+  call self.assert_equal(s:current['g:unittest_test_flag'], g:unittest_test_flag)
 endfunction
 
 function! s:tc.test_context_define_global_variable()
