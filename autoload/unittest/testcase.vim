@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-01
+" Updated : 2012-01-03
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -205,7 +205,8 @@ function! s:sid_prefix(sid)
   endif
 endfunction
 
-function! s:Context_call(func, args) dict
+" call( {func}, {args} [, {dict}])
+function! s:Context_call(func, args, ...) dict
   if a:func =~ '^s:'
     if !has_key(self, 'sid')
       throw "InvalidSIDAccess: Context SID is not given."
@@ -214,7 +215,12 @@ function! s:Context_call(func, args) dict
   else
     let func = a:func
   endif
-  return call(func, a:args)
+  if a:0
+    let dict = a:1
+    return call(func, a:args, dict)
+  else
+    return call(func, a:args)
+  endif
 endfunction
 call s:Context.method('call')
 
