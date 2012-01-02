@@ -173,6 +173,11 @@ function! s:TestCase_set(...) dict
 endfunction
 call s:TestCase.method('set')
 
+function! s:TestCase_save(...) dict
+  call call(self.__context__.save, a:000, self.__context__)
+endfunction
+call s:TestCase.method('save')
+
 function! s:TestCase_puts(...) dict
   let runner = unittest#runner()
   call call(runner.out.puts, a:000, runner.out)
@@ -192,7 +197,7 @@ function! s:Context_initialize(context) dict
     let self.scope = a:context.scope
   endif
   let self.data = s:Data.new(get(a:context, 'data', ''))
-  let self.saved = {}
+  let self.saved   = {}
   let self.defined = {}
 endfunction
 call s:Context.method('initialize')
@@ -236,6 +241,7 @@ function! s:Context_exists(name) dict
 endfunction
 call s:Context.method('exists')
 
+" call( {name} [, {default}])
 function! s:Context_get(name, ...) dict
   if a:name =~ '^[bwtgs]:'
     let scope = self.get_scope_for(a:name)
@@ -248,28 +254,39 @@ function! s:Context_get(name, ...) dict
 endfunction
 call s:Context.method('get')
 
+" call( {name}, {value} [, {save}])
 function! s:Context_set(name, value, ...) dict
   let should_save = (a:0 ? a:1 : 1)
+  if should_save
+    call self.save(a:name)
+  endif
   if a:name =~ '^[bwtgs]:'
     let scope = self.get_scope_for(a:name)
     let name = substitute(a:name, '^\w:', '', '')
-    if should_save && !has_key(self.saved, a:name)
-      if has_key(scope, name)
-        let self.saved[a:name] = scope[name]
-      else
-        let self.saved[a:name] = a:value
-        let self.defined[a:name] = 1
-      endif
-    endif
     let scope[name] = a:value
   elseif a:name =~ '^&\%([lg]:\)\='
-    if should_save && !has_key(self.saved, a:name)
-      execute 'let self.saved[a:name] = ' . a:name
-    endif
     execute 'let ' . a:name . ' = a:value'
   endif
 endfunction
 call s:Context.method('set')
+
+function! s:Context_save(name) dict
+  if has_key(self.saved, a:name)
+    return
+  endif
+  if a:name =~ '^[bwtgs]:'
+    let scope = self.get_scope_for(a:name)
+    let name = substitute(a:name, '^\w:', '', '')
+    if has_key(scope, name)
+      let self.saved[a:name] = scope[name]
+    else
+      let self.defined[a:name] = 1
+    endif
+  elseif a:name =~ '^&\%([lg]:\)\='
+    execute 'let self.saved[a:name] = ' . a:name
+  endif
+endfunction
+call s:Context.method('save')
 
 function! s:Context_get_scope_for(name) dict
   if a:name =~# '^b:'
@@ -290,17 +307,16 @@ endfunction
 call s:Context.method('get_scope_for')
 
 function! s:Context_revert() dict
-  if !empty(self.saved)
+  if !empty(self.saved) || !empty(self.defined)
     for [name, value] in items(self.saved)
-      if has_key(self.defined, name)
-        let scope = self.get_scope_for(name)
-        let name = substitute(name, '^\w:', '', '')
-        unlet scope[name]
-      else
-        call self.set(name, value, 0)
-      endif
+      call self.set(name, value, 0)
     endfor
-    let self.saved = {}
+    for [name, value] in items(self.defined)
+      let scope = self.get_scope_for(name)
+      let name = substitute(name, '^\w:', '', '')
+      unlet scope[name]
+    endfor
+    let self.saved   = {}
     let self.defined = {}
   endif
   call self.data.revert()

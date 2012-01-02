@@ -20,8 +20,8 @@ let g:unittest_test_flag = 1
 let s:current = {
       \ 'g:unittest_test_flag': g:unittest_test_flag,
       \ '&ignorecase': &ignorecase,
-      \ '&g:ignorecase': &g:ignorecase,
-      \ '&l:ignorecase': &l:ignorecase,
+      \ '&g:autoindent': &g:autoindent,
+      \ '&l:autoindent': &l:autoindent,
       \ }
 
 function! s:tc.test_context_call_global_function()
@@ -45,7 +45,7 @@ function! s:tc.test_context_get_option()
 endfunction
 
 function! s:tc.test_context_get_global_option()
-  call self.assert_equal(&g:ignorecase, self.get('&g:ignorecase'))
+  call self.assert_equal(&g:autoindent, self.get('&g:autoindent'))
 endfunction
 
 function! s:tc.test_context_get_local_option()
@@ -84,28 +84,55 @@ function! s:tc.test_context_define_script_local_variable_revert()
   call self.assert_not(self.exists('s:foo'))
 endfunction
 
-function! s:tc.test_context_set_option()
+function! s:tc.test_context_set_global_option()
   call self.set('&ignorecase', !s:current['&ignorecase'])
   call self.assert_equal(!s:current['&ignorecase'], &ignorecase)
 endfunction
-function! s:tc.test_context_set_option_revert()
+function! s:tc.test_context_set_global_option_revert()
   call self.assert_equal(s:current['&ignorecase'], &ignorecase)
 endfunction
 
-function! s:tc.test_context_set_global_option()
-  call self.set('&g:ignorecase', !s:current['&g:ignorecase'])
-  call self.assert_equal(!s:current['&g:ignorecase'], &g:ignorecase)
+function! s:tc.test_context_set_local_option_g()
+  call self.set('&g:autoindent', !s:current['&g:autoindent'])
+  call self.assert_equal(!s:current['&g:autoindent'], &g:autoindent)
 endfunction
-function! s:tc.test_context_set_global_option_revert()
-  call self.assert_equal(s:current['&g:ignorecase'], &g:ignorecase)
+function! s:tc.test_context_set_local_option_g_revert()
+  call self.assert_equal(s:current['&g:autoindent'], &g:autoindent)
 endfunction
 
 function! s:tc.test_context_set_local_option()
-  call self.set('&l:ignorecase', !s:current['&l:ignorecase'])
-  call self.assert_equal(!s:current['&l:ignorecase'], &l:ignorecase)
+  call self.set('&l:autoindent', !s:current['&l:autoindent'])
+  call self.assert_equal(!s:current['&l:autoindent'], &l:autoindent)
 endfunction
 function! s:tc.test_context_set_local_option_revert()
-  call self.assert_equal(s:current['&l:ignorecase'], &l:ignorecase)
+  call self.assert_equal(s:current['&l:autoindent'], &l:autoindent)
+endfunction
+
+function! s:tc.test_context_save_global_option()
+  call self.save('&ignorecase')
+  set ignorecase!
+  call self.assert_equal(!s:current['&ignorecase'], &ignorecase)
+endfunction
+function! s:tc.test_context_save_global_option_revert()
+  call self.assert_equal(s:current['&ignorecase'], &ignorecase)
+endfunction
+
+function! s:tc.test_context_save_local_option_g()
+  call self.save('&g:autoindent')
+  setglobal autoindent!
+  call self.assert_equal(!s:current['&g:autoindent'], &g:autoindent)
+endfunction
+function! s:tc.test_context_save_local_option_g_revert()
+  call self.assert_equal(s:current['&g:autoindent'], &g:autoindent)
+endfunction
+
+function! s:tc.test_context_save_local_option()
+  call self.save('&l:autoindent')
+  setlocal autoindent!
+  call self.assert_equal(!s:current['&l:autoindent'], &l:autoindent)
+endfunction
+function! s:tc.test_context_save_local_option_revert()
+  call self.assert_equal(s:current['&l:autoindent'], &l:autoindent)
 endfunction
 
 unlet s:tc
