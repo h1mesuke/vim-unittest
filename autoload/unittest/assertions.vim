@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2011-12-28
+" Updated : 2012-01-04
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -477,15 +477,15 @@ endfunction
 call s:Assertions.function('assert_not_match_C')
 call s:Assertions.alias('assert_not_match_s', 'assert_not_match_C')
 
-function! s:Assertions_assert_throw(exception, ex_command, ...)
+function! s:Assertions_assert_throw(exception, command, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
-    execute a:ex_command
+    execute a:command
   catch
     if v:exception !~# a:exception
       call s:report_failure(
-            \ unittest#oop#string(a:ex_command) .
+            \ unittest#oop#string(a:command) .
             \   " didn't throw /" . a:exception . "/, but threw:\n" .
             \ v:exception,
             \ hint)
@@ -495,20 +495,20 @@ function! s:Assertions_assert_throw(exception, ex_command, ...)
     return
   endtry
   call s:report_failure(
-        \ unittest#oop#string(a:ex_command) . " didn't throw /" . a:exception . "/\n" .
+        \ unittest#oop#string(a:command) . " didn't throw /" . a:exception . "/\n" .
         \ "Nothing thrown.",
         \ hint)
 endfunction
 call s:Assertions.function('assert_throw')
 
-function! s:Assertions_assert_not_throw(ex_command, ...)
+function! s:Assertions_assert_not_throw(command, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
-    execute a:ex_command
+    execute a:command
   catch
     call s:report_failure(
-          \ unittest#oop#string(a:ex_command) . " threw:\n" .
+          \ unittest#oop#string(a:command) . " threw:\n" .
           \ v:exception,
           \ hint)
     return

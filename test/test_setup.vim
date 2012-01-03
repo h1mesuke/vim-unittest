@@ -108,10 +108,9 @@ function! s:tc.Teardown()
   call self.puts("Teardown")
 endfunction
 
-" NOTE: This test must be executed at the last in alphabetical order, so
-" "zetup" of the name isn't a typo. Unfortunately, this can't test Teardown(),
-" so we need to see the output of the test results finding "Teardown" printed
-" by puts().
+" NOTE: This test must be executed last in alphabetical order, so "zetup" of
+" the name isn't a typo. Unfortunately, this can't test Teardown(), so we need
+" to see the output of the test results finding "Teardown" printed by puts().
 "
 function! s:tc.test_zetup_and_teardown()
   let expected = [
