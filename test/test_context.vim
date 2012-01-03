@@ -14,6 +14,10 @@
 "
 "-----------------------------------------------------------------------------
 
+if v:version < 703
+  throw "Can't export s:, please use Vim 7.3 or later."
+endif
+
 let s:tc = unittest#testcase#new("Context Accessors", unittest#assertions#context())
 
 let g:unittest_test_flag = 1

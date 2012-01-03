@@ -34,12 +34,8 @@ endfunction
 let s:SID = s:get_SID()
 delfunction s:get_SID
 
-function! unittest#assertions#context() abort
-  if v:version >= 703
-    return { 'sid': s:SID, 'scope': s: }
-  else
-    throw "Can't export s:, please use Vim 7.3 or later."
-  endif
+function! unittest#assertions#context()
+  return { 'sid': s:SID, 'scope': s: }
 endfunction
 
 function! unittest#assertions#module()
