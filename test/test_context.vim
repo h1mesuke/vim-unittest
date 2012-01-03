@@ -24,6 +24,26 @@ let s:current = {
       \ '&l:autoindent': &l:autoindent,
       \ }
 
+function! s:tc.test_context_exists_global_function()
+  call self.assert(self.exists('*unittest#is_running'))
+  call self.assert_not(self.exists('*unittest#foo'))
+endfunction
+
+function! s:tc.test_context_exists_script_local_function()
+  call self.assert(self.exists('*s:Assertions_assert_true'))
+  call self.assert_not(self.exists('*s:Assertions_foo'))
+endfunction
+
+function! s:tc.test_context_exists_global_variable()
+  call self.assert(self.exists('g:unittest_test_flag'))
+  call self.assert_not(self.exists('g:unittest_foo'))
+endfunction
+
+function! s:tc.test_context_exists_script_local_variable()
+  call self.assert(self.exists('s:TYPE_NUM'))
+  call self.assert_not(self.exists('s:foo'))
+endfunction
+
 function! s:tc.test_context_call_global_function()
   call self.assert(self.call('unittest#is_running', []))
 endfunction

@@ -229,14 +229,14 @@ function! s:Context_call(func, args, ...) dict
 endfunction
 call s:Context.method('call')
 
-function! s:Context_exists(name) dict
-  if a:name =~ '^[bwtgs]:'
-    let scope = self.get_scope_for(a:name)
-    let name = substitute(a:name, '^\w:', '', '')
+function! s:Context_exists(expr) dict
+  if a:expr =~ '^[bwtgs]:'
+    let scope = self.get_scope_for(a:expr)
+    let name = substitute(a:expr, '^\w:', '', '')
     return has_key(scope, name)
   else
-    execute 'let value = exists(' . a:name . ')'
-    return value
+    let expr = substitute(a:expr, '^*s:', '*' . self.sid, '')
+    return exists(expr)
   endif
 endfunction
 call s:Context.method('exists')
