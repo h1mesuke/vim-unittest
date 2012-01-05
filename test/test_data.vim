@@ -52,8 +52,24 @@ let s:LOREM_IPSUM_SORTED = [
       \ 'tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,',
       \ ]
 
+function! s:tc.Setup()
+  let self.saved = {}
+endfunction
+
 function! s:tc.test_data_is_given()
   call self.assert(self.data.is_given())
+endfunction
+
+function! s:tc.setup_data_marker_formats_change()
+  let self.saved.marker_formats = self.data.marker_formats
+  let self.data.marker_formats = ['// BEGIN %s', '// END %s']
+endfunction
+function! s:tc.test_data_marker_formats_change()
+  let expected = ['TEST DATA IN CHANGED MARKER']
+  call self.assert_equal(expected, self.data.get('CHANGED MARKER'))
+endfunction
+function! s:tc.teardown_data_marker_formats_change()
+  let self.data.marker_formats = self.saved.marker_formats
 endfunction
 
 function! s:tc.test_data_goto()
