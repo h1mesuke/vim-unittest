@@ -147,5 +147,3 @@ function! s:tc.test_zetup_and_teardown()
 endfunction
 
 unlet s:tc
-
-" vim: filetype=vim

@@ -160,5 +160,3 @@ function! s:tc.test_context_save_local_option_revert()
 endfunction
 
 unlet s:tc
-
-" vim: filetype=vim

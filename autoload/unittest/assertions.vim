@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-04
+" Updated : 2012-01-07
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -630,5 +630,3 @@ function! s:report_failure(reason, hint)
     throw "AssertionFailed: " . msg
   endif
 endfunction
-
-" vim: filetype=vim

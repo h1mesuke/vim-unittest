@@ -24,5 +24,3 @@ function! s:tc.zero_should_be_false()
 endfunction
 
 unlet s:tc
-
-" vim: filetype=vim

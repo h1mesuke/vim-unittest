@@ -3,7 +3,7 @@
 "
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
-" Updated : 2012-01-01
+" Updated : 2012-01-07
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -64,5 +64,3 @@ let &cpo = s:save_cpo
 unlet s:save_cpo
 
 let g:loaded_unittest = 1
-
-" vim: filetype=vim

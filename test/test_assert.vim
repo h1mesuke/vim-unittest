@@ -259,5 +259,3 @@ function! s:tc.test_assert_is_instance_of()
 endfunction
 
 unlet s:tc
-
-" vim: filetype=vim

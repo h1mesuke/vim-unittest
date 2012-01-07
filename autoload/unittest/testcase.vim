@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-03
+" Updated : 2012-01-07
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -510,5 +510,3 @@ endfunction
 function! s:escape_pattern(str)
   return escape(a:str, '~"\.^$[]*')
 endfunction
-
-" vim: filetype=vim

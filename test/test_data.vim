@@ -178,5 +178,3 @@ function! s:tc.teardown_data_uncomment()
 endfunction
 
 unlet s:tc
-
-" vim: filetype=vim

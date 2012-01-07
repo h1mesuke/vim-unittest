@@ -3,7 +3,7 @@
 "
 " File    : syntax/unittest.vim
 " Author  : h1mesuke
-" Updated : 2012-01-01
+" Updated : 2012-01-07
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -93,5 +93,3 @@ highlight default link UnitTestSomeErrors    UnitTestRed
 highlight default link UnitTestAllGreen      UnitTestGreen
 
 let b:current_syntax = 'unittest'
-
-" vim: filetype=vim

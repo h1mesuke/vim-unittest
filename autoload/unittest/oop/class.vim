@@ -4,7 +4,7 @@
 "
 " File    : oop/class.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-04
+" Updated : 2012-01-07
 " Version : 0.2.1
 " License : MIT license {{{
 "
@@ -286,5 +286,3 @@ function! s:Instance_is_kind_of(class) dict
 endfunction
 let s:Instance.is_kind_of = function(s:SID . 'Instance_is_kind_of')
 let s:Instance.is_a = function(s:SID . 'Instance_is_kind_of')
-
-" vim: filetype=vim

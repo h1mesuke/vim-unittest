@@ -4,7 +4,7 @@
 "
 " File    : oop.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2011-11-04
+" Updated : 2012-01-07
 " Version : 0.2.1
 " License : MIT license {{{
 "
@@ -84,5 +84,3 @@ function! s:dump_copy(value)
     return value
   endif
 endfunction
-
-" vim: filetype=vim

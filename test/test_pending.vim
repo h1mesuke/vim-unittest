@@ -21,5 +21,3 @@ function! s:tc.test_baz()
 endfunction
 
 unlet s:tc
-
-" vim: filetype=vim

@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-01
+" Updated : 2012-01-07
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -555,5 +555,3 @@ function! s:Pending_initialize() dict
   let self.test = s:test_runner.current.test
 endfunction
 call s:Pending.method('initialize')
-
-" vim: filetype=vim
