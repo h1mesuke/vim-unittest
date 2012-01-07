@@ -29,6 +29,9 @@
 " }}}
 "=============================================================================
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 " Inspired by Yukihiro Nakadaira's nsexample.vim
 " https://gist.github.com/867896
 "
@@ -286,3 +289,6 @@ function! s:Instance_is_kind_of(class) dict
 endfunction
 let s:Instance.is_kind_of = function(s:SID . 'Instance_is_kind_of')
 let s:Instance.is_a = function(s:SID . 'Instance_is_kind_of')
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

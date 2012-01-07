@@ -34,6 +34,9 @@ elseif exists('b:current_syntax')
   finish
 endif
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 " Colors
 execute 'highlight default UnitTestPending'
       \ 'ctermfg=' . g:unittest_color_pending
@@ -93,3 +96,6 @@ highlight default link UnitTestSomeErrors    UnitTestRed
 highlight default link UnitTestAllGreen      UnitTestGreen
 
 let b:current_syntax = 'unittest'
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

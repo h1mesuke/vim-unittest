@@ -35,6 +35,9 @@
 "
 "-----------------------------------------------------------------------------
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 let s:tc = unittest#testcase#new("Setup and Teardown")
 
 function! s:tc.Setup()
@@ -147,3 +150,6 @@ function! s:tc.test_zetup_and_teardown()
 endfunction
 
 unlet s:tc
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

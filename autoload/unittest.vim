@@ -28,6 +28,9 @@
 " }}}
 "=============================================================================
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 function! unittest#run(...)
   let args = a:000
   if empty(filter(copy(args), "v:val !~ '^[gv]/'"))
@@ -555,3 +558,6 @@ function! s:Pending_initialize() dict
   let self.test = s:test_runner.current.test
 endfunction
 call s:Pending.method('initialize')
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

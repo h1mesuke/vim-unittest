@@ -29,6 +29,9 @@
 " }}}
 "=============================================================================
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 " Inspired by Yukihiro Nakadaira's nsexample.vim
 " https://gist.github.com/867896
 "
@@ -106,3 +109,6 @@ function! s:Module_alias(alias, meth_name) dict
   endif
 endfunction
 let s:Module.alias = function(s:SID . 'Module_alias')
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

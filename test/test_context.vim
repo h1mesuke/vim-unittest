@@ -18,6 +18,9 @@ if v:version < 703
   throw "Can't export s:, please use Vim 7.3 or later."
 endif
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 let s:tc = unittest#testcase#new("Context Accessors", unittest#assertions#context())
 
 let g:unittest_test_flag = 1
@@ -160,3 +163,6 @@ function! s:tc.test_context_save_local_option_revert()
 endfunction
 
 unlet s:tc
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

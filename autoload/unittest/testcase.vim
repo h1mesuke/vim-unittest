@@ -28,6 +28,9 @@
 " }}}
 "=============================================================================
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 function! unittest#testcase#class()
   return s:TestCase
 endfunction
@@ -510,3 +513,6 @@ endfunction
 function! s:escape_pattern(str)
   return escape(a:str, '~"\.^$[]*')
 endfunction
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

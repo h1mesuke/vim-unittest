@@ -29,6 +29,9 @@
 " }}}
 "=============================================================================
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 " Inspired by Yukihiro Nakadaira's nsexample.vim
 " https://gist.github.com/867896
 "
@@ -84,3 +87,6 @@ function! s:dump_copy(value)
     return value
   endif
 endfunction
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

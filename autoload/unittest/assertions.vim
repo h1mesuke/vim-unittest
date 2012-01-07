@@ -28,6 +28,9 @@
 " }}}
 "=============================================================================
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 function! s:get_SID()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
@@ -630,3 +633,6 @@ function! s:report_failure(reason, hint)
     throw "AssertionFailed: " . msg
   endif
 endfunction
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
