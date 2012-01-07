@@ -1,5 +1,5 @@
 "=============================================================================
-" Simple Unit Testing Framework for Vim script
+" Unit Testing Framework for Vim script
 "
 " File    : syntax/unittest.vim
 " Author  : h1mesuke

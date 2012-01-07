@@ -1,6 +1,6 @@
 #!/bin/sh
 #=============================================================================
-# Simple Unit Testing Framework for Vim script
+# Unit Testing Framework for Vim script
 #
 # File    : bin/vunit
 # Author  : h1mesuke

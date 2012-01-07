@@ -1,5 +1,5 @@
 "=============================================================================
-" Simple Unit Testing Framework for Vim script
+" Unit Testing Framework for Vim script
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
