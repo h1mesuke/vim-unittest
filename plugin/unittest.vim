@@ -3,7 +3,7 @@
 "
 " File    : plugin/unittest.vim
 " Author  : h1mesuke
-" Updated : 2012-01-07
+" Updated : 2012-01-08
 " Version : 0.3.2
 " License : MIT license {{{
 "
@@ -28,12 +28,13 @@
 " }}}
 "=============================================================================
 
-if v:version < 702 || &cp
-  echoerr "unittest: Vim 7.2 or later required"
+if v:version < 702
+  echoerr "unittest: Vim 7.2 or later required."
   finish
-elseif exists('g:loaded_unittest')
+elseif exists('g:loaded_unittest') && g:loaded_unittest
   finish
 endif
+let g:loaded_unittest = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -58,9 +59,5 @@ endif
 
 command! -nargs=* -complete=file UnitTest call unittest#run(<f-args>)
 
-"-----------------------------------------------------------------------------
-
 let &cpo = s:save_cpo
 unlet s:save_cpo
-
-let g:loaded_unittest = 1
