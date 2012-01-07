@@ -45,7 +45,7 @@ CONTENTS					*unittest-contents*
 ==============================================================================
 INTRODUCTION					*unittest-introduction*
 
-	*unittest.vim* is a unit testing framework for Vim script.  It helps
+	*unittest.vim* is a unit testing framework for Vim script. It helps
 	you to test user defined commands and functions of your Vim scripts.
 	You can write tests for not only globals but also script-locals in the
 	manner of xUnit.
@@ -162,17 +162,17 @@ SETUP AND TEARDOWN			*unittest-setup* *unittest-teardown*
 
 	Teardown
 <
-	At first, Setup() is executed.  Note that Setup() and Teardown(),
-	whose names start with an uppercase letter, are executed once for
-	a test case.  Setup() for preparation and Teardown() for cleaning up.
+	At first, Setup() is executed. Note that Setup() and Teardown(), whose
+	names start with an uppercase letter, are executed once for a test
+	case. Setup() for preparation and Teardown() for cleaning up.
 
-	"foo_bar" matches "foo" and "foo_bar".  Setup functions are executed
+	"foo_bar" matches "foo" and "foo_bar". Setup functions are executed
 	from the shortest matched to the longest matched before each tests.
 	On the other hand, teardown functions are executed conversely after
-	each tests.  Tests are executed in alphabetical order. 
+	each tests. Tests are executed in alphabetical order. 
 
 	setup() and teardown() are always considered to be the shortest
-	matched if they exists.  In other words, they are executed for each
+	matched if they exists. In other words, they are executed for each
 	tests.
 
 	At last, Teardown() is executed.
@@ -204,12 +204,12 @@ ACCESS SCRIPT-LOCALS			*unittest-access-script-locals*
 
 						*unittest-context-sid*
 			sid	The SID prefix or number of the script to be
-				tested.  Required if the test case has tests
+				tested. Required if the test case has tests
 				that call any script-local functions of the
 				script.
 						*unittest-context-scope*
 			scope	A Dictionary of the script-local variables of
-				the script to be tested.  Required if the test
+				the script to be tested. Required if the test
 				case has tests that access any script-local
 				variables of the script.
 
@@ -279,8 +279,8 @@ TEST DATA					*unittest-test-data*
 		  of the test data file.
 
 		* Test data, the content of the current buffer, is modifiable
-		  but reverted automatically after each tests.  It's OK that
-		  tests change the test data.  You can write assertions that
+		  but reverted automatically after each tests. It's OK that
+		  tests change the test data. You can write assertions that
 		  compare the changed results to what you expect.
 
 		* It is guaranteed that a test data file is not overwritten by
@@ -343,16 +343,16 @@ COMMANDS					*unittest-commands*
 		When {testcase} isn't given, the current buffer is assumed.
 
 		When {filter} is given, only the tests that match the
-		filtering pattern are executed.  g/{pattern} means "only
+		filtering pattern are executed. g/{pattern} means "only
 		matches" and v/{pattern} means "except matches".
 
 		Example: >
 		:UnitTest test_foo.vim g/some_feature
 <
 		When {tofile} is given, the results of the tests are outputted
-		to a file.  The filename MUST be prefixed by ">" or ">>". ">>"
-		means "append" not "overwrite".  The results outputted to the
-		file are not colorized.
+		to a file. The filename MUST be prefixed by ">" or ">>". The
+		latter means "append" not "overwrite". The results outputted
+		to the file are not colorized.
 
 		Example: >
 		:UnitTest test_foo.vim >output.txt
@@ -370,7 +370,7 @@ GLOBAL FUNCTIONS				*unittest-functions*
 		report of the test results.
 
 		{context} must be a Dictionary that gives hints to access the
-		script-locals and/or the test data.  See
+		script-locals and/or the test data. See
 		|unittest-access-script-locals| and |unittest-test-data|.
 
 		Example: >
@@ -391,12 +391,12 @@ GLOBAL FUNCTIONS				*unittest-functions*
 ------------------------------------------------------------------------------
 TESTCASE METHODS				*unittest-testcase-methods*
 
-	The following functions are TestCase's instance methods.  You can use
+	The following functions are TestCase's instance methods. You can use
 	them via special "self" variable in test functions.
 
 ASSERTIONS					*unittest-assertions*
 
-	NOTE: All assertions accept the optional {hint} argument.  When {hint}
+	NOTE: All assertions accept the optional {hint} argument. When {hint}
 	is given, it is appended to the message as an additional information
 	on the assertion's failure.
 
@@ -568,10 +568,10 @@ CONTEXT ACCESSORS				*unittest-context-accessors*
 
 	exists( {expr})				*unittest-context-exists()*
 
-		Returns True if {expr} is defined, False otherwise.  The
-		{expr} argument is a String described in |exists()|.  Unlike
-		built-in |exists()|, this version interprets "s:" as "the
-		tested script's local".
+		Returns True if {expr} is defined, False otherwise. The {expr}
+		argument is a String described in |exists()|. Unlike built-in
+		|exists()|, this version interprets "s:" as "the tested
+		script's local".
 
 		Example: >
 		call self.assert(self.exists('*s:some_func'))
@@ -581,7 +581,7 @@ CONTEXT ACCESSORS				*unittest-context-accessors*
 <
 	call( {func}, {args} [, {dict}])	*unittest-context-call()*
 
-		Calls function {func} in the manner of built-in |call()|.  This
+		Calls function {func} in the manner of built-in |call()|. This
 		version can also call the script-local functions of the tested
 		script when {func} is prefixed by "s:".
 
@@ -621,7 +621,7 @@ CONTEXT ACCESSORS				*unittest-context-accessors*
 
 						*unittest-context-auto-revert*
 		data.set() saves the current value of {name} before changing
-		it.  The saved values are restored after each tests
+		it. The saved values are restored after each tests
 		automatically so that you don't need to do it yourself at
 		teardown functions.
 
@@ -654,25 +654,25 @@ DATA ACCESSORS					*unittest-data-accessors*
 
 	Data accessors are applied to the content of the test data buffer.
 	You need to attach a test data file to your TestCase to use these
-	methods to access and/or process the test data in your tests.  See
+	methods to access and/or process the test data in your tests. See
 	|unittest-test-data|.
 						*unittest-data-marker*
 	MARKER ~
 
 		All data accessors requires the {marker} argument. {marker}
 		must be an unique String to specify the range of the text in
-		the test data buffer.  By default, if you specify
-		"lorem_ipsum" as {marker}, data accessors search the buffer
-		for '^#lorem_ipsum$' as the beginning and for
-		'^#end_lorem_ipsum$' as the ending.
+		the test data buffer. By default, if you specify "lorem_ipsum"
+		as {marker}, data accessors search the buffer for
+		'^#lorem_ipsum$' as the beginning and for '^#end_lorem_ipsum$'
+		as the ending.
 
 		The formats of the beginning and the ending markers are
-		defined at data.marker_formats attribute.  The default value
-		of the attribute is:		*unittest-data-marker_formats*
+		defined at data.marker_formats attribute. The default value of
+		the attribute is:		*unittest-data-marker_formats*
 >
 		['# %s', '# end_%s']
 <
-		"%s" in format Strings are replaced by {marker}.  You can
+		"%s" in format Strings are replaced by {marker}. You can
 		change the marker formats in this way:
 >
 		function! s:tc.Setup()
@@ -683,7 +683,7 @@ DATA ACCESSORS					*unittest-data-accessors*
 
 		Move the cursor to the NEXT line of the line with {marker}.
 		When {char} is given, the cursor is moved to the NEXT column
-		of the first occurrence of {char} in the line.  Otherwise, the
+		of the first occurrence of {char} in the line. Otherwise, the
 		cursor stays at the first column.
 
 		Example: >
@@ -706,8 +706,8 @@ DATA ACCESSORS					*unittest-data-accessors*
 		{marker}'s corresponding end marker.
 		When {char} is given, the cursor is moved to the PREVIOUS
 		column of the last occurrence of {char} (or its corresponding
-		closing) in the line.  Otherwise, the cursor stays at the
-		first column.
+		closing) in the line. Otherwise, the cursor stays at the first
+		column.
 
 			{char}	Closing
 			----------------
@@ -734,9 +734,9 @@ DATA ACCESSORS					*unittest-data-accessors*
 
 		Returns a pair of the positions that are the beginning and the
 		ending of the range surrounded by {marker} and its
-		corresponding end marker.  The beginning position is where
+		corresponding end marker. The beginning position is where
 		data.goto() moves the cursor to and the ending position is
-		where data.goto_end() does.  Each of them is a List that
+		where data.goto_end() does. Each of them is a List that
 		|getpos()| returns.
 
 		Example: >
@@ -753,7 +753,7 @@ DATA ACCESSORS					*unittest-data-accessors*
 	data.select( {marker} [, {char} [, {mode}]])
 
 		Selects the range surrounded by {marker} and its corresponding
-		end marker with Visual mode.  The range is determined by
+		end marker with Visual mode. The range is determined by
 		data.range().
 
 			{char}	{mode}			Visual mode
@@ -797,7 +797,7 @@ DATA ACCESSORS					*unittest-data-accessors*
 	data.get( {marker} [, {char} [, {mode}]])
 
 		Returns a List of lines in the range surrounded by {marker}
-		and its corresponding end marker.  The range is determined by
+		and its corresponding end marker. The range is determined by
 		data.range().
 
 		Example: >
@@ -828,8 +828,8 @@ DATA ACCESSORS					*unittest-data-accessors*
 
 	data.uncomment( {line})			*unittest-data-uncomment()*
 
-		Not defined by default.  If defined, applied to each lines
-		returned by data.get().  This is usable to remove any comment
+		Not defined by default. If defined, applied to each lines
+		returned by data.get(). This is usable to remove any comment
 		marks from test data embedded in a source program as
 		a comment.
 
@@ -844,7 +844,7 @@ DATA ACCESSORS					*unittest-data-accessors*
 	data.execute( {command}, {marker} [, {char} [, {mode}]])
 
 		Executes {command} for the range surrounded by {marker} and
-		its corresponding end marker.  The range is determined by
+		its corresponding end marker. The range is determined by
 		data.range().
 						*unittest-data-visual_execute()*
 		Example: >
@@ -853,7 +853,7 @@ DATA ACCESSORS					*unittest-data-accessors*
 	data.visual_execute( {command}, {marker} [, {char} [, {mode}]])
 
 		Same as data.execute() but it selects the range in Visual mode
-		first and then executes {command} with ":'<,'>" prefixed.  It
+		first and then executes {command} with ":'<,'>" prefixed. It
 		simulates a command execution from Visual mode.
 
 		Example: >
