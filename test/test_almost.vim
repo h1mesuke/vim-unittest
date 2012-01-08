@@ -1,7 +1,7 @@
 " unittest.vim's test suite
 
-let here = expand('<sfile>:p:h')
-execute 'source' here . '/test_context.vim'
-execute 'source' here . '/test_data.vim'
-execute 'source' here . '/test_setup.vim'
-execute 'source' here . '/test_should.vim'
+let s:here = expand('<sfile>:p:h')
+execute 'source' s:here . '/test_context.vim'
+execute 'source' s:here . '/test_data.vim'
+execute 'source' s:here . '/test_setup.vim'
+execute 'source' s:here . '/test_should.vim'
