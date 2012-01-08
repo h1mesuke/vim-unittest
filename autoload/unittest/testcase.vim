@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-07
+" Updated : 2012-01-09
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -358,7 +358,7 @@ call s:Data.method('bufnr')
 function! s:Data_goto(marker, ...) dict
   call self.__check__()
   let marker = printf(self.marker_formats[0], a:marker)
-  let mkpat = '^' . s:escape_pattern(marker) . '$'
+  let mkpat = '^\C' . s:escape_pattern(marker) . '$'
   let lnum = search(mkpat, 'w')
   if lnum > 0
     call cursor(lnum + 1, 1)
@@ -381,7 +381,7 @@ call s:Data.method('goto')
 function! s:Data_goto_end(marker, ...) dict
   call self.__check__()
   let marker = printf(self.marker_formats[1], a:marker)
-  let mkpat = '^' . s:escape_pattern(marker) . '$'
+  let mkpat = '^\C' . s:escape_pattern(marker) . '$'
   let lnum = search(mkpat, 'w')
   if lnum > 0
     call cursor(lnum - 1, 1)
