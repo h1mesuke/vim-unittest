@@ -219,10 +219,10 @@ endfunction
 let s:SID = s:get_SID()
 delfunction s:get_SID
 
-let s:Foo = oop#class#new('Foo', s:SID)
-let s:Bar = oop#class#new('Bar', s:SID, s:Foo)
+let s:Foo = unittest#oop#class#new('Foo', s:SID)
+let s:Bar = unittest#oop#class#new('Bar', s:SID, s:Foo)
 
-let s:Fizz = oop#module#new('Fizz', s:SID)
+let s:Fizz = unittest#oop#module#new('Fizz', s:SID)
 
 let s:tc = unittest#testcase#new("Assertions for vim-oop")
 
