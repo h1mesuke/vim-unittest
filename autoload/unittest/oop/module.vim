@@ -4,8 +4,8 @@
 "
 " File    : oop/module.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-07
-" Version : 0.2.1
+" Updated : 2012-01-08
+" Version : 0.2.2
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -57,7 +57,7 @@ let s:oop = expand('<sfile>:p:h:gs?[\\/]?#?:s?^.*#autoload#??')
 function! {s:oop}#module#new(name, sid)
   let module = copy(s:Module)
   let module.__name__ = a:name
-  let module.__prefix__ = a:sid . a:name . '_'
+  let module.__prefix__ = {s:oop}#_sid_prefix(a:sid) . a:name . '_'
   " => <SNR>10_Fizz_
   return module
 endfunction
@@ -90,8 +90,8 @@ let s:Module = {
 "   call s:Fizz.hello()
 "
 function! s:Module_bind(func_name, ...) dict
-  let mfunc_name = (a:0 ? a:1 : a:func_name)
-  let self[mfunc_name] = function(self.__prefix__  . a:func_name)
+  let meth_name = (a:0 ? a:1 : a:func_name)
+  let self[meth_name] = function(self.__prefix__  . a:func_name)
 endfunction
 let s:Module.__bind__ = function(s:SID . 'Module_bind')
 let s:Module.function = s:Module.__bind__ | " syntax sugar

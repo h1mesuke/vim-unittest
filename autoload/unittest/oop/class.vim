@@ -4,8 +4,8 @@
 "
 " File    : oop/class.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-07
-" Version : 0.2.1
+" Updated : 2012-01-08
+" Version : 0.2.2
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -63,7 +63,7 @@ let s:TYPE_FUNC = type(function('tr'))
 function! {s:oop}#class#new(name, sid, ...)
   let class = copy(s:Class)
   let class.__name__ = a:name
-  let class.__prefix__ = a:sid . a:name . '_'
+  let class.__prefix__ = {s:oop}#_sid_prefix(a:sid) . a:name . '_'
   " => <SNR>10_Foo_
   let class.__prototype__ = copy(s:Instance)
   let class.__superclass__ = (a:0 ? a:1 : {})

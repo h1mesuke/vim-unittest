@@ -4,8 +4,8 @@
 "
 " File    : oop.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-07
-" Version : 0.2.1
+" Updated : 2012-01-08
+" Version : 0.2.2
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -38,10 +38,19 @@ set cpo&vim
 let s:oop = expand('<sfile>:p:r:gs?[\\/]?#?:s?^.*#autoload#??')
 " => path#to#oop
 
+let s:TYPE_NUM  = type(0)
 let s:TYPE_STR  = type("")
 let s:TYPE_DICT = type({})
 let s:TYPE_LIST = type([])
 let s:TYPE_FUNC = type(function('tr'))
+
+function! {s:oop}#_sid_prefix(sid)
+  if type(a:sid) == s:TYPE_NUM
+    return '<SNR>' . a:sid . '_'
+  else
+    return '<SNR>' . matchstr(a:sid, '\d\+') . '_'
+  endif
+endfunction
 
 function! {s:oop}#is_object(value)
   return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Object__')
