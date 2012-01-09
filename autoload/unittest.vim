@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-09
+" Updated : 2012-01-10
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -517,7 +517,7 @@ function! s:TestResults_append(result) dict
 
   if a:result isnot s:SUCCESS
     let kind_s = tolower(a:result.__class__.__name__) . 's'
-    " => failures, errors, pendings
+    "=> failures, errors, pendings
     call add(self[kind_s], a:result)
     let self.number_of[kind_s] += 1
   endif

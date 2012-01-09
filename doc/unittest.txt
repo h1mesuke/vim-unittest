@@ -1,7 +1,7 @@
 *unittest.txt*		Unit Testing Framework for Vim script
 
 Author  : h1mesuke <himesuke@gmail.com>
-Updated : 2012-01-09
+Updated : 2012-01-11
 Version : 0.5.0
 License : MIT license {{{
 
@@ -166,10 +166,10 @@ SETUP AND TEARDOWN			*unittest-setup* *unittest-teardown*
 	names start with an uppercase letter, are executed once for a test
 	case. Setup() for preparation and Teardown() for cleaning up.
 
-	"foo_bar" matches "foo" and "foo_bar". Setup functions are executed
-	from the shortest matched to the longest matched before each tests.
-	On the other hand, teardown functions are executed conversely after
-	each tests. Tests are executed in alphabetical order. 
+	Tests are executed in alphabetical order. setup_"foo" matches
+	test_"foo" and test_"foo_bar". Setup functions are executed from the
+	shortest matched to the longest matched before each tests. On the
+	other hand, teardown functions are executed in reverse.
 
 	setup() and teardown() are always considered to be the shortest
 	matched if they exists. In other words, they are executed for each
@@ -337,7 +337,7 @@ INTERFACE					*unittest-interface*
 COMMANDS					*unittest-commands*
 
 						*:UnitTest*
-	:UnitTest [{testcase}] [{filter}] [{tofile}]
+	:UnitTest [{testcase}...] [{filter}] [{outfile}]
 
 		Run the tests defined in {testcase}.
 		When {testcase} isn't given, the current buffer is assumed.
@@ -349,10 +349,10 @@ COMMANDS					*unittest-commands*
 		Example: >
 		:UnitTest test_foo.vim g/some_feature
 <
-		When {tofile} is given, the results of the tests are outputted
-		to a file. The filename MUST be prefixed by ">" or ">>". The
-		latter means "append" not "overwrite". The results outputted
-		to the file are not colorized.
+		When {outfile} is given, the results of the tests are
+		outputted to a file {outfile}. The filename MUST be prefixed
+		by ">" or ">>". The latter means "append" not "overwrite". The
+		results outputted to the file are not colorized.
 
 		Example: >
 		:UnitTest test_foo.vim >output.txt
@@ -904,19 +904,19 @@ VARIABLES					*unittest-variables*
 
 	g:unittest_color_red			|g:unittest_color_red|
 
-		The name of the color used for "Red" state.
+		Name of the color used for "Red" state.
 
 		Default: "DarkRed"
 
 	g:unittest_color_green			|g:unittest_color_green|
 
-		The name of the color used for "Green" state.
+		Name of the color used for "Green" state.
 
 		Default: "Green"
 
 	g:unittest_color_pending		|g:unittest_color_pending|
 
-		The name of the color used for "Pending" state.
+		Name of the color used for "Pending" state.
 
 		Default: "DarkYellow"
 
