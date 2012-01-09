@@ -9,9 +9,6 @@
 "
 "-----------------------------------------------------------------------------
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:here = expand('<sfile>:p:h')
 let s:tc = unittest#testcase#new("Data Accessors", { 'data': s:here . '/test_data.dat' })
 
@@ -181,6 +178,3 @@ function! s:tc.teardown_data_uncomment()
 endfunction
 
 unlet s:tc
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

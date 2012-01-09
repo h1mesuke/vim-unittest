@@ -12,9 +12,6 @@
 "
 "-----------------------------------------------------------------------------
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:tc = unittest#testcase#new("Assertions")
 
 function! s:tc.test_assert_true()
@@ -262,6 +259,3 @@ function! s:tc.test_assert_is_instance_of()
 endfunction
 
 unlet s:tc
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-07
+" Updated : 2012-01-09
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -70,9 +70,12 @@ function! unittest#run(...)
 
   try
     let s:test_runner = s:TestRunner.new(test_filters, output)
+    let save_cpo = &cpo
+    set cpo&vim
     for tc_file in tc_files
       source `=tc_file`
     endfor
+    let &cpo = save_cpo
     call s:test_runner.run()
   catch
     call unittest#print_error(v:throwpoint)
