@@ -33,20 +33,10 @@ set cpo&vim
 
 function! unittest#run(...)
   let args = a:000
-  if empty(filter(copy(args), "v:val !~ '^[gv]/'"))
-    " If no argument was given, process the current buffer.
-    let args += ['%']
-  endif
-
   let tc_files = []
-  let test_filters = { 'g_pattern': "", 'v_pattern': "" }
+  let test_filters = { 'g_pattern': '', 'v_pattern': '' }
   let output = 'buffer'
   for value in args
-    " Output
-    if value =~ '^>>\='
-      let output = value
-      continue
-    endif
     " Filtering pattern
     let matched = matchlist(value, '^\([gv]\)/\(.*\)$')
     if len(matched) > 0
@@ -57,16 +47,28 @@ function! unittest#run(...)
       endif
       continue
     endif
-    " Testcase file
-    let path = expand(value)
-    if path =~# '\<\(test_\|t[cs]_\)\w\+\.vim$'
-      call add(tc_files, path)
+    " Output
+    if value =~ '^>>\='
+      let output = value
+      continue
+    endif
+    " Test case
+    if s:is_testcase_file(value)
+      call add(tc_files, value)
       continue
     endif
     " Invalid value
-    call unittest#print_error("unittest: Sourced file is not a testcase.")
+    call unittest#print_error("unittest: Invalid arguement: " . string(value))
     return
   endfor
+  if empty(tc_files)
+    let path = expand('%')
+    if s:is_testcase_file(path)
+      call add(tc_files, path)
+    else
+      call unittest#print_error("unittest: The current buffer is not a test case.")
+    endif
+  endif
 
   try
     let s:test_runner = s:TestRunner.new(test_filters, output)
@@ -83,6 +85,10 @@ function! unittest#run(...)
   finally
     unlet! s:test_runner
   endtry
+endfunction
+
+function! s:is_testcase_file(path)
+  return (a:path =~# '\<\(test_\|t[cs]_\)\w\+\.vim$')
 endfunction
 
 function! unittest#runner()
