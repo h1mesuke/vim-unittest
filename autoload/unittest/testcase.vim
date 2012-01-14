@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-09
+" Updated : 2012-01-15
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -66,7 +66,7 @@ function! s:TestCase_initialize(name, ...) dict
 endfunction
 call s:TestCase.method('initialize')
 
-function! s:TestCase___setup_all__() dict
+function! s:TestCase___SETUP__() dict
   let funcs = s:get_funcs(self)
   let tests = s:grep(funcs, '\%(^test\|\%(^\|[^_]_\)should\)_')
   let tests = s:grep(tests, '^\%(\%(assert\|setup\|teardown\)_\)\@!')
@@ -81,11 +81,11 @@ function! s:TestCase___setup_all__() dict
   if self.__context__.data.is_given()
     call self.__open_data_window__()
   endif
-  if has_key(self, 'Setup')
-    call self.Setup()
+  if has_key(self, 'SETUP')
+    call self.SETUP()
   endif
 endfunction
-call s:TestCase.method('__setup_all__')
+call s:TestCase.method('__SETUP__')
 
 function! s:TestCase___tests__() dict
   return self.__private__.tests
@@ -113,15 +113,15 @@ function! s:TestCase___open_data_window__() abort dict
 endfunction
 call s:TestCase.method('__open_data_window__')
 
-function! s:TestCase___teardown_all__() dict
-  if has_key(self, 'Teardown')
-    call self.Teardown()
+function! s:TestCase___TEARDOWN__() dict
+  if has_key(self, 'TEARDOWN')
+    call self.TEARDOWN()
   endif
   if self.__context__.data.is_given()
     call self.__close_context_window__()
   endif
 endfunction
-call s:TestCase.method('__teardown_all__')
+call s:TestCase.method('__TEARDOWN__')
 
 function! s:TestCase___close_context_window__() dict
   let data_file = s:escape_file_pattern(self.__context__.data.file)

@@ -5,7 +5,7 @@
 "-----------------------------------------------------------------------------
 " Expected results:
 "
-"   Setup
+"   SETUP
 "
 "   setup
 "   setup_foo
@@ -31,15 +31,15 @@
 "   teardown_foo
 "   teardown
 "
-"   Teardown
+"   TEARDOWN
 "
 "-----------------------------------------------------------------------------
 
 let s:tc = unittest#testcase#new("Setup and Teardown")
 
-function! s:tc.Setup()
-  let self.funcalls = ["Setup"]
-  call self.puts("Setup")
+function! s:tc.SETUP()
+  let self.funcalls = ["SETUP"]
+  call self.puts("SETUP")
 endfunction
 
 function! s:tc.setup()
@@ -102,19 +102,19 @@ function! s:tc.teardown()
   call self.puts()
 endfunction
 
-function! s:tc.Teardown()
+function! s:tc.TEARDOWN()
   call self.puts()
-  call add(self.funcalls, "Teardown")
-  call self.puts("Teardown")
+  call add(self.funcalls, "TEARDOWN")
+  call self.puts("TEARDOWN")
 endfunction
 
 " NOTE: This test must be executed last in alphabetical order, so "zetup" of
-" the name isn't a typo. Unfortunately, this can't test Teardown(), so we need
-" to see the output of the test results finding "Teardown" printed by puts().
+" the name isn't a typo. Unfortunately, this can't test TEARDOWN(), so we need
+" to see the output of the test results finding "TEARDOWN" printed by puts().
 "
 function! s:tc.test_zetup_and_teardown()
   let expected = [
-        \ "Setup",
+        \ "SETUP",
         \
         \ "setup",
         \ "setup_foo",

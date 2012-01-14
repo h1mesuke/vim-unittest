@@ -1,7 +1,7 @@
 *unittest.txt*		Unit Testing Framework for Vim script
 
 Author  : h1mesuke <himesuke@gmail.com>
-Updated : 2012-01-11
+Updated : 2012-01-16
 Version : 0.5.0
 License : MIT license {{{
 
@@ -105,14 +105,15 @@ HOW TO WRITE TESTS				*unittest-how-to-write*
 		See |unittest-how-to-run|, |:UnitTest|.
 
 ------------------------------------------------------------------------------
-SETUP AND TEARDOWN			*unittest-setup* *unittest-teardown*
+SETUP AND TEARDOWN			*unittest-setup*  *unittest-teardown*
+					*unittest-SETUP*  *unittest-TEARDOWN*
 
-	You can write setup/teardown hooks for each tests just as you do it in
-	other xUnit frameworks.
+	You can write setup/teardown hooks for each test just as you do it
+	with other xUnit frameworks.
 
 	First, look at the example below.
-	 >
-	function! s:tc.Setup()
+>
+	function! s:tc.SETUP()
 	endfunction
 
 	function! s:tc.setup()
@@ -139,12 +140,12 @@ SETUP AND TEARDOWN			*unittest-setup* *unittest-teardown*
 	function! s:tc.teardown()
 	endfunction
 
-	function! s:tc.Teardown()
+	function! s:tc.TEARDOWN()
 	endfunction
 <
 	These functions are executed in the following order:
 >
-	Setup
+	SETUP
 
 	setup
 	setup_foo
@@ -160,11 +161,11 @@ SETUP AND TEARDOWN			*unittest-setup* *unittest-teardown*
 	teardown_foo
 	teardown
 
-	Teardown
+	TEARDOWN
 <
-	At first, Setup() is executed. Note that Setup() and Teardown(), whose
-	names start with an uppercase letter, are executed once for a test
-	case. Setup() for preparation and Teardown() for cleaning up.
+	At first, SETUP() is executed. Note that SETUP() and TEARDOWN(), whose
+	names consist of uppercase letters, are executed once for the test
+	case. SETUP() for preparation and TEARDOWN() for cleaning up.
 
 	Tests are executed in alphabetical order. setup_"foo" matches
 	test_"foo" and test_"foo_bar". Setup functions are executed from the
@@ -175,7 +176,7 @@ SETUP AND TEARDOWN			*unittest-setup* *unittest-teardown*
 	matched if they exists. In other words, they are executed for each
 	tests.
 
-	At last, Teardown() is executed.
+	At last, TEARDOWN() is executed.
 
 ------------------------------------------------------------------------------
 ACCESS SCRIPT-LOCALS			*unittest-access-script-locals*
@@ -676,7 +677,7 @@ DATA ACCESSORS					*unittest-data-accessors*
 		"%s" in format Strings are replaced by {marker}. You can
 		change the marker formats in this way:
 >
-		function! s:tc.Setup()
+		function! s:tc.SETUP()
 		  let self.data.marker_formats = ['// BEGIN %s', '// END %s']
 		endfunction
 <
@@ -829,13 +830,13 @@ DATA ACCESSORS					*unittest-data-accessors*
 
 	data.uncomment( {line})			*unittest-data-uncomment()*
 
-		Not defined by default. If defined, applied to each lines
+		Not defined by default. If defined, applied to each line
 		returned by data.get(). This is usable to remove any comment
 		marks from test data embedded in a source program as
 		a comment.
 
 		Example: >
-		function! s:tc.Setup()
+		function! s:tc.SETUP()
 		  function! self.data.uncomment(line)
 		    return substitute(a:line, '^# ', '', '')
 		  endfunction

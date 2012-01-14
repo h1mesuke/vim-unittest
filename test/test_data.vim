@@ -52,7 +52,7 @@ let s:LOREM_IPSUM_SORTED = [
       \ 'tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,',
       \ ]
 
-function! s:tc.Setup()
+function! s:tc.SETUP()
   let self.saved = {}
 endfunction
 
