@@ -4,8 +4,8 @@
 "
 " File    : oop.vim
 " Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-08
-" Version : 0.2.2
+" Updated : 2012-01-12
+" Version : 0.2.3
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -32,19 +32,13 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-" Inspired by Yukihiro Nakadaira's nsexample.vim
-" https://gist.github.com/867896
-"
-let s:oop = expand('<sfile>:p:r:gs?[\\/]?#?:s?^.*#autoload#??')
-" => path#to#oop
-
 let s:TYPE_NUM  = type(0)
 let s:TYPE_STR  = type("")
 let s:TYPE_DICT = type({})
 let s:TYPE_LIST = type([])
 let s:TYPE_FUNC = type(function('tr'))
 
-function! {s:oop}#_sid_prefix(sid)
+function! unittest#oop#_sid_prefix(sid)
   if type(a:sid) == s:TYPE_NUM
     return '<SNR>' . a:sid . '_'
   else
@@ -52,23 +46,23 @@ function! {s:oop}#_sid_prefix(sid)
   endif
 endfunction
 
-function! {s:oop}#is_object(value)
+function! unittest#oop#is_object(value)
   return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Object__')
 endfunction
 
-function! {s:oop}#is_class(value)
+function! unittest#oop#is_class(value)
   return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Class__')
 endfunction
 
-function! {s:oop}#is_instance(value)
+function! unittest#oop#is_instance(value)
   return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Instance__')
 endfunction
 
-function! {s:oop}#is_module(value)
+function! unittest#oop#is_module(value)
   return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Module__')
 endfunction
 
-function! {s:oop}#string(value)
+function! unittest#oop#string(value)
   let value_type = type(a:value)
   if value_type == s:TYPE_LIST || value_type == s:TYPE_DICT
     return s:dump_copy(a:value)
