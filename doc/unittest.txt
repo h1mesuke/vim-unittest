@@ -1,7 +1,7 @@
 *unittest.txt*		Unit Testing Framework for Vim script
 
 Author  : h1mesuke <himesuke@gmail.com>
-Updated : 2012-01-16
+Updated : 2012-01-17
 Version : 0.5.0
 License : MIT license {{{
 
@@ -46,9 +46,9 @@ CONTENTS					*unittest-contents*
 INTRODUCTION					*unittest-introduction*
 
 	*unittest.vim* is a unit testing framework for Vim script. It helps
-	you to test user defined commands and functions of your Vim scripts.
-	You can write tests for not only globals but also script-locals in the
-	manner of xUnit.
+	you to test commands and functions defined in your Vim scripts. You
+	can write tests of not only global commands and functions but also
+	script-locals in the manner of xUnit frameworks.
 
 	Requirements: ~
 	* Vim 7.2 or later
@@ -167,14 +167,14 @@ SETUP AND TEARDOWN			*unittest-setup*  *unittest-teardown*
 	names consist of uppercase letters, are executed once for the test
 	case. SETUP() for preparation and TEARDOWN() for cleaning up.
 
-	Tests are executed in alphabetical order. setup_"foo" matches
-	test_"foo" and test_"foo_bar". Setup functions are executed from the
-	shortest matched to the longest matched before each tests. On the
-	other hand, teardown functions are executed in reverse.
-
-	setup() and teardown() are always considered to be the shortest
-	matched if they exists. In other words, they are executed for each
-	tests.
+	The tests are executed in alphabetical order. "setup_[foo]" matches
+	"test_[foo]" and "test_[foo_bar]", so "setup_foo" are executed for
+	both tests. The setup functions whose suffixes match a test's suffix
+	are executed in order of suffix length from the shortest to the
+	longest before the test. On the other hand, the teardown functions are
+	executed in reverse order after the test. setup() and teardown() are
+	executed for every tests if they exist. They are considered to have
+	the shortest suffix.
 
 	At last, TEARDOWN() is executed.
 
@@ -280,7 +280,7 @@ TEST DATA					*unittest-test-data*
 		  of the test data file.
 
 		* Test data, the content of the current buffer, is modifiable
-		  but reverted automatically after each tests. It's OK that
+		  but reverted automatically after each test. It's OK that
 		  tests change the test data. You can write assertions that
 		  compare the changed results to what you expect.
 
@@ -622,7 +622,7 @@ CONTEXT ACCESSORS				*unittest-context-accessors*
 
 						*unittest-context-auto-revert*
 		data.set() saves the current value of {name} before changing
-		it. The saved values are restored after each tests
+		it. The saved values are restored after each test
 		automatically so that you don't need to do it yourself at
 		teardown functions.
 
@@ -639,9 +639,8 @@ CONTEXT ACCESSORS				*unittest-context-accessors*
 		{name} MUST start with one of the prefixes listed in
 		|unittest-context-value-kind-prefix|.
 
-		The saved values are restored after each tests automatically
-		so that you don't need to do it yourself at teardown
-		functions.
+		The saved values are restored after each test automatically so
+		that you don't need to do it yourself at teardown functions.
 
 		Example: >
 		call self.save('&ignorecase')

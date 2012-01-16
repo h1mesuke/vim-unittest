@@ -9,8 +9,7 @@
 "
 "   WARNING:
 "   Exporting s: in Vim 7.2 causes deadly signal SEGV. You had better use Vim
-"   7.3 or later when you run the tests that access any script-local
-"   variables.
+"   7.3 or later when you run tests that access any script-local variables.
 "
 "-----------------------------------------------------------------------------
 
