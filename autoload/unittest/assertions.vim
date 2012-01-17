@@ -349,12 +349,6 @@ function! s:Assertions___typestr__(value)
     return 'Funcref'
   elseif type == s:TYPE_LIST
     return 'List'
-  elseif unittest#oop#is_class(a:value)
-    return 'Class'
-  elseif unittest#oop#is_instance(a:value)
-    return 'Instance'
-  elseif unittest#oop#is_module(a:value)
-    return 'Module'
   elseif type == s:TYPE_DICT
     return 'Dictionary'
   elseif type == s:TYPE_FLT
@@ -491,94 +485,6 @@ function! s:Assertions_assert_not_throw(command, ...) dict
 endfunction
 call s:Assertions.function('assert_not_throw')
 call s:Assertions.alias('assert_nothing_thrown', 'assert_not_throw')
-
-"-----------------------------------------------------------------------------
-" vim-oop
-
-" h1mesuke/vim-oop - GitHub
-" https://github.com/h1mesuke/vim-oop
-
-function! s:Assertions_assert_is_Object(value, ...) dict
-  call self.count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if !unittest#oop#is_object(a:value)
-    call self.report_failure(
-          \ "Object expected, but was\n" .
-          \ s:typestr(a:value),
-          \ hint)
-  else
-    call self.report_success()
-  endif
-endfunction
-call s:Assertions.function('assert_is_Object')
-
-function! s:Assertions_assert_is_Class(value, ...) dict
-  call self.count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if !unittest#oop#is_class(a:value)
-    call self.report_failure(
-          \ "Class expected, but was\n" .
-          \ s:typestr(a:value),
-          \ hint)
-  else
-    call self.report_success()
-  endif
-endfunction
-call s:Assertions.function('assert_is_Class')
-
-function! s:Assertions_assert_is_Instance(value, ...) dict
-  call self.count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if !unittest#oop#is_instance(a:value)
-    call self.report_failure(
-          \ "Instance expected, but was\n" .
-          \ s:typestr(a:value),
-          \ hint)
-  else
-    call self.report_success()
-  endif
-endfunction
-call s:Assertions.function('assert_is_Instance')
-
-function! s:Assertions_assert_is_Module(value, ...) dict
-  call self.count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if !unittest#oop#is_module(a:value)
-    call self.report_failure(
-          \ "Module expected, but was\n" .
-          \ s:typestr(a:value),
-          \ hint)
-  else
-    call self.report_success()
-  endif
-endfunction
-call s:Assertions.function('assert_is_Module')
-
-function! s:Assertions_assert_is_kind_of(class, value, ...) dict
-  call self.count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if !a:value.is_kind_of(a:class)
-    call self.report_failure(
-          \ unittest#oop#string(a:value) . " is not kind of " . a:class.__name__,
-          \ hint)
-  else
-    call self.report_success()
-  endif
-endfunction
-call s:Assertions.function('assert_is_kind_of')
-
-function! s:Assertions_assert_is_instance_of(class, value, ...) dict
-  call self.count_assertion()
-  let hint = (a:0 ? a:1 : "")
-  if a:value.__class__ isnot a:class
-    call self.report_failure(
-          \ unittest#oop#string(a:value) . " is not an instance of " . a:class.__name__,
-          \ hint)
-  else
-    call self.report_success()
-  endif
-endfunction
-call s:Assertions.function('assert_is_instance_of')
 
 "-----------------------------------------------------------------------------
 
