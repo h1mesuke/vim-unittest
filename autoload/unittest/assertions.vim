@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-07
+" Updated : 2012-01-17
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -60,7 +60,7 @@ let s:TYPE_FLT  = type(0.0)
 
 let s:Assertions = unittest#oop#module#new('Assertions', s:SID)
 
-function! s:Assertions_assert_true(expr, ...)
+function! s:Assertions_assert(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !a:expr
@@ -72,10 +72,9 @@ function! s:Assertions_assert_true(expr, ...)
     call s:report_success()
   endif
 endfunction
-call s:Assertions.function('assert_true')
-call s:Assertions.alias('assert', 'assert_true')
+call s:Assertions.function('assert')
 
-function! s:Assertions_assert_false(expr, ...)
+function! s:Assertions_assert_not(expr, ...)
   call s:count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr
@@ -87,8 +86,7 @@ function! s:Assertions_assert_false(expr, ...)
     call s:report_success()
   endif
 endfunction
-call s:Assertions.function('assert_false')
-call s:Assertions.alias('assert_not', 'assert_false')
+call s:Assertions.function('assert_not')
 
 function! s:Assertions_assert_equal(expected, actual, ...)
   call s:count_assertion()

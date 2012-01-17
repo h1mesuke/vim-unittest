@@ -12,15 +12,15 @@
 let s:tc = unittest#testcase#new("Green")
 
 function! s:tc.test_foo()
-  call self.assert_true(1)
+  call self.assert(1)
 endfunction
 
 function! s:tc.test_bar()
-  call self.assert_true(1)
+  call self.assert(1)
 endfunction
 
 function! s:tc.test_baz()
-  call self.assert_true(1)
+  call self.assert(1)
 endfunction
 
 unlet s:tc

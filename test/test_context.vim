@@ -33,7 +33,7 @@ function! s:tc.test_context_exists_global_function()
 endfunction
 
 function! s:tc.test_context_exists_script_local_function()
-  call self.assert(self.exists('*s:Assertions_assert_true'))
+  call self.assert(self.exists('*s:Assertions_assert'))
   call self.assert_not(self.exists('*s:Assertions_foo'))
 endfunction
 
@@ -52,7 +52,7 @@ function! s:tc.test_context_call_global_function()
 endfunction
 
 function! s:tc.test_context_call_script_local_function()
-  call self.call('s:Assertions_assert_true', [1])
+  call self.call('s:Assertions_assert', [1])
 endfunction
 
 function! s:tc.test_context_get_global_variable()

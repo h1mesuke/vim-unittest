@@ -14,16 +14,6 @@
 
 let s:tc = unittest#testcase#new("Assertions")
 
-function! s:tc.test_assert_true()
-  call self.assert_true(1)
-  call self.assert_true(0)
-endfunction
-
-function! s:tc.test_assert_false()
-  call self.assert_false(0)
-  call self.assert_false(1)
-endfunction
-
 function! s:tc.test_assert()
   call self.assert(1)
   call self.assert(0)
