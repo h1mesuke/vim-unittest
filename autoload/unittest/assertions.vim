@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-17
+" Updated : 2012-01-19
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -31,12 +31,6 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:get_SID()
-  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
-endfunction
-let s:SID = s:get_SID()
-delfunction s:get_SID
-
 function! unittest#assertions#context()
   return { 'sid': s:SID, 'scope': s: }
 endfunction
@@ -44,6 +38,12 @@ endfunction
 function! unittest#assertions#module()
   return s:Assertions
 endfunction
+
+function! s:get_SID()
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+endfunction
+let s:SID = s:get_SID()
+delfunction s:get_SID
 
 "-----------------------------------------------------------------------------
 " Constants
@@ -60,318 +60,294 @@ let s:TYPE_FLT  = type(0.0)
 
 let s:Assertions = unittest#oop#module#new('Assertions', s:SID)
 
-function! s:Assertions_assert(expr, ...)
-  call s:count_assertion()
+function! s:Assertions_assert(expr, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !a:expr
-    call s:report_failure(
+    call self.report_failure(
           \ "True expected, but was\n" .
           \ unittest#oop#string(a:expr),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert')
 
-function! s:Assertions_assert_not(expr, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not(expr, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr
-    call s:report_failure(
+    call self.report_failure(
           \ "False expected, but was\n" .
           \ unittest#oop#string(a:expr),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not')
 
-function! s:Assertions_assert_equal(expected, actual, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_equal(expected, actual, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:expected) == s:TYPE_STR && type(a:actual) == s:TYPE_STR
     if a:expected !=# a:actual
-      call s:report_failure(
+      call self.report_failure(
             \ unittest#oop#string(a:expected) . " expected but was\n" .
             \ unittest#oop#string(a:actual),
             \ hint)
     else
-      call s:report_success()
+      call self.report_success()
     endif
   else
     if a:expected != a:actual
-      call s:report_failure(
+      call self.report_failure(
             \ unittest#oop#string(a:expected) . " expected but was\n" .
             \ unittest#oop#string(a:actual),
             \ hint)
     else
-      call s:report_success()
+      call self.report_success()
     endif
   endif
 endfunction
 call s:Assertions.function('assert_equal')
 
-function! s:Assertions_assert_not_equal(expected, actual, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not_equal(expected, actual, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:expected) == s:TYPE_STR && type(a:actual) == s:TYPE_STR
     if a:expected ==# a:actual
-      call s:report_failure(
+      call self.report_failure(
             \ unittest#oop#string(a:expected) . " not expected but was\n" .
             \ unittest#oop#string(a:actual),
             \ hint)
     else
-      call s:report_success()
+      call self.report_success()
     endif
   else
     if a:expected == a:actual
-      call s:report_failure(
+      call self.report_failure(
             \ unittest#oop#string(a:expected) . " not expected but was\n" .
             \ unittest#oop#string(a:actual),
             \ hint)
     else
-      call s:report_success()
+      call self.report_success()
     endif
   endif
 endfunction
 call s:Assertions.function('assert_not_equal')
 
-function! s:Assertions_assert_equal_c(expected, actual, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_equal_c(expected, actual, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected !=? a:actual
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:expected) . " expected but was\n" .
           \ unittest#oop#string(a:actual),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_equal_c')
 call s:Assertions.alias('assert_equal_q', 'assert_equal_c')
 
-function! s:Assertions_assert_not_equal_c(expected, actual, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not_equal_c(expected, actual, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected ==? a:actual
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:expected) . " not expected but was\n" .
           \ unittest#oop#string(a:actual),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_equal_c')
 call s:Assertions.alias('assert_not_equal_q', 'assert_not_equal_c')
 
-function! s:Assertions_assert_equal_C(expected, actual, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_equal_C(expected, actual, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected !=# a:actual
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:expected) . " expected but was\n" .
           \ unittest#oop#string(a:actual),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_equal_C')
 call s:Assertions.alias('assert_equal_s', 'assert_equal_C')
 
-function! s:Assertions_assert_not_equal_C(expected, actual, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not_equal_C(expected, actual, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected ==# a:actual
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:expected) . " not expected but was\n" .
           \ unittest#oop#string(a:actual),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_equal_C')
 call s:Assertions.alias('assert_not_equal_s', 'assert_not_equal_C')
 
-function! s:Assertions_assert_exists(expr, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_exists(expr, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if a:expr =~ '^:'
-    call s:assert_command_exists(a:expr, hint)
-  elseif !exists(a:expr)
-    call s:report_failure(
-          \ unittest#oop#string(a:expr) . " doesn't exist",
+  if a:expr =~ '^:' ? exists(a:expr) != 2 : !exists(a:expr)
+    call self.report_failure(
+          \ unittest#oop#string(a:expr) . " is not defined",
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_exists')
 call s:Assertions.alias('assert_exist', 'assert_exists')
 
-function! s:assert_command_exists(command, hint)
-  if exists(a:command) != 2
-    call s:report_failure(
-          \ unittest#oop#string(a:command) . " is not defined",
-          \ a:hint)
-  else
-    call s:report_success()
-  endif
-endfunction
-
-function! s:Assertions_assert_not_exists(expr, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not_exists(expr, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
-  if a:expr =~ '^:'
-    call s:assert_command_not_exists(a:expr, hint)
-  elseif exists(a:expr)
-    call s:report_failure(
-          \ unittest#oop#string(a:expr) . " exists",
+  if a:expr =~ '^:' ? exists(a:expr) == 2 : exists(a:expr)
+    call self.report_failure(
+          \ unittest#oop#string(a:expr) . " is defined",
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_exists')
 call s:Assertions.alias('assert_not_exist', 'assert_not_exists')
 
-function! s:assert_command_not_exists(command, hint)
-  if exists(a:command) == 2
-    call s:report_failure(
-          \ unittest#oop#string(a:command) . " is defined",
-          \ a:hint)
-  else
-    call s:report_success()
-  endif
-endfunction
-
-function! s:Assertions_assert_is(expected, actual, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is(expected, actual, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected isnot a:actual
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:expected) . " itself expected but was\n" .
           \ unittest#oop#string(a:actual),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is')
 
-function! s:Assertions_assert_is_not(expected, actual, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_not(expected, actual, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected is a:actual
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:expected) . " itself not expected but was\n" .
           \ unittest#oop#string(a:actual) . " itself",
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_not')
 
-function! s:Assertions_assert_is_Number(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_Number(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_NUM
-    call s:report_failure(
+    call self.report_failure(
           \ "Number expected, but was\n" .
-          \ s:typestr(a:value),
+          \ self.__typestr__(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Number')
 
-function! s:Assertions_assert_is_String(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_String(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_STR
-    call s:report_failure(
+    call self.report_failure(
           \ "String expected, but was\n" .
-          \ s:typestr(a:value),
+          \ self.__typestr__(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_String')
 
-function! s:Assertions_assert_is_Funcref(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_Funcref(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_FUNC
-    call s:report_failure(
+    call self.report_failure(
           \ "Funcref expected, but was\n" .
-          \ s:typestr(a:value),
+          \ self.__typestr__(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Funcref')
 
-function! s:Assertions_assert_is_List(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_List(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_LIST
-    call s:report_failure(
+    call self.report_failure(
           \ "List expected, but was\n" .
-          \ s:typestr(a:value),
+          \ self.__typestr__(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_List')
 
-function! s:Assertions_assert_is_Dictionary(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_Dictionary(value, ...) dict
+  call self.count_assertion()
   if type(a:value) != s:TYPE_DICT
     let hint = (a:0 ? a:1 : "")
-    call s:report_failure(
+    call self.report_failure(
           \ "Dictionary expected, but was\n" .
-          \ s:typestr(a:value),
+          \ self.__typestr__(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Dictionary')
 call s:Assertions.alias('assert_is_Dict', 'assert_is_Dictionary')
 
-function! s:Assertions_assert_is_Float(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_Float(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_FLT
-    call s:report_failure(
+    call self.report_failure(
           \ "Float expected, but was\n" .
-          \ s:typestr(a:value),
+          \ self.__typestr__(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Float')
 
-function! s:typestr(value)
-  let value_type = type(a:value)
-  if value_type == s:TYPE_NUM
+function! s:Assertions___typestr__(value)
+  let type = type(a:value)
+  if type == s:TYPE_NUM
     return 'Number'
-  elseif value_type == s:TYPE_STR
+  elseif type == s:TYPE_STR
     return 'String'
-  elseif value_type == s:TYPE_FUNC
+  elseif type == s:TYPE_FUNC
     return 'Funcref'
-  elseif value_type == s:TYPE_LIST
+  elseif type == s:TYPE_LIST
     return 'List'
   elseif unittest#oop#is_class(a:value)
     return 'Class'
@@ -379,138 +355,139 @@ function! s:typestr(value)
     return 'Instance'
   elseif unittest#oop#is_module(a:value)
     return 'Module'
-  elseif value_type == s:TYPE_DICT
+  elseif type == s:TYPE_DICT
     return 'Dictionary'
-  elseif value_type == s:TYPE_FLT
+  elseif type == s:TYPE_FLT
     return 'Float'
   endif
 endfunction
+call s:Assertions.function('__typestr__')
 
-function! s:Assertions_assert_match(pattern, str, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_match(pattern, str, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str !~ a:pattern
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:str) . " didn't match the pattern " .
           \ unittest#oop#string(a:pattern),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_match')
 
-function! s:Assertions_assert_not_match(pattern, str, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not_match(pattern, str, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str =~ a:pattern
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:str) . " matched the pattern " .
           \ unittest#oop#string(a:pattern),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_match')
 
-function! s:Assertions_assert_match_c(pattern, str, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_match_c(pattern, str, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str !~? a:pattern
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:str) . " didn't match the pattern " .
           \ unittest#oop#string(a:pattern),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_match_c')
 call s:Assertions.alias('assert_match_q', 'assert_match_c')
 
-function! s:Assertions_assert_not_match_c(pattern, str, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not_match_c(pattern, str, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str =~? a:pattern
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:str) . " matched the pattern " .
           \ unittest#oop#string(a:pattern),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_match_c')
 call s:Assertions.alias('assert_not_match_q', 'assert_not_match_c')
 
-function! s:Assertions_assert_match_C(pattern, str, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_match_C(pattern, str, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str !~# a:pattern
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:str) . " didn't match the pattern " .
           \ unittest#oop#string(a:pattern),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_match_C')
 call s:Assertions.alias('assert_match_s', 'assert_match_C')
 
-function! s:Assertions_assert_not_match_C(pattern, str, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not_match_C(pattern, str, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str =~# a:pattern
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:str) . " matched the pattern " .
           \ unittest#oop#string(a:pattern),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_match_C')
 call s:Assertions.alias('assert_not_match_s', 'assert_not_match_C')
 
-function! s:Assertions_assert_throw(exception, command, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_throw(exception, command, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
     execute a:command
   catch
     if v:exception !~# a:exception
-      call s:report_failure(
+      call self.report_failure(
             \ unittest#oop#string(a:command) .
             \   " didn't throw /" . a:exception . "/, but threw:\n" .
             \ v:exception,
             \ hint)
     else
-      call s:report_success()
+      call self.report_success()
     endif
     return
   endtry
-  call s:report_failure(
+  call self.report_failure(
         \ unittest#oop#string(a:command) . " didn't throw /" . a:exception . "/\n" .
         \ "Nothing thrown.",
         \ hint)
 endfunction
 call s:Assertions.function('assert_throw')
 
-function! s:Assertions_assert_not_throw(command, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_not_throw(command, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   try
     execute a:command
   catch
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:command) . " threw:\n" .
           \ v:exception,
           \ hint)
     return
   endtry
-  call s:report_success()
+  call self.report_success()
 endfunction
 call s:Assertions.function('assert_not_throw')
 call s:Assertions.alias('assert_nothing_thrown', 'assert_not_throw')
@@ -521,105 +498,107 @@ call s:Assertions.alias('assert_nothing_thrown', 'assert_not_throw')
 " h1mesuke/vim-oop - GitHub
 " https://github.com/h1mesuke/vim-oop
 
-function! s:Assertions_assert_is_Object(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_Object(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !unittest#oop#is_object(a:value)
-    call s:report_failure(
+    call self.report_failure(
           \ "Object expected, but was\n" .
           \ s:typestr(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Object')
 
-function! s:Assertions_assert_is_Class(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_Class(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !unittest#oop#is_class(a:value)
-    call s:report_failure(
+    call self.report_failure(
           \ "Class expected, but was\n" .
           \ s:typestr(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Class')
 
-function! s:Assertions_assert_is_Instance(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_Instance(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !unittest#oop#is_instance(a:value)
-    call s:report_failure(
+    call self.report_failure(
           \ "Instance expected, but was\n" .
           \ s:typestr(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Instance')
 
-function! s:Assertions_assert_is_Module(value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_Module(value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !unittest#oop#is_module(a:value)
-    call s:report_failure(
+    call self.report_failure(
           \ "Module expected, but was\n" .
           \ s:typestr(a:value),
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Module')
 
-function! s:Assertions_assert_is_kind_of(class, value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_kind_of(class, value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !a:value.is_kind_of(a:class)
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:value) . " is not kind of " . a:class.__name__,
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_kind_of')
 
-function! s:Assertions_assert_is_instance_of(class, value, ...)
-  call s:count_assertion()
+function! s:Assertions_assert_is_instance_of(class, value, ...) dict
+  call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:value.__class__ isnot a:class
-    call s:report_failure(
+    call self.report_failure(
           \ unittest#oop#string(a:value) . " is not an instance of " . a:class.__name__,
           \ hint)
   else
-    call s:report_success()
+    call self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_instance_of')
 
 "-----------------------------------------------------------------------------
 
-function! s:count_assertion()
+function! s:Assertions_count_assertion() dict
   if unittest#is_running()
     let runner = unittest#runner()
     call runner.count_assertion()
   endif
 endfunction
+call s:Assertions.function('count_assertion')
 
-function! s:report_success()
+function! s:Assertions_report_success() dict
   if unittest#is_running()
     let runner = unittest#runner()
     call runner.report_success()
   endif
 endfunction
+call s:Assertions.function('report_success')
 
-function! s:report_failure(reason, hint)
+function! s:Assertions_report_failure(reason, hint) dict
   if unittest#is_running()
     let runner = unittest#runner()
     call runner.report_failure(a:reason, a:hint)
@@ -631,6 +610,7 @@ function! s:report_failure(reason, hint)
     throw "AssertionFailed: " . msg
   endif
 endfunction
+call s:Assertions.function('report_failure')
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

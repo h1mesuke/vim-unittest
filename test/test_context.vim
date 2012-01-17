@@ -52,7 +52,7 @@ function! s:tc.test_context_call_global_function()
 endfunction
 
 function! s:tc.test_context_call_script_local_function()
-  call self.call('s:Assertions_assert', [1])
+  call self.call('s:Assertions_assert', [1], self)
 endfunction
 
 function! s:tc.test_context_get_global_variable()
