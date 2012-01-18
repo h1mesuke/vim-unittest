@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 #=============================================================================
 # Unit Testing Framework for Vim script
 #
 # File    : bin/vunit
 # Author  : h1mesuke
-# Updated : 2012-01-12
+# Updated : 2012-01-19
 # Version : 0.5.0
 # License : MIT license {{{
 #
@@ -29,29 +29,32 @@
 # }}}
 #=============================================================================
 
+set -o errexit
+set -o nounset
+
 NAME=vunit
 USAGE="$NAME [options] TESTCASE.vim"
-VERSION=0.1.1
+VERSION=0.1.2
 
 print_help() {
   cat 1>&2 << EOF
 
-  $NAME - Run a testcase of unittest.vim
+  $NAME - Run a test case of unittest.vim
 
   Usage:
     $USAGE
 
   Options:
-    -V {Vim_command}  Executes tests with {Vim_command}.
+    -V VIM_COMMAND    Executes tests with VIM_COMMAND.
 
-    -c {color_set}    Change the color set used for colorizing the results.
+    -b                Output results to a Vim's buffer.
 
-                      Available color sets:
-                        n[one]    Disable colorzing.
-                        d[ark]    Use dark  colors.   [Default]
-                        l[ight]   Use light colors.
+    -c COLOR_SET      Change the color set for colorizing results.
 
-    -b                Output the results using Vim's buffer.
+                        Available color sets:
+                          n[one]    Disable colorzing.
+                          d[ark]    Use dark  colors.   [Default]
+                          l[ight]   Use light colors.
 
     -h                Print this help.
     -v                Print the version of this program.
@@ -75,40 +78,21 @@ OPT=
 if [ "$OPTIND" = 1 ]; then
   while getopts V:c:bhv OPT; do
     case $OPT in
-      V)
-        VIM=$OPTARG
-        ;;
+      V) VIM=$OPTARG   ;;
+      b) OUTPUT=BUFFER ;;
       c)
         case "$OPTARG" in
-          [nN]*)
-            COLOR=NONE
-            ;;
-          [dD]*)
-            COLOR=DARK
-            ;;
-          [lL]*)
-            COLOR=LIGHT
-            ;;
+          [nN]*) COLOR=NONE  ;;
+          [dD]*) COLOR=DARK  ;;
+          [lL]*) COLOR=LIGHT ;;
         esac
         ;;
-      b)
-        OUTPUT=BUFFER
-        ;;
-      h | \?)
-        print_help
-        status=0
-        if [ $OPT != "h" ]; then
-          status=1
-        fi
-        exit $status
-        ;;
-      v)
-        print_version
-        exit 0
-        ;;
+      h)  print_help;    exit 0 ;;
+      v)  print_version; exit 0 ;;
+      \?) print_help;    exit 1 ;;
     esac
   done
-  shift `expr $OPTIND - 1`
+  shift $(($OPTIND - 1))
 else
   echo "$NAME: getopts is not available." 1>&2
   exit 1
@@ -119,18 +103,36 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-tcfile=$1
+check_path() {
+  local path=$1
+  case "$path" in *' '*)
+    echo "vunit: PathError: vunit can't handle a path with spaces." 1>&2
+    exit 1
+  esac
+}
 
-if [ $OUTPUT = "FILE" ]; then
+tcdir=`dirname "$1"`
+tcfile=`basename "$1"`
+check_path "$tcfile"
+
+cwd=`pwd`
+trap 'cd "$cwd"; exit 0' EXIT
+trap 'cd "$cwd"; exit 1' HUP INT QUIT TERM
+cd "$tcdir"
+
+if [ $OUTPUT = FILE ]; then
   outfile=`mktemp -t vunit_results.XXXXXXXXXX`
-  trap "rm -f '$outfile'" 0
-  trap "rm -f '$outfile'; exit 1" 1 2 3 15
+  check_path "$outfile"
+  trap - EXIT HUP INT QUIT TERM
+  trap 'rm -f "$outfile"; cd "$tcdir" exit 0' EXIT
+  trap 'rm -f "$outfile"; cd "$tcdir" exit 1' HUP INT QUIT TERM
 
   $VIM -c "UnitTest $tcfile >$outfile" -c "qall!"
-  if [ $COLOR = "NONE" ]; then
-    cat $outfile
+
+  if [ $COLOR = NONE ]; then
+    cat "$outfile"
   else
-    cat $outfile | awk -v color_set=$COLOR '
+    <"$outfile" awk -v color_set=$COLOR '
 
       BEGIN {
         if (color_set == "DARK") {
@@ -171,11 +173,9 @@ if [ $OUTPUT = "FILE" ]; then
         sub(/[1-9][01-9]* (failures|errors)/, color_red     "&" end_color)
       }
 
-      { print $0 }
+      { print }
     '
   fi
 else
-  $VIM -c "UnitTest $tcfile"
+  $VIM -c "UnitTest $tcfile" -c 'wincmd o' -c 'normal! z-'
 fi
-
-# vim: filetype=sh
