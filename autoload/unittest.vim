@@ -516,7 +516,7 @@ function! s:TestResults_append(result) dict
   call add(tc_results[test], a:result)
 
   if a:result isnot s:SUCCESS
-    let kind_s = tolower(a:result.__class__.__name__) . 's'
+    let kind_s = tolower(a:result.class.name) . 's'
     "=> failures, errors, pendings
     call add(self[kind_s], a:result)
     let self.number_of[kind_s] += 1

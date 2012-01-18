@@ -1,11 +1,11 @@
 "=============================================================================
 " vim-oop
-" Simple OOP Layer for Vim script
+" OOP Support for Vim script
 "
 " File    : oop.vim
-" Author  : h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-12
-" Version : 0.2.3
+" Author  : h1mesuke <himesuke+vim@gmail.com>
+" Updated : 2012-01-17
+" Version : 0.2.4
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
@@ -33,62 +33,75 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:TYPE_NUM  = type(0)
-let s:TYPE_STR  = type("")
 let s:TYPE_DICT = type({})
 let s:TYPE_LIST = type([])
 let s:TYPE_FUNC = type(function('tr'))
 
-function! unittest#oop#_sid_prefix(sid)
-  if type(a:sid) == s:TYPE_NUM
-    return '<SNR>' . a:sid . '_'
-  else
-    return '<SNR>' . matchstr(a:sid, '\d\+') . '_'
-  endif
+let s:namespace = {}
+
+function! unittest#oop#__namespace__()
+  return s:namespace
 endfunction
 
 function! unittest#oop#is_object(value)
-  return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Object__')
+  return type(a:value) == s:TYPE_DICT && has_key(a:value, '__vim_oop__')
 endfunction
 
 function! unittest#oop#is_class(value)
-  return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Class__')
+  return type(a:value) == s:TYPE_DICT && has_key(a:value, '__vim_oop__') &&
+        \ has_key(a:value, '__prototype__')
 endfunction
 
 function! unittest#oop#is_instance(value)
-  return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Instance__')
+  return type(a:value) == s:TYPE_DICT && has_key(a:value, '__vim_oop__') &&
+        \ has_key(a:value, 'class')
 endfunction
 
 function! unittest#oop#is_module(value)
-  return type(a:value) == s:TYPE_DICT && has_key(a:value, '__type_Module__')
+  return type(a:value) == s:TYPE_DICT && has_key(a:value, '__vim_oop__') &&
+        \ !has_key(a:value, '__prototype__') && !has_key(a:value, 'class')
 endfunction
 
 function! unittest#oop#string(value)
-  let value_type = type(a:value)
-  if value_type == s:TYPE_LIST || value_type == s:TYPE_DICT
-    return s:dump_copy(a:value)
-  else
-    return string(a:value)
+  let value = a:value
+  let type = type(a:value)
+  if type == s:TYPE_LIST || type == s:TYPE_DICT
+    let value = deepcopy(a:value)
+    call s:demote_objects(value)
   endif
+  return string(value)
 endfunction
 
-function! s:dump_copy(value)
-  let value = a:value
-  let value_type = type(a:value)
-  if value_type == s:TYPE_DICT
-    if has_key(a:value, '__type_Class__')
-      return '<Class: ' . a:value.__name__ . '>'
-    elseif has_key(a:value, '__type_Module__')
-      return '<Module: ' . a:value.__name__ . '>'
-    elseif has_key(a:value, '__type_Instance__')
-      let value = filter(copy(a:value), '
-            \ !(type(v:val) == s:TYPE_FUNC || v:key =~ "^__type_")')
+function! s:demote_objects(value)
+  let type = type(a:value)
+  if type == s:TYPE_LIST
+    call map(a:value, 's:demote_objects(v:val)')
+  elseif type == s:TYPE_DICT
+    if has_key(a:value, '__vim_oop__') && has_key(a:value, 'class')
+      call a:value.demote()
     endif
+    call map(values(a:value), 's:demote_objects(v:val)')
   endif
-  if value_type == s:TYPE_LIST || value_type == s:TYPE_DICT
-    return string(map(copy(value), 's:dump_copy(v:val)'))
-  else
-    return value
+  return a:value
+endfunction
+
+function! unittest#oop#deserialize(str)
+  sandbox let dict = eval(a:str)
+  return s:promote_objects(dict)
+endfunction
+
+function! s:promote_objects(value)
+  let type = type(a:value)
+  if type == s:TYPE_LIST
+    call map(a:value, 's:promote_objects(v:val)')
+  elseif type == s:TYPE_DICT
+    if has_key(a:value, 'class')
+      let class = unittest#oop#class#get(a:value.class)
+      call class.promote(a:value)
+    endif
+    call map(values(a:value), 's:promote_objects(v:val)')
   endif
+  return a:value
 endfunction
 
 let &cpo = s:save_cpo
