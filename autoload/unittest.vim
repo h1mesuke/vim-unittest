@@ -430,24 +430,27 @@ endfunction
 call s:OutFile.method('initialize')
 
 function! s:OutFile_open() dict
-  if self.mode == 'a'
-    execute 'redir >>' self.file
-  else
-    execute 'redir! >' self.file
+  if self.mode ==# 'w' && filereadable(self.file)
+    if delete(self.file) != 0
+      throw "unittest: Can't remove the previous output: " . self.file
+    endif
   endif
 endfunction
 call s:OutFile.method('open')
 
 function! s:OutFile_close() dict
   call self.puts()
-  redir END
 endfunction
 call s:OutFile.method('close')
 
+" NOTE: puts() is reequired to execute :redir to the output file evety time
+" because the code to be tested may execute :redir END.
 function! s:OutFile_puts(...) dict
+  execute 'redir >>' self.file
   for line in (a:0 ? split(a:1, "\n") : [""])
     silent echomsg line
   endfor
+  redir END
 endfunction
 call s:OutFile.method('puts')
 
