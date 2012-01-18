@@ -1,7 +1,7 @@
 *unittest.txt*		Unit Testing Framework for Vim script
 
 Author  : h1mesuke <himesuke@gmail.com>
-Updated : 2012-01-17
+Updated : 2012-01-19
 Version : 0.5.0
 License : MIT license {{{
 
@@ -31,13 +31,17 @@ CONTENTS					*unittest-contents*
 	How to Write Tests		|unittest-how-to-write|
 	  Setup and Teardown		|unittest-setup|
 	  Access Script-locals		  |unittest-access-script-locals|
-	  Test Data			  |unittest-test-data|
+	  Use of Test Data		  |unittest-test-data|
 	  Pending Tests			  |unittest-pending-tests|
 	How to Run Tests		|unittest-how-to-run|
 	Interface			|unittest-interface|
 	  Commands			  |unittest-commands|
 	  Global Functions		  |unittest-functions|
 	  TestCase Methods		  |unittest-testcase-methods|
+	    Assertions			    |unittest-assertions|
+	    Context Accessors		    |unittest-context-accessors|
+	    Data Accessors		    |unittest-data-accessors|
+	    Utilities			    |unittest-testcase-utilities|
 	  Variables			  |unittest-variables|
 	Issues				|unittest-issues|
 	ChanheLog			|unittest-changelog|
@@ -247,7 +251,7 @@ ACCESS SCRIPT-LOCALS			*unittest-access-script-locals*
 		* test/test_context.vim
 
 ------------------------------------------------------------------------------
-TEST DATA					*unittest-test-data*
+USE OF TEST DATA				*unittest-test-data*
 
 	You can write tests of commands and functions that are applied to and
 	process the current buffer's content by attaching a test data file to
