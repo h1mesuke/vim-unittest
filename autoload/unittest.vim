@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-17
+" Updated : 2012-01-19
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -32,11 +32,35 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! unittest#run(...)
-  let args = a:000
+  try
+    let [tc_files, test_filters, output] = s:parse_args(a:000)
+  catch /^unittest: /
+    call unittest#print_error(v:exception)
+    return
+  endtry
+  try
+    let s:test_runner = s:TestRunner.new(test_filters, output)
+    let save_cpo = &cpo
+    set cpo&vim
+    for tc_file in tc_files
+      source `=tc_file`
+    endfor
+    let &cpo = save_cpo
+    call s:test_runner.run()
+  catch
+    call unittest#print_error(v:throwpoint)
+    call unittest#print_error(v:exception)
+  finally
+    let &cpo = save_cpo
+    unlet! s:test_runner
+  endtry
+endfunction
+
+function! s:parse_args(args)
   let tc_files = []
   let test_filters = { 'g_pattern': '', 'v_pattern': '' }
   let output = 'buffer'
-  for value in args
+  for value in a:args
     " Filtering pattern
     let matched = matchlist(value, '^\([gv]\)/\(.*\)$')
     if len(matched) > 0
@@ -58,33 +82,17 @@ function! unittest#run(...)
       continue
     endif
     " Invalid value
-    call unittest#print_error("unittest: Invalid arguement: " . string(value))
-    return
+    throw "unittest: Invalid arguement: " . string(value)
   endfor
   if empty(tc_files)
     let path = expand('%')
     if s:is_testcase_file(path)
       call add(tc_files, path)
     else
-      call unittest#print_error("unittest: The current buffer is not a test case.")
+      throw "unittest: The current buffer is not a test case."
     endif
   endif
-
-  try
-    let s:test_runner = s:TestRunner.new(test_filters, output)
-    let save_cpo = &cpo
-    set cpo&vim
-    for tc_file in tc_files
-      source `=tc_file`
-    endfor
-    let &cpo = save_cpo
-    call s:test_runner.run()
-  catch
-    call unittest#print_error(v:throwpoint)
-    call unittest#print_error(v:exception)
-  finally
-    unlet! s:test_runner
-  endtry
+  return [tc_files, test_filters, output]
 endfunction
 
 function! s:is_testcase_file(path)
