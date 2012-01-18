@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-15
+" Updated : 2012-01-19
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -98,7 +98,7 @@ function! s:TestCase___open_data_window__() abort dict
   if !bufexists(data_file)
     " The buffer doesn't exist.
     split
-    edit `=self.__context__.data.file`
+    hide edit `=self.__context__.data.file`
   elseif bufwinnr(data_file) != -1
     " The buffer exists, and it has a window.
     execute bufwinnr(data_file) 'wincmd w'
