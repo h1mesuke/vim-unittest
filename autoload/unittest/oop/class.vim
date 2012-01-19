@@ -3,7 +3,7 @@
 " OOP Support for Vim script
 "
 " File    : oop/class.vim
-" Author  : h1mesuke <himesuke@gmail.com>
+" Author  : h1mesuke <himesuke+vim@gmail.com>
 " Updated : 2012-01-19
 " Version : 0.2.4
 " License : MIT license {{{

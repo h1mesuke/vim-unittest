@@ -2,9 +2,9 @@
 " Unit Testing Framework for Vim script
 "
 " File    : autoload/unittest/assertions.vim
-" Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-19
-" Version : 0.5.0
+" Author  : h1mesuke <himesuke+vim@gmail.com>
+" Updated : 2012-01-20
+" Version : 0.5.1
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
