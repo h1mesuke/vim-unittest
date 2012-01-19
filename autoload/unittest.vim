@@ -33,13 +33,13 @@ set cpo&vim
 
 function! unittest#run(...)
   try
-    let [tc_files, test_filters, output] = s:parse_args(a:000)
+    let [tc_files, filters, output] = s:parse_args(a:000)
   catch /^unittest: /
     call unittest#print_error(v:exception)
     return
   endtry
   try
-    let s:test_runner = s:TestRunner.new(test_filters, output)
+    let s:test_runner = s:TestRunner.new(filters, output)
     let save_cpo = &cpo
     set cpo&vim
     for tc_file in tc_files
@@ -58,16 +58,16 @@ endfunction
 
 function! s:parse_args(args)
   let tc_files = []
-  let test_filters = { 'g_pattern': '', 'v_pattern': '' }
+  let filters = { 'only': [], 'except': [] }
   let output = 'buffer'
   for value in a:args
     " Filtering pattern
     let matched = matchlist(value, '^\([gv]\)/\(.*\)$')
     if len(matched) > 0
       if matched[1] ==# 'g'
-        let test_filters.g_pattern = matched[2]
+        call add(filters.only, matched[2])
       else
-        let test_filters.v_pattern = matched[2]
+        call add(filters.except, matched[2])
       endif
       continue
     endif
@@ -92,7 +92,7 @@ function! s:parse_args(args)
       throw "unittest: The current buffer is not a test case."
     endif
   endif
-  return [tc_files, test_filters, output]
+  return [tc_files, filters, output]
 endfunction
 
 function! s:is_testcase_file(path)
@@ -142,9 +142,9 @@ delfunction s:get_SID
 
 let s:TestRunner = unittest#oop#class#new('TestRunner', s:SID)
 
-function! s:TestRunner_initialize(test_filters, output) dict
+function! s:TestRunner_initialize(filters, output) dict
   let self.testcases = []
-  let self.test_filters = a:test_filters
+  let self.filters = a:filters
   let self.current = {}
   let self.results = s:TestResults.new()
   let matched = matchlist(a:output, '^\(>>\=\)\(.*\)$')
@@ -212,12 +212,12 @@ call s:TestRunner.method('run')
 
 function! s:TestRunner_filter_tests(tests) dict
   let tests = copy(a:tests)
-  if self.test_filters.g_pattern != ""
-    call filter(tests, 'v:val =~# self.test_filters.g_pattern')
-  endif
-  if self.test_filters.v_pattern != ""
-    call filter(tests, 'v:val !~# self.test_filters.v_pattern')
-  endif
+  for pat in self.filters.only
+    call filter(tests, 'v:val =~# pat')
+  endfor
+  for pat in self.filters.except
+    call filter(tests, 'v:val !~# pat')
+  endfor
   return tests
 endfunction
 call s:TestRunner.method('filter_tests')
