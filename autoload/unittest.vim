@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Author	: h1mesuke <himesuke@gmail.com>
-" Updated : 2012-01-19
+" Updated : 2012-01-20
 " Version : 0.5.0
 " License : MIT license {{{
 "
@@ -32,6 +32,9 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! unittest#run(...)
+  if unittest#is_running()
+    throw "unittest: Duplicated launch is prohibited."
+  endif
   try
     let [tc_files, filters, output] = s:parse_args(a:000)
   catch /^unittest: /
