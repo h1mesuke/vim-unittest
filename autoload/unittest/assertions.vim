@@ -66,7 +66,7 @@ function! s:Assertions_assert(expr, ...) dict
   if !a:expr
     call self.report_failure(
           \ "True expected, but was\n" .
-          \ unittest#oop#string(a:expr),
+          \ self.__string__(a:expr),
           \ hint)
   else
     call self.report_success()
@@ -80,7 +80,7 @@ function! s:Assertions_assert_not(expr, ...) dict
   if a:expr
     call self.report_failure(
           \ "False expected, but was\n" .
-          \ unittest#oop#string(a:expr),
+          \ self.__string__(a:expr),
           \ hint)
   else
     call self.report_success()
@@ -94,8 +94,8 @@ function! s:Assertions_assert_equal(expected, actual, ...) dict
   if type(a:expected) == s:TYPE_STR && type(a:actual) == s:TYPE_STR
     if a:expected !=# a:actual
       call self.report_failure(
-            \ unittest#oop#string(a:expected) . " expected but was\n" .
-            \ unittest#oop#string(a:actual),
+            \ self.__string__(a:expected) . " expected but was\n" .
+            \ self.__string__(a:actual),
             \ hint)
     else
       call self.report_success()
@@ -103,8 +103,8 @@ function! s:Assertions_assert_equal(expected, actual, ...) dict
   else
     if a:expected != a:actual
       call self.report_failure(
-            \ unittest#oop#string(a:expected) . " expected but was\n" .
-            \ unittest#oop#string(a:actual),
+            \ self.__string__(a:expected) . " expected but was\n" .
+            \ self.__string__(a:actual),
             \ hint)
     else
       call self.report_success()
@@ -119,8 +119,8 @@ function! s:Assertions_assert_not_equal(expected, actual, ...) dict
   if type(a:expected) == s:TYPE_STR && type(a:actual) == s:TYPE_STR
     if a:expected ==# a:actual
       call self.report_failure(
-            \ unittest#oop#string(a:expected) . " not expected but was\n" .
-            \ unittest#oop#string(a:actual),
+            \ self.__string__(a:expected) . " not expected but was\n" .
+            \ self.__string__(a:actual),
             \ hint)
     else
       call self.report_success()
@@ -128,8 +128,8 @@ function! s:Assertions_assert_not_equal(expected, actual, ...) dict
   else
     if a:expected == a:actual
       call self.report_failure(
-            \ unittest#oop#string(a:expected) . " not expected but was\n" .
-            \ unittest#oop#string(a:actual),
+            \ self.__string__(a:expected) . " not expected but was\n" .
+            \ self.__string__(a:actual),
             \ hint)
     else
       call self.report_success()
@@ -143,8 +143,8 @@ function! s:Assertions_assert_equal_c(expected, actual, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:expected !=? a:actual
     call self.report_failure(
-          \ unittest#oop#string(a:expected) . " expected but was\n" .
-          \ unittest#oop#string(a:actual),
+          \ self.__string__(a:expected) . " expected but was\n" .
+          \ self.__string__(a:actual),
           \ hint)
   else
     call self.report_success()
@@ -158,8 +158,8 @@ function! s:Assertions_assert_not_equal_c(expected, actual, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:expected ==? a:actual
     call self.report_failure(
-          \ unittest#oop#string(a:expected) . " not expected but was\n" .
-          \ unittest#oop#string(a:actual),
+          \ self.__string__(a:expected) . " not expected but was\n" .
+          \ self.__string__(a:actual),
           \ hint)
   else
     call self.report_success()
@@ -173,8 +173,8 @@ function! s:Assertions_assert_equal_C(expected, actual, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:expected !=# a:actual
     call self.report_failure(
-          \ unittest#oop#string(a:expected) . " expected but was\n" .
-          \ unittest#oop#string(a:actual),
+          \ self.__string__(a:expected) . " expected but was\n" .
+          \ self.__string__(a:actual),
           \ hint)
   else
     call self.report_success()
@@ -188,8 +188,8 @@ function! s:Assertions_assert_not_equal_C(expected, actual, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:expected ==# a:actual
     call self.report_failure(
-          \ unittest#oop#string(a:expected) . " not expected but was\n" .
-          \ unittest#oop#string(a:actual),
+          \ self.__string__(a:expected) . " not expected but was\n" .
+          \ self.__string__(a:actual),
           \ hint)
   else
     call self.report_success()
@@ -203,7 +203,7 @@ function! s:Assertions_assert_exists(expr, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:expr =~ '^:' ? exists(a:expr) != 2 : !exists(a:expr)
     call self.report_failure(
-          \ unittest#oop#string(a:expr) . " is not defined",
+          \ self.__string__(a:expr) . " is not defined",
           \ hint)
   else
     call self.report_success()
@@ -217,7 +217,7 @@ function! s:Assertions_assert_not_exists(expr, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:expr =~ '^:' ? exists(a:expr) == 2 : exists(a:expr)
     call self.report_failure(
-          \ unittest#oop#string(a:expr) . " is defined",
+          \ self.__string__(a:expr) . " is defined",
           \ hint)
   else
     call self.report_success()
@@ -231,8 +231,8 @@ function! s:Assertions_assert_is(expected, actual, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:expected isnot a:actual
     call self.report_failure(
-          \ unittest#oop#string(a:expected) . " itself expected but was\n" .
-          \ unittest#oop#string(a:actual),
+          \ self.__string__(a:expected) . " itself expected but was\n" .
+          \ self.__string__(a:actual),
           \ hint)
   else
     call self.report_success()
@@ -245,8 +245,8 @@ function! s:Assertions_assert_is_not(expected, actual, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:expected is a:actual
     call self.report_failure(
-          \ unittest#oop#string(a:expected) . " itself not expected but was\n" .
-          \ unittest#oop#string(a:actual) . " itself",
+          \ self.__string__(a:expected) . " itself not expected but was\n" .
+          \ self.__string__(a:actual) . " itself",
           \ hint)
   else
     call self.report_success()
@@ -362,8 +362,8 @@ function! s:Assertions_assert_match(pattern, str, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:str !~ a:pattern
     call self.report_failure(
-          \ unittest#oop#string(a:str) . " didn't match the pattern " .
-          \ unittest#oop#string(a:pattern),
+          \ self.__string__(a:str) . " didn't match the pattern " .
+          \ self.__string__(a:pattern),
           \ hint)
   else
     call self.report_success()
@@ -376,8 +376,8 @@ function! s:Assertions_assert_not_match(pattern, str, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:str =~ a:pattern
     call self.report_failure(
-          \ unittest#oop#string(a:str) . " matched the pattern " .
-          \ unittest#oop#string(a:pattern),
+          \ self.__string__(a:str) . " matched the pattern " .
+          \ self.__string__(a:pattern),
           \ hint)
   else
     call self.report_success()
@@ -390,8 +390,8 @@ function! s:Assertions_assert_match_c(pattern, str, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:str !~? a:pattern
     call self.report_failure(
-          \ unittest#oop#string(a:str) . " didn't match the pattern " .
-          \ unittest#oop#string(a:pattern),
+          \ self.__string__(a:str) . " didn't match the pattern " .
+          \ self.__string__(a:pattern),
           \ hint)
   else
     call self.report_success()
@@ -405,8 +405,8 @@ function! s:Assertions_assert_not_match_c(pattern, str, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:str =~? a:pattern
     call self.report_failure(
-          \ unittest#oop#string(a:str) . " matched the pattern " .
-          \ unittest#oop#string(a:pattern),
+          \ self.__string__(a:str) . " matched the pattern " .
+          \ self.__string__(a:pattern),
           \ hint)
   else
     call self.report_success()
@@ -420,8 +420,8 @@ function! s:Assertions_assert_match_C(pattern, str, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:str !~# a:pattern
     call self.report_failure(
-          \ unittest#oop#string(a:str) . " didn't match the pattern " .
-          \ unittest#oop#string(a:pattern),
+          \ self.__string__(a:str) . " didn't match the pattern " .
+          \ self.__string__(a:pattern),
           \ hint)
   else
     call self.report_success()
@@ -435,8 +435,8 @@ function! s:Assertions_assert_not_match_C(pattern, str, ...) dict
   let hint = (a:0 ? a:1 : "")
   if a:str =~# a:pattern
     call self.report_failure(
-          \ unittest#oop#string(a:str) . " matched the pattern " .
-          \ unittest#oop#string(a:pattern),
+          \ self.__string__(a:str) . " matched the pattern " .
+          \ self.__string__(a:pattern),
           \ hint)
   else
     call self.report_success()
@@ -453,7 +453,7 @@ function! s:Assertions_assert_throw(exception, command, ...) dict
   catch
     if v:exception !~# a:exception
       call self.report_failure(
-            \ unittest#oop#string(a:command) .
+            \ self.__string__(a:command) .
             \   " didn't throw /" . a:exception . "/, but threw:\n" .
             \ v:exception,
             \ hint)
@@ -463,7 +463,7 @@ function! s:Assertions_assert_throw(exception, command, ...) dict
     return
   endtry
   call self.report_failure(
-        \ unittest#oop#string(a:command) . " didn't throw /" . a:exception . "/\n" .
+        \ self.__string__(a:command) . " didn't throw /" . a:exception . "/\n" .
         \ "Nothing thrown.",
         \ hint)
 endfunction
@@ -476,7 +476,7 @@ function! s:Assertions_assert_not_throw(command, ...) dict
     execute a:command
   catch
     call self.report_failure(
-          \ unittest#oop#string(a:command) . " threw:\n" .
+          \ self.__string__(a:command) . " threw:\n" .
           \ v:exception,
           \ hint)
     return
@@ -485,6 +485,11 @@ function! s:Assertions_assert_not_throw(command, ...) dict
 endfunction
 call s:Assertions.function('assert_not_throw')
 call s:Assertions.alias('assert_nothing_thrown', 'assert_not_throw')
+
+function! s:Assertions___string__(value)
+  return unittest#oop#string(a:value)
+endfunction
+call s:Assertions.function('__string__')
 
 "-----------------------------------------------------------------------------
 
