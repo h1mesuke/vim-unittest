@@ -226,6 +226,34 @@ endfunction
 call s:Assertions.function('assert_not_exists')
 call s:Assertions.alias('assert_not_exist', 'assert_not_exists')
 
+function! s:Assertions_assert_has_key(key, dict, ...) dict
+  call self.count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if !has_key(a:dict, a:key)
+    call self.report_failure(
+          \ self.__string__(a:dict) . " doesn't has key " .
+          \ self.__string__(a:key),
+          \ hint)
+  else
+    call self.report_success()
+  endif
+endfunction
+call s:Assertions.function('assert_has_key')
+
+function! s:Assertions_assert_not_has_key(key, dict, ...) dict
+  call self.count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  if has_key(a:dict, a:key)
+    call self.report_failure(
+          \ self.__string__(a:dict) . " has key " .
+          \ self.__string__(a:key),
+          \ hint)
+  else
+    call self.report_success()
+  endif
+endfunction
+call s:Assertions.function('assert_not_has_key')
+
 function! s:Assertions_assert_is(expected, actual, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")

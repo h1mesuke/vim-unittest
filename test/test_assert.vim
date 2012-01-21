@@ -86,6 +86,16 @@ function! s:tc.test_assert_not_exists()
   call self.assert_not_exists(':bnext')
 endfunction
 
+function! s:tc.test_assert_has_key()
+  call self.assert_has_key('a', { 'a': 10 })
+  call self.assert_has_key('b', { 'a': 10 })
+endfunction
+
+function! s:tc.test_assert_not_has_key()
+  call self.assert_not_has_key('b', { 'a': 10 })
+  call self.assert_not_has_key('a', { 'a': 10 })
+endfunction
+
 function! s:tc.test_assert_is()
   let a = []
   let b = []

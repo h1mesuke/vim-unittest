@@ -1,7 +1,7 @@
 *unittest.txt*		Unit Testing Framework for Vim script
 
 Author  : h1mesuke <himesuke+vim@gmail.com>
-Updated : 2012-01-20
+Updated : 2012-01-21
 Version : 0.5.1
 License : MIT license {{{
 
@@ -467,6 +467,17 @@ ASSERTIONS					*unittest-assertions*
 	assert_not_exists( {expr} [, {hint}])	*unittest-assert_not_exists()*
 
 		Expects: !exists({expr})
+						*unittest-assert_has_key()*
+	assert_has_key( {key}, {dict} [, {hint}])
+
+		Expects: has_key({dict}, {key})
+
+		See also: |has_key()|
+						*unittest-assert_not_has_key()*
+	assert_not_has_key( {key}, {dict} [, {hint}])
+
+		Expects: !has_key({dict}, {key})
+
 						*unittest-assert_is()*
 	assert_is( {expected}, {actual} [, {hint}])
 
