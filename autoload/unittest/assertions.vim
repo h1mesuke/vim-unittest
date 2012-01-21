@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author  : h1mesuke <himesuke+vim@gmail.com>
-" Updated : 2012-01-20
+" Updated : 2012-01-21
 " Version : 0.5.1
 " License : MIT license {{{
 "
@@ -240,7 +240,7 @@ function! s:Assertions_assert_is(expected, actual, ...) dict
 endfunction
 call s:Assertions.function('assert_is')
 
-function! s:Assertions_assert_is_not(expected, actual, ...) dict
+function! s:Assertions_assert_isnot(expected, actual, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected is a:actual
@@ -252,7 +252,8 @@ function! s:Assertions_assert_is_not(expected, actual, ...) dict
     call self.report_success()
   endif
 endfunction
-call s:Assertions.function('assert_is_not')
+call s:Assertions.function('assert_isnot')
+call s:Assertions.alias('assert_is_not', 'assert_isnot')
 
 function! s:Assertions_assert_is_Number(value, ...) dict
   call self.count_assertion()

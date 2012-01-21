@@ -93,6 +93,12 @@ function! s:tc.test_assert_is()
   call self.assert_is(a, b)
 endfunction
 
+function! s:tc.test_assert_isnot()
+  let a = []
+  let b = []
+  call self.assert_isnot(a, b)
+  call self.assert_isnot(a, a)
+endfunction
 function! s:tc.test_assert_is_not()
   let a = []
   let b = []
