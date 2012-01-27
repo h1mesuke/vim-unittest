@@ -197,6 +197,15 @@ function! s:tc.test_assert_throw()
   call self.assert_throw('E492', 'nohl')
 endfunction
 
+function! s:tc.test_assert_throw_something()
+  call self.assert_throw_something('FooBarBaz')
+  call self.assert_throw_something('nohl')
+endfunction
+function! s:tc.test_assert_something_thrown()
+  call self.assert_something_thrown('FooBarBaz')
+  call self.assert_something_thrown('nohl')
+endfunction
+
 function! s:tc.test_assert_not_throw()
   call self.assert_not_throw('nohl')
   call self.assert_not_throw('FooBarBaz')

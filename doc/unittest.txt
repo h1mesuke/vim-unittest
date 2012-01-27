@@ -569,7 +569,14 @@ ASSERTIONS					*unittest-assertions*
 		Expects {ex-command} to throw {exception}.
 
 		See also: |:throw|, |:catch|
+						*unittest-assert_throw_something()*
+						*unittest-assert_something_thrown()*
+	assert_throw_something( {ex-command} [, {hint}])
+	assert_something_thrown( {ex-command} [, {hint}])
 
+		Expects {ex-command} to throw something.
+
+		See also: |:throw|, |:catch|
 						*unittest-assert_not_throw()*
 						*unittest-assert_nothing_thrown()*
 	assert_not_throw( {ex-command} [, {hint}])

@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author  : h1mesuke <himesuke+vim@gmail.com>
-" Updated : 2012-01-21
+" Updated : 2012-01-26
 " Version : 0.5.1
 " License : MIT license {{{
 "
@@ -497,6 +497,12 @@ function! s:Assertions_assert_throw(exception, command, ...) dict
         \ hint)
 endfunction
 call s:Assertions.function('assert_throw')
+
+function! s:Assertions_assert_throw_something(...) dict
+  call call(self.assert_throw, [''] + a:000, self)
+endfunction
+call s:Assertions.function('assert_throw_something')
+call s:Assertions.alias('assert_something_thrown', 'assert_throw_something')
 
 function! s:Assertions_assert_not_throw(command, ...) dict
   call self.count_assertion()
