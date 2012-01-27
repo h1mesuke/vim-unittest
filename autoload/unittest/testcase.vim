@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author  : h1mesuke <himesuke+vim@gmail.com>
-" Updated : 2012-01-19
+" Updated : 2012-01-26
 " Version : 0.5.1
 " License : MIT license {{{
 "
@@ -206,11 +206,8 @@ endfunction
 call s:Context.method('initialize')
 
 function! s:sid_prefix(sid)
-  if type(a:sid) == type(0)
-    return '<SNR>' . a:sid . '_'
-  else
-    return '<SNR>' . matchstr(a:sid, '\d\+') . '_'
-  endif
+  let sid = (type(a:sid) == type(0) ? a:sid : matchstr(a:sid, '\d\+'))
+  return printf('<SNR>%d_', sid)
 endfunction
 
 " call( {func}, {args} [, {dict}])
