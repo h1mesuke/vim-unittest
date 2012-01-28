@@ -141,47 +141,52 @@ function! s:TestRunner_run() dict
   if has("reltime")
     let start_time = reltime()
   endif
-
   call self.out.open()
   call self.out.puts("Started at " . strftime('%c'))
-
   for tc in self.testcases
-    let self.current.testcase = tc
-    call self.out.print_header(tc.name)
-    call self.out.puts()
-    call tc.__SETUP__()
-    let tests = self.filter_tests(tc.__tests__())
-    for test in tests
-      let self.current.test = test
-      try
-        call tc.__setup__(test)
-        call call(tc[test], [], tc)
-      catch
-        call self.results.add_error(tc, test)
-      endtry
-      try
-        call tc.__teardown__(test)
-      catch
-        call self.results.add_error(tc, test)
-      endtry
-      if empty(self.results.get(tc, test))
-        call self.results.add_pending(tc, test)
-      endif
-      call self.print_status(tc, test)
-    endfor
-    call tc.__TEARDOWN__()
+    call self.run_testcase(tc)
   endfor
-
   call self.print_results()
-
   if has("reltime")
     let used_time = split(reltimestr(reltime(start_time)))[0]
     call self.out.puts("Finished in " . used_time . " seconds.")
   endif
-
   call self.out.close()
 endfunction
 call s:TestRunner.method('run')
+
+function! s:TestRunner_run_testcase(tc) dict
+  try
+    let self.current.testcase = a:tc
+    call self.out.print_header(a:tc.name)
+    call self.out.puts()
+    call a:tc.__SETUP__()
+    let tests = self.filter_tests(a:tc.__tests__())
+    for test in tests
+      let self.current.test = test
+      try
+        call a:tc.__setup__(test)
+        call call(a:tc[test], [], a:tc)
+      catch
+        call self.results.add_error(a:tc, test)
+      endtry
+      try
+        call a:tc.__teardown__(test)
+      catch
+        call self.results.add_error(a:tc, test)
+      endtry
+      if empty(self.results.get(a:tc, test))
+        call self.results.add_pending(a:tc, test)
+      endif
+      call self.print_status(a:tc, test)
+    endfor
+    call a:tc.__TEARDOWN__()
+  catch
+    call self.results.add_error(a:tc, " ")
+    " NOTE: Cannot use empty test name.
+  endtry
+endfunction
+call s:TestRunner.method('run_testcase')
 
 function! s:TestRunner_filter_tests(tests) dict
   let tests = copy(a:tests)
