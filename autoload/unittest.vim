@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest.vim
 " Updated : 2012-01-27
-" Version : 0.5.1
+" Version : 0.6.0
 " License : MIT license {{{
 "
 "   Permission is hereby granted, free of charge, to any person obtaining
