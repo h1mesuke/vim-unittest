@@ -287,28 +287,27 @@ function! s:TestRunner_print_results() dict
     endfor
   endif
   call self.out.puts()
-  call self.out.puts(number_of.tests . " tests, " . number_of.assertions . " assertions, " .
-        \ number_of.failures . " failures, " . number_of.errors . " errors" .
-        \ (number_of.pendings > 0 ? " (" . number_of.pendings . " pending)" : ""))
+  call self.out.puts(printf("%d tests, %d assertions, %d failures, %d errors%s",
+        \ number_of.tests, number_of.assertions, number_of.failures, number_of.errors,
+        \ (number_of.pendings > 0 ? printf(" (%d pending)", number_of.pendings) : "")))
   call self.out.puts()
 endfunction
 call s:TestRunner.method('print_results')
 
 function! s:TestRunner_print_failure(fail, nr) dict
   call self.out.puts()
-  let nr = printf('%d) ', a:nr)
-  let tc_name = a:fail.testcase.name
-  call self.out.puts("  " . nr . tc_name . ": " . a:fail.test)
-  call self.out.puts("    Failed: " . a:fail.assert . " " . a:fail.hint)
+  call self.out.puts(
+        \     printf("  %d) %s: %s", a:nr, a:fail.testcase.name, a:fail.test))
+  call self.out.puts(
+        \     printf("    Failed: %s %s", a:fail.assert, a:fail.hint))
   call self.out.puts("    " . substitute(a:fail.reason, '\n', "\n    ", 'g'))
 endfunction
 call s:TestRunner.method('print_failure')
 
 function! s:TestRunner_print_error(err, nr) dict
   call self.out.puts()
-  let nr = printf('%d) ', a:nr)
-  let tc_name = a:err.testcase.name
-  call self.out.puts("  " . nr . tc_name . ": " . a:err.test)
+  call self.out.puts(
+        \     printf("  %d) %s: %s" , a:nr, a:err.testcase.name, a:err.test))
   call self.out.puts("    Error: " . a:err.throwpoint)
   call self.out.puts("    " . a:err.exception)
 endfunction
@@ -316,9 +315,8 @@ call s:TestRunner.method('print_error')
 
 function! s:TestRunner_print_pending(pend, nr) dict
   call self.out.puts()
-  let nr = printf('%d) ', a:nr)
-  let tc_name = a:pend.testcase.name
-  call self.out.puts("  " . nr . tc_name . ": " . a:pend.test)
+  call self.out.puts(
+        \     printf("  %d) %s: %s", a:nr, a:pend.testcase.name, a:pend.test))
   call self.out.puts("    # Not Yet Implemented")
 endfunction
 call s:TestRunner.method('print_pending')
