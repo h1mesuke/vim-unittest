@@ -17,14 +17,14 @@ if v:version < 703
   throw "Can't export s:, please use Vim 7.3 or later."
 endif
 
-let s:tc = unittest#testcase#new("Context Accessors", unittest#assertions#context())
+let s:tc = unittest#testcase#new("Context Accessors", unittest#assertions#__context__())
 
 let g:unittest_test_flag = 1
 let s:current = {
-      \ 'g:unittest_test_flag': g:unittest_test_flag,
-      \ '&ignorecase': &ignorecase,
-      \ '&g:autoindent': &g:autoindent,
-      \ '&l:autoindent': &l:autoindent,
+      \ 'g:unittest_test_flag' : g:unittest_test_flag,
+      \ '&ignorecase'          : &ignorecase,
+      \ '&g:autoindent'        : &g:autoindent,
+      \ '&l:autoindent'        : &l:autoindent,
       \ }
 
 function! s:tc.test_context_exists_global_function()

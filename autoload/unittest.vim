@@ -40,21 +40,21 @@ function! unittest#run(...)
     call unittest#print_error(v:exception)
     return
   endtry
+  let save_cpo = &cpo
+  set cpo&vim
   try
-    let s:test_runner = s:TestRunner.new(filters, output)
-    let save_cpo = &cpo
-    set cpo&vim
+    let s:runner = s:TestRunner.new(filters, output)
     for tc_file in tc_files
       source `=tc_file`
     endfor
     let &cpo = save_cpo
-    call s:test_runner.run()
+    call s:runner.run()
   catch
     call unittest#print_error(v:throwpoint)
     call unittest#print_error(v:exception)
   finally
     let &cpo = save_cpo
-    unlet! s:test_runner
+    unlet! s:runner
   endtry
 endfunction
 
@@ -105,11 +105,11 @@ function! unittest#runner()
   if !unittest#is_running()
     throw "unittest: :UnitTest is not running now."
   endif
-  return s:test_runner
+  return s:runner
 endfunction
 
 function! unittest#is_running()
-  return exists('s:test_runner')
+  return exists('s:runner')
 endfunction
 
 function! unittest#print_error(msg)
@@ -178,8 +178,7 @@ function! s:TestRunner_run() dict
       if empty(self.results.of(tc, test))
         call self.results.add_pending()
       endif
-      " Example: test_foo => ..F..F..
-      call self.print_status_line(tc, test)
+      call self.print_status(tc, test)
     endfor
     call tc.__TEARDOWN__()
   endfor
@@ -222,7 +221,7 @@ function! s:TestRunner_report_failure(reason, hint) dict
 endfunction
 call s:TestRunner.method('report_failure')
 
-function! s:TestRunner_print_status_line(tc, test) dict
+function! s:TestRunner_print_status(tc, test) dict
   let line = a:test . ' => '
   for result in self.results.of(a:tc, a:test)
     if result.is_a(s:Failure)
@@ -237,11 +236,11 @@ function! s:TestRunner_print_status_line(tc, test) dict
   endfor
   call self.out.puts(line)
 endfunction
-call s:TestRunner.method('print_status_line')
+call s:TestRunner.method('print_status')
 
 function! s:TestRunner_print_results() dict
   call self.out.print_header("Results")
-  let number_of = self.results.number_of
+  let number_of = self.results.get_counts() 
   if number_of.failures > 0
     call self.out.puts()
     call self.out.puts("Failures:")
@@ -443,24 +442,17 @@ call s:OutFile.method('puts')
 let s:TestResults = unittest#oop#class#new('TestResults', s:SID)
 
 function! s:TestResults_initialize() dict
+  let self.count = { 'tests': 0, 'assertions': 0 }
   let self.results = {}
   let self.failures = []
   let self.errors   = []
   let self.pendings = []
-  let self.number_of = {
-        \ 'tests'     : 0,
-        \ 'assertions': 0,
-        \ 'failures'  : 0,
-        \ 'errors'    : 0,
-        \ 'pendings'  : 0,
-        \ }
 endfunction
 call s:TestResults.method('initialize')
 
 function! s:TestResults_of(tc, test) dict
   try
-    let results = self.results[a:tc.name][a:test]
-    return results
+    return self.results[a:tc.name][a:test]
   catch /^Vim\%((\a\+)\)\=:E716:/
     " E716: Key not present in Dictionary:
     return []
@@ -468,8 +460,19 @@ function! s:TestResults_of(tc, test) dict
 endfunction
 call s:TestResults.method('of')
 
+function! s:TestResults_get_counts() dict
+  return {
+        \ 'tests'     : self.count.tests,
+        \ 'assertions': self.count.assertions,
+        \ 'failures'  : len(self.failures),
+        \ 'errors'    : len(self.errors),
+        \ 'pendings'  : len(self.pendings),
+        \ }
+endfunction
+call s:TestResults.method('get_counts')
+
 function! s:TestResults_count_assertion() dict
-  let self.number_of.assertions += 1
+  let self.count.assertions += 1
 endfunction
 call s:TestResults.method('count_assertion')
 
@@ -497,23 +500,22 @@ endfunction
 call s:TestResults.method('add_pending')
 
 function! s:TestResults_append(result) dict
-  let tc_name = s:test_runner.current.testcase.name
+  let tc_name = s:runner.current.testcase.name
   if !has_key(self.results, tc_name)
     let self.results[tc_name] = {}
   endif
   let tc_results = self.results[tc_name]
-  let test = s:test_runner.current.test
+  let test = s:runner.current.test
   if !has_key(tc_results, test)
     let tc_results[test] = []
-    let self.number_of.tests += 1
+    let self.count.tests += 1
   endif
   call add(tc_results[test], a:result)
 
   if a:result isnot s:SUCCESS
     let kind_s = tolower(a:result.class.name) . 's'
-    "=> failures, errors, pendings
+    "=> 'failures', 'errors' or 'pendings'
     call add(self[kind_s], a:result)
-    let self.number_of[kind_s] += 1
   endif
 endfunction
 call s:TestResults.method('append')
@@ -529,8 +531,8 @@ let s:SUCCESS = unittest#oop#class#new('Success', s:SID).new()
 let s:Failure = unittest#oop#class#new('Failure', s:SID)
 
 function! s:Failure_initialize(reason, hint) dict
-  let self.testcase = s:test_runner.current.testcase
-  let self.test = s:test_runner.current.test
+  let self.testcase = s:runner.current.testcase
+  let self.test = s:runner.current.test
   let self.failpoint = expand('<sfile>')
   let self.assert = matchstr(self.failpoint, '\.\.<SNR>\d\+_Assertions_\zsassert\w*\ze\.\.')
   let self.reason = a:reason
@@ -544,8 +546,8 @@ call s:Failure.method('initialize')
 let s:Error = unittest#oop#class#new('Error', s:SID)
 
 function! s:Error_initialize() dict
-  let self.testcase = s:test_runner.current.testcase
-  let self.test = s:test_runner.current.test
+  let self.testcase = s:runner.current.testcase
+  let self.test = s:runner.current.test
   let self.throwpoint = v:throwpoint
   let self.exception = v:exception
 endfunction
@@ -557,8 +559,8 @@ call s:Error.method('initialize')
 let s:Pending = unittest#oop#class#new('Pending', s:SID)
 
 function! s:Pending_initialize() dict
-  let self.testcase = s:test_runner.current.testcase
-  let self.test = s:test_runner.current.test
+  let self.testcase = s:runner.current.testcase
+  let self.test = s:runner.current.test
 endfunction
 call s:Pending.method('initialize')
 

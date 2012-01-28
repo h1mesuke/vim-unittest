@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author  : h1mesuke <himesuke+vim@gmail.com>
-" Updated : 2012-01-26
+" Updated : 2012-01-27
 " Version : 0.5.1
 " License : MIT license {{{
 "
@@ -31,14 +31,6 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! unittest#testcase#class()
-  return s:TestCase
-endfunction
-
-function! unittest#testcase#new(...)
-  return call(s:TestCase.new, a:000, s:TestCase)
-endfunction
-
 function! s:get_SID()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
@@ -47,6 +39,14 @@ delfunction s:get_SID
 
 "-----------------------------------------------------------------------------
 " TestCase
+
+function! unittest#testcase#class()
+  return s:TestCase
+endfunction
+
+function! unittest#testcase#new(...)
+  return call(s:TestCase.new, a:000, s:TestCase)
+endfunction
 
 let s:TestCase = unittest#oop#class#new('TestCase', s:SID)
 call s:TestCase.include(unittest#assertions#module())

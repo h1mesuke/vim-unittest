@@ -1,7 +1,7 @@
 *unittest.txt*		Unit Testing Framework for Vim script
 
 Author  : h1mesuke <himesuke+vim@gmail.com>
-Updated : 2012-01-21
+Updated : 2012-01-27
 Version : 0.5.1
 License : MIT license {{{
 
@@ -198,7 +198,7 @@ ACCESS SCRIPT-LOCALS			*unittest-access-script-locals*
 		let s:SID = s:get_SID()
 		delfunction s:get_SID
 
-		function! path#to#script#context()
+		function! path#to#script#__context__()
 		  return { 'sid': s:SID, 'scope': s: }
 		endfunction
 <						 *unittest-context*
@@ -226,7 +226,7 @@ ACCESS SCRIPT-LOCALS			*unittest-access-script-locals*
 	2. Give the context Dictionary to your TestCase at its instantiation.
 >
 		let s:tc = unittest#testcase#new("Tests of Something",
-			\ path#to#script#context())
+			\ path#to#script#__context__())
 <
 	3. Use TestCase's call(), get() or set() methods to access
 	   script-locals.

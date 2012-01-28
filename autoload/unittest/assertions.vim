@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author  : h1mesuke <himesuke+vim@gmail.com>
-" Updated : 2012-01-26
+" Updated : 2012-01-27
 " Version : 0.5.1
 " License : MIT license {{{
 "
@@ -31,12 +31,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! unittest#assertions#context()
+function! unittest#assertions#__context__()
   return { 'sid': s:SID, 'scope': s: }
-endfunction
-
-function! unittest#assertions#module()
-  return s:Assertions
 endfunction
 
 function! s:get_SID()
@@ -57,6 +53,10 @@ let s:TYPE_FLT  = type(0.0)
 
 "-----------------------------------------------------------------------------
 " Assertions
+
+function! unittest#assertions#module()
+  return s:Assertions
+endfunction
 
 let s:Assertions = unittest#oop#module#new('Assertions', s:SID)
 
