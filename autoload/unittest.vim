@@ -2,7 +2,7 @@
 " Unit Testing Framework for Vim script
 "
 " File    : autoload/unittest.vim
-" Updated : 2012-01-20
+" Updated : 2012-01-27
 " Version : 0.5.1
 " License : MIT license {{{
 "
@@ -106,23 +106,6 @@ function! unittest#runner()
     throw "unittest: :UnitTest is not running now."
   endif
   return s:test_runner
-endfunction
-
-function! unittest#testcase()
-  if !unittest#is_running()
-    throw "unittest: :UnitTest is not running now."
-  endif
-  return s:test_runner.current.testcase
-endfunction
-function! unittest#self()
-  return unittest#testcase()
-endfunction
-
-function! unittest#test()
-  if !unittest#is_running()
-    throw "unittest: :UnitTest is not running now."
-  endif
-  return s:test_runner.current.test
 endfunction
 
 function! unittest#is_running()

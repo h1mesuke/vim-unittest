@@ -381,18 +381,6 @@ GLOBAL FUNCTIONS				*unittest-functions*
 		Example: >
 		let s:tc = unittest#testcase#new("Something")
 <
-	unittest#testcase()			*unittest#testcase()*
-
-		Returns the current running TestCase object.
-
-	unittest#self()				*unittest#self()*
-
-		Alias of |unittest#testcase()|.
-
-	unittest#test()				*unittest#test()*
-
-		Returns the name of the current running test.
-
 ------------------------------------------------------------------------------
 TESTCASE METHODS				*unittest-testcase-methods*
 
