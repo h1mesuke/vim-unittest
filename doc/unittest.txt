@@ -1,7 +1,7 @@
 *unittest.txt*		Unit Testing Framework for Vim script
 
 Author  : h1mesuke <himesuke+vim@gmail.com>
-Updated : 2012-01-27
+Updated : 2012-01-28
 Version : 0.5.1
 License : MIT license {{{
 
@@ -368,7 +368,7 @@ COMMANDS					*unittest-commands*
 GLOBAL FUNCTIONS				*unittest-functions*
 
 						*unittest#testcase#new()*
-	unittest#testcase#new( [{caption} [, {context}])	
+	unittest#testcase#new( [{caption} [, {context}]])	
 
 		Creates a new TestCase object.
 		When {caption} is given, it will be used as a cation in the
@@ -389,9 +389,9 @@ TESTCASE METHODS				*unittest-testcase-methods*
 
 ASSERTIONS					*unittest-assertions*
 
-	NOTE: All assertions accept the optional {hint} argument. When {hint}
-	is given, it is appended to the message as an additional information
-	on the assertion's failure.
+	NOTE: All assertions accept optional argument {hint}. When {hint} is
+	given, it would be appended to the failure message to give additional
+	information if the assertion failed.
 
 
 	assert( {expr} [, {hint}])		*unittest-assert()*
@@ -450,15 +450,24 @@ ASSERTIONS					*unittest-assertions*
 
 		Expects: exists({expr})
 
+		When {expr} is a command name;
+		Expects: exists({expr}) == 2
+
 		See also: |exists()|
 
 	assert_not_exists( {expr} [, {hint}])	*unittest-assert_not_exists()*
 
 		Expects: !exists({expr})
+
+		When {expr} is a command name;
+		Expects: exists({expr}) != 2
 						*unittest-assert_has_key()*
 	assert_has_key( {key}, {dict} [, {hint}])
 
 		Expects: has_key({dict}, {key})
+
+		Note that the order of parameters is reverse to |has_key()|.
+		The first argument of assertions is always what you expect.
 
 		See also: |has_key()|
 						*unittest-assert_not_has_key()*
@@ -512,6 +521,9 @@ ASSERTIONS					*unittest-assertions*
 
 		Expects: {str} =~ {pattern}
 
+		Note that the order of parameters is reverse to |match()|.
+		The first argument of assertions is always what you expect.
+
 		See also: |expr-=~|
 						*unittest-assert_not_match()*
 	assert_not_match( {pattern}, {str} [, {hint}])
@@ -564,16 +576,12 @@ ASSERTIONS					*unittest-assertions*
 
 		Expects {ex-command} to throw something.
 
-		See also: |:throw|, |:catch|
 						*unittest-assert_not_throw()*
 						*unittest-assert_nothing_thrown()*
 	assert_not_throw( {ex-command} [, {hint}])
 	assert_nothing_thrown( {ex-command} [, {hint}])
 
 		Expects {ex-command} to throw nothing.
-
-		See also: |:throw|, |:catch|
-
 
 CONTEXT ACCESSORS				*unittest-context-accessors*
 
@@ -631,10 +639,9 @@ CONTEXT ACCESSORS				*unittest-context-accessors*
 			"&l:"			local  option's local  value
 
 						*unittest-context-auto-revert*
-		data.set() saves the current value of {name} before changing
-		it. The saved values are restored after each test
-		automatically so that you don't need to do it yourself at
-		teardown functions.
+		set() saves the current value of {name} before changing it.
+		The saved values are restored after each test automatically so
+		that you don't need to do it yourself at teardown functions.
 
 		Example: >
 		call self.set('s:some_var', 10)
@@ -938,5 +945,25 @@ ISSUES						*unittest-issues*
 
 ==============================================================================
 CHANHELOG					*unittest-changelog*
+
+0.6.0	2012-01-28
+
+	* Added assert_throw_something()
+	* Added assert_has_key()
+	* Removed unittest#runner() and its family.
+
+0.5.1	2012-01-20
+
+	* Allowed multiple test filters.
+	* Changed callback names: Setup/Teardown -> SETUP/TEARDOWN
+
+0.5.0	2012-01-08
+
+	* Assertions as TestCase's methods.
+	* Added script-locals accessors.
+	* Added test data accessors.
+	* Added "Pending" feature.
+	* Added bin/vunit bash script.
+	* Added doc/unittest.txt
 
 vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:fdm=marker:
