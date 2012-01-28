@@ -40,6 +40,24 @@ delfunction s:get_SID
 "-----------------------------------------------------------------------------
 " TestCase
 
+let s:queue = []
+
+function! unittest#testcase#take()
+  let tcs = s:queue
+  let s:queue = []
+  return tcs
+endfunction
+
+nnoremap <silent> <Plug>(unittest-testcase-queue-clear) :<C-u>call <SID>clear()<CR>
+
+function! s:clear()
+  if !empty(s:queue)
+    call unittest#print_error("unittest: Don't source a testcase directly, " .
+          \ "please use :UnitTest command.")
+    let s:queue = []
+  endif
+endfunction
+
 function! unittest#testcase#class()
   return s:TestCase
 endfunction
@@ -52,17 +70,12 @@ let s:TestCase = unittest#oop#class#new('TestCase', s:SID)
 call s:TestCase.include(unittest#assertions#module())
 
 function! s:TestCase_initialize(name, ...) dict
-  if !unittest#is_running()
-    call unittest#print_error(
-          \ "unittest: Don't source a testcase directly, please use :UnitTest command.")
-  else
-    let self.name = a:name
-    let self.__context__ = s:Context.new(a:0 ? a:1 : {})
-    let self.data = self.__context__.data
-    let self.__private__ = {}
-    let runner = unittest#runner()
-    call runner.add_testcase(self)
-  endif
+  let self.name = a:name
+  let self.__context__ = s:Context.new(a:0 ? a:1 : {})
+  let self.data = self.__context__.data
+  let self.__private__ = {}
+  call add(s:queue, self)
+  call feedkeys("\<Plug>(unittest-testcase-queue-clear)")
 endfunction
 call s:TestCase.method('initialize')
 
@@ -182,8 +195,7 @@ endfunction
 call s:TestCase.method('save')
 
 function! s:TestCase_puts(...) dict
-  let runner = unittest#runner()
-  call call(runner.out.puts, a:000, runner.out)
+  call call(self.runner.puts, a:000, self.runner)
 endfunction
 call s:TestCase.method('puts')
 

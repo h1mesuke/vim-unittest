@@ -513,25 +513,22 @@ call s:Assertions.function('__string__')
 "-----------------------------------------------------------------------------
 
 function! s:Assertions_count_assertion() dict
-  if unittest#is_running()
-    let runner = unittest#runner()
-    call runner.count_assertion()
+  if has_key(self, 'runner')
+    call self.runner.count_assertion()
   endif
 endfunction
 call s:Assertions.function('count_assertion')
 
 function! s:Assertions_report_success() dict
-  if unittest#is_running()
-    let runner = unittest#runner()
-    call runner.report_success()
+  if has_key(self, 'runner')
+    call self.runner.report_success()
   endif
 endfunction
 call s:Assertions.function('report_success')
 
 function! s:Assertions_report_failure(reason, hint) dict
-  if unittest#is_running()
-    let runner = unittest#runner()
-    call runner.report_failure(a:reason, a:hint)
+  if has_key(self, 'runner')
+    call self.runner.report_failure(a:reason, a:hint)
   else
     let msg = substitute(a:reason, "\n", ' ', 'g')
     if !empty(a:hint)

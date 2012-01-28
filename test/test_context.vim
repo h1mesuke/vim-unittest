@@ -28,7 +28,7 @@ let s:current = {
       \ }
 
 function! s:tc.test_context_exists_global_function()
-  call self.assert(self.exists('*unittest#is_running'))
+  call self.assert(self.exists('*unittest#run'))
   call self.assert_not(self.exists('*unittest#foo'))
 endfunction
 
@@ -48,7 +48,7 @@ function! s:tc.test_context_exists_script_local_variable()
 endfunction
 
 function! s:tc.test_context_call_global_function()
-  call self.assert(self.call('unittest#is_running', []))
+  call self.assert_is(unittest#testcase#class(), self.call('unittest#testcase#class', []))
 endfunction
 
 function! s:tc.test_context_call_script_local_function()

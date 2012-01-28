@@ -31,9 +31,6 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! unittest#run(...)
-  if unittest#is_running()
-    throw "unittest: Duplicated launch is prohibited."
-  endif
   try
     let [tc_files, filters, output] = s:parse_args(a:000)
   catch /^unittest: /
@@ -43,18 +40,20 @@ function! unittest#run(...)
   let save_cpo = &cpo
   set cpo&vim
   try
-    let s:runner = s:TestRunner.new(filters, output)
+    let runner = s:TestRunner.new(filters, output)
     for tc_file in tc_files
       source `=tc_file`
     endfor
     let &cpo = save_cpo
-    call s:runner.run()
+    for tc in unittest#testcase#take()
+      call runner.add_testcase(tc)
+    endfor
+    call runner.run()
   catch
     call unittest#print_error(v:throwpoint)
     call unittest#print_error(v:exception)
   finally
     let &cpo = save_cpo
-    unlet! s:runner
   endtry
 endfunction
 
@@ -101,17 +100,6 @@ function! s:is_testcase_file(path)
   return (a:path =~# '\<\(test_\|t[cs]_\)\w\+\.vim$')
 endfunction
 
-function! unittest#runner()
-  if !unittest#is_running()
-    throw "unittest: :UnitTest is not running now."
-  endif
-  return s:runner
-endfunction
-
-function! unittest#is_running()
-  return exists('s:runner')
-endfunction
-
 function! unittest#print_error(msg)
   echohl ErrorMsg | echomsg a:msg | echohl None
 endfunction
@@ -144,6 +132,7 @@ endfunction
 call s:TestRunner.method('initialize')
 
 function! s:TestRunner_add_testcase(tc) dict
+  let a:tc.runner = self
   call add(self.testcases, a:tc)
 endfunction
 call s:TestRunner.method('add_testcase')
@@ -168,15 +157,15 @@ function! s:TestRunner_run() dict
         call tc.__setup__(test)
         call call(tc[test], [], tc)
       catch
-        call self.results.add_error()
+        call self.results.add_error(tc, test)
       endtry
       try
         call tc.__teardown__(test)
       catch
-        call self.results.add_error()
+        call self.results.add_error(tc, test)
       endtry
-      if empty(self.results.of(tc, test))
-        call self.results.add_pending()
+      if empty(self.results.get(tc, test))
+        call self.results.add_pending(tc, test)
       endif
       call self.print_status(tc, test)
     endfor
@@ -212,18 +201,24 @@ endfunction
 call s:TestRunner.method('count_assertion')
 
 function! s:TestRunner_report_success() dict
-  call self.results.add_success()
+  call self.results.add_success(self.current.testcase, self.current.test)
 endfunction
 call s:TestRunner.method('report_success')
 
 function! s:TestRunner_report_failure(reason, hint) dict
-  call self.results.add_failure(a:reason, a:hint)
+  call self.results.add_failure(self.current.testcase, self.current.test,
+        \ a:reason, a:hint)
 endfunction
 call s:TestRunner.method('report_failure')
 
+function! s:TestRunner_puts(...) dict
+  call call(self.out.puts, a:000, self.out)
+endfunction
+call s:TestRunner.method('puts')
+
 function! s:TestRunner_print_status(tc, test) dict
   let line = a:test . ' => '
-  for result in self.results.of(a:tc, a:test)
+  for result in self.results.get(a:tc, a:test)
     if result.is_a(s:Failure)
       let line .= 'F'
     elseif result.is_a(s:Error)
@@ -450,7 +445,7 @@ function! s:TestResults_initialize() dict
 endfunction
 call s:TestResults.method('initialize')
 
-function! s:TestResults_of(tc, test) dict
+function! s:TestResults_get(tc, test) dict
   try
     return self.results[a:tc.name][a:test]
   catch /^Vim\%((\a\+)\)\=:E716:/
@@ -458,7 +453,7 @@ function! s:TestResults_of(tc, test) dict
     return []
   endtry
 endfunction
-call s:TestResults.method('of')
+call s:TestResults.method('get')
 
 function! s:TestResults_get_counts() dict
   return {
@@ -476,41 +471,40 @@ function! s:TestResults_count_assertion() dict
 endfunction
 call s:TestResults.method('count_assertion')
 
-function! s:TestResults_add_success() dict
-  call self.append(s:SUCCESS)
+function! s:TestResults_add_success(tc, test) dict
+  call self.add(a:tc, a:test, s:SUCCESS)
 endfunction
 call s:TestResults.method('add_success')
 
-function! s:TestResults_add_failure(reason, hint) dict
-  let fail = s:Failure.new(a:reason, a:hint)
-  call self.append(fail)
+function! s:TestResults_add_failure(tc, test, reason, hint) dict
+  let fail = s:Failure.new(a:tc, a:test, a:reason, a:hint)
+  call self.add(a:tc, a:test, fail)
 endfunction
 call s:TestResults.method('add_failure')
 
-function! s:TestResults_add_error() dict
-  let err = s:Error.new()
-  call self.append(err)
+function! s:TestResults_add_error(tc, test) dict
+  let err = s:Error.new(a:tc, a:test)
+  call self.add(a:tc, a:test, err)
 endfunction
 call s:TestResults.method('add_error')
 
-function! s:TestResults_add_pending() dict
-  let pend = s:Pending.new()
-  call self.append(pend)
+function! s:TestResults_add_pending(tc, test) dict
+  let pend = s:Pending.new(a:tc, a:test)
+  call self.add(a:tc, a:test, pend)
 endfunction
 call s:TestResults.method('add_pending')
 
-function! s:TestResults_append(result) dict
-  let tc_name = s:runner.current.testcase.name
+function! s:TestResults_add(tc, test, result) dict
+  let tc_name = a:tc.name
   if !has_key(self.results, tc_name)
     let self.results[tc_name] = {}
   endif
   let tc_results = self.results[tc_name]
-  let test = s:runner.current.test
-  if !has_key(tc_results, test)
-    let tc_results[test] = []
+  if !has_key(tc_results, a:test)
+    let tc_results[a:test] = []
     let self.count.tests += 1
   endif
-  call add(tc_results[test], a:result)
+  call add(tc_results[a:test], a:result)
 
   if a:result isnot s:SUCCESS
     let kind_s = tolower(a:result.class.name) . 's'
@@ -518,7 +512,7 @@ function! s:TestResults_append(result) dict
     call add(self[kind_s], a:result)
   endif
 endfunction
-call s:TestResults.method('append')
+call s:TestResults.method('add')
 
 "---------------------------------------
 " Success
@@ -530,9 +524,9 @@ let s:SUCCESS = unittest#oop#class#new('Success', s:SID).new()
 
 let s:Failure = unittest#oop#class#new('Failure', s:SID)
 
-function! s:Failure_initialize(reason, hint) dict
-  let self.testcase = s:runner.current.testcase
-  let self.test = s:runner.current.test
+function! s:Failure_initialize(tc, test, reason, hint) dict
+  let self.testcase = a:tc
+  let self.test = a:test
   let self.failpoint = expand('<sfile>')
   let self.assert = matchstr(self.failpoint, '\.\.<SNR>\d\+_Assertions_\zsassert\w*\ze\.\.')
   let self.reason = a:reason
@@ -545,9 +539,9 @@ call s:Failure.method('initialize')
 
 let s:Error = unittest#oop#class#new('Error', s:SID)
 
-function! s:Error_initialize() dict
-  let self.testcase = s:runner.current.testcase
-  let self.test = s:runner.current.test
+function! s:Error_initialize(tc, test) dict
+  let self.testcase = a:tc
+  let self.test = a:test
   let self.throwpoint = v:throwpoint
   let self.exception = v:exception
 endfunction
@@ -558,9 +552,9 @@ call s:Error.method('initialize')
 
 let s:Pending = unittest#oop#class#new('Pending', s:SID)
 
-function! s:Pending_initialize() dict
-  let self.testcase = s:runner.current.testcase
-  let self.test = s:runner.current.test
+function! s:Pending_initialize(tc, test) dict
+  let self.testcase = a:tc
+  let self.test = a:test
 endfunction
 call s:Pending.method('initialize')
 
