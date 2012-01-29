@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/assertions.vim
 " Author  : h1mesuke <himesuke+vim@gmail.com>
-" Updated : 2012-01-27
+" Updated : 2012-01-29
 " Version : 0.6.0
 " License : MIT license {{{
 "
@@ -467,7 +467,7 @@ function! s:Assertions_assert_throw(exception, command, ...) dict
     if v:exception !~# a:exception
       call self.report_failure(
             \ printf("Command '%s' didn't throw /%s/, but threw:\n%s",
-            \   a:command, a:exception, v:exception)
+            \   a:command, a:exception, v:exception),
             \ hint)
     else
       call self.report_success()
