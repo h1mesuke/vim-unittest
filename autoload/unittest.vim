@@ -2,7 +2,7 @@
 " Unit Testing Framework for Vim script
 "
 " File    : autoload/unittest.vim
-" Updated : 2012-01-27
+" Updated : 2012-01-30
 " Version : 0.6.0
 " License : MIT license {{{
 "
@@ -452,7 +452,9 @@ call s:TestResults.method('initialize')
 
 function! s:TestResults_get(tc, test) dict
   try
-    return self.results[a:tc.name][a:test]
+    " NOTE: Don't shortcut this :let statment, or Vim can't catch E716!
+    let results = self.results[a:tc.name][a:test]
+    return results
   catch /^Vim\%((\a\+)\)\=:E716:/
     " E716: Key not present in Dictionary:
     return []
