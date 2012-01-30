@@ -442,8 +442,8 @@ call s:OutFile.method('puts')
 let s:TestResults = unittest#oop#class#new('TestResults', s:SID)
 
 function! s:TestResults_initialize() dict
-  let self.count = { 'tests': 0, 'assertions': 0 }
-  let self.results = {}
+  let self.__results__ = {}
+  let self.__count__ = { 'tests': 0, 'assertions': 0 }
   let self.failures = []
   let self.errors   = []
   let self.pendings = []
@@ -453,7 +453,7 @@ call s:TestResults.method('initialize')
 function! s:TestResults_get(tc, test) dict
   try
     " NOTE: Don't shortcut this :let statment, or Vim can't catch E716!
-    let results = self.results[a:tc.name][a:test]
+    let results = self.__results__[a:tc.name][a:test]
     return results
   catch /^Vim\%((\a\+)\)\=:E716:/
     " E716: Key not present in Dictionary:
@@ -464,8 +464,8 @@ call s:TestResults.method('get')
 
 function! s:TestResults_get_counts() dict
   return {
-        \ 'tests'     : self.count.tests,
-        \ 'assertions': self.count.assertions,
+        \ 'tests'     : self.__count__.tests,
+        \ 'assertions': self.__count__.assertions,
         \ 'failures'  : len(self.failures),
         \ 'errors'    : len(self.errors),
         \ 'pendings'  : len(self.pendings),
@@ -474,7 +474,7 @@ endfunction
 call s:TestResults.method('get_counts')
 
 function! s:TestResults_count_assertion() dict
-  let self.count.assertions += 1
+  let self.__count__.assertions += 1
 endfunction
 call s:TestResults.method('count_assertion')
 
@@ -503,13 +503,13 @@ call s:TestResults.method('add_pending')
 
 function! s:TestResults_add(tc, test, result) dict
   let tc_name = a:tc.name
-  if !has_key(self.results, tc_name)
-    let self.results[tc_name] = {}
+  if !has_key(self.__results__, tc_name)
+    let self.__results__[tc_name] = {}
   endif
-  let tc_results = self.results[tc_name]
+  let tc_results = self.__results__[tc_name]
   if !has_key(tc_results, a:test)
     let tc_results[a:test] = []
-    let self.count.tests += 1
+    let self.__count__.tests += 1
   endif
   call add(tc_results[a:test], a:result)
 
