@@ -2,7 +2,7 @@
 " Unit Testing Framework for Vim script
 "
 " File    : autoload/unittest.vim
-" Updated : 2012-01-30
+" Updated : 2012-01-31
 " Version : 0.6.0
 " License : MIT license {{{
 "
@@ -37,24 +37,9 @@ function! unittest#run(...)
     call unittest#print_error(v:exception)
     return
   endtry
-  let save_cpo = &cpo
-  set cpo&vim
-  try
-    let runner = s:TestRunner.new(filters, output)
-    for tc_file in tc_files
-      source `=tc_file`
-    endfor
-    let &cpo = save_cpo
-    for tc in unittest#testcase#take()
-      call runner.add_testcase(tc)
-    endfor
-    call runner.run()
-  catch
-    call unittest#print_error(v:throwpoint)
-    call unittest#print_error(v:exception)
-  finally
-    let &cpo = save_cpo
-  endtry
+  let runner = s:TestRunner.new(filters, output)
+  call runner.load_testcases(tc_files)
+  call runner.run()
 endfunction
 
 function! s:parse_args(args)
@@ -130,6 +115,24 @@ function! s:TestRunner_initialize(filters, output) dict
   endif
 endfunction
 call s:TestRunner.method('initialize')
+
+function! s:TestRunner_load_testcases(tc_files) dict
+  let save_cpo = &cpo
+  set cpo&vim
+  for tc_file in a:tc_files
+    try
+      source `=tc_file`
+    catch
+      let dummy_tc = { 'name': fnamemodify(tc_file, ':t') }
+      call self.results.add_error(dummy_tc, " ")
+    endtry
+  endfor
+  let &cpo = save_cpo
+  for tc in unittest#testcase#take()
+    call self.add_testcase(tc)
+  endfor
+endfunction
+call s:TestRunner.method('load_testcases')
 
 function! s:TestRunner_add_testcase(tc) dict
   let a:tc.runner = self
