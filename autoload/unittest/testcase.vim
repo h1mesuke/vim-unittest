@@ -3,7 +3,7 @@
 "
 " File    : autoload/unittest/testcase.vim
 " Author  : h1mesuke <himesuke+vim@gmail.com>
-" Updated : 2012-01-27
+" Updated : 2012-04-02
 " Version : 0.6.0
 " License : MIT license {{{
 "
@@ -149,7 +149,7 @@ function! s:TestCase___setup__(test) dict
     call self.setup()
   endif
   for suffix in self.__private__.setup_suffixes
-    if a:test =~# suffix
+    if substitute(a:test, '^test_', '', '') =~# '^'. suffix
       call call(self['setup_' . suffix], [], self)
     endif
   endfor
@@ -158,7 +158,7 @@ call s:TestCase.method('__setup__')
 
 function! s:TestCase___teardown__(test) dict
   for suffix in self.__private__.teardown_suffixes
-    if a:test =~# suffix
+    if substitute(a:test, '^test_', '', '') =~# '^'. suffix
       call call(self['teardown_' . suffix], [], self)
     endif
   endfor

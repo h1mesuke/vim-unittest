@@ -1,6 +1,6 @@
 " unittest.vim's test suite
 "
-" Test case of shoulda style tests
+" Test case of shoulda-like tests
 "
 " thoughtbot/shoulda - GitHub
 " https://github.com/thoughtbot/shoulda
@@ -12,7 +12,7 @@
 "
 "-----------------------------------------------------------------------------
 
-let s:tc = unittest#testcase#new("Shoulda-style Test Names")
+let s:tc = unittest#testcase#new("Shoulda-like Tests")
 
 function! s:tc.one_should_be_true()
   call self.assert(1)

@@ -1,6 +1,6 @@
 " unittest.vim's test suite
 "
-" Test case of setup and teardown
+" Test case of setup and teardown for shoulda-like tests
 "
 "-----------------------------------------------------------------------------
 " Expected results:
@@ -9,42 +9,42 @@
 " 
 "   setup
 "   setup_a
-"   test_a
+"   a___it_should_be
 "   teardown_a
 "   teardown
 "   
 "   setup
 "   setup_a
 "   setup_a_e
-"   test_a_e
+"   a_e___it_should_be
 "   teardown_a_e
 "   teardown_a
 "   teardown
 "   
 "   setup
 "   setup_e
-"   test_e
+"   e___it_should_be
 "   teardown_e
 "   teardown
 "   
 "   setup
 "   setup_e
 "   setup_e_a
-"   test_e_a
+"   e_a___it_should_be
 "   teardown_e_a
 "   teardown_e
 "   teardown
 "
 "   setup
 "   setup_foo
-"   test_foo
+"   foo___it_should_be
 "   teardown_foo
 "   teardown
 "
 "   setup
 "   setup_foo
 "   setup_foo_bar
-"   test_foo_bar
+"   foo_bar___it_should_be
 "   teardown_foo_bar
 "   teardown_foo
 "   teardown
@@ -53,7 +53,7 @@
 "   setup_foo
 "   setup_foo_bar
 "   setup_foo_bar_baz
-"   test_foo_bar_baz
+"   foo_bar_baz___it_should_be
 "   teardown_foo_bar_baz
 "   teardown_foo_bar
 "   teardown_foo
@@ -63,7 +63,7 @@
 "
 "-----------------------------------------------------------------------------
 
-let s:tc = unittest#testcase#new("Setup and Teardown")
+let s:tc = unittest#testcase#new("Shoulda-like Tests' Setup and Teardown")
 
 function! s:tc.SETUP()
   let self.funcalls = ["SETUP"]
@@ -80,9 +80,9 @@ function! s:tc.setup_a()
   call add(self.funcalls, "setup_a")
   call self.puts("setup_a")
 endfunction
-function! s:tc.test_a()
-  call add(self.funcalls, "test_a")
-  call self.puts("test_a")
+function! s:tc.a___it_should_be()
+  call add(self.funcalls, "a___it_should_be")
+  call self.puts("a___it_should_be")
   call self.assert(1) | " Not pending.
 endfunction
 function! s:tc.teardown_a()
@@ -94,9 +94,9 @@ function! s:tc.setup_e()
   call add(self.funcalls, "setup_e")
   call self.puts("setup_e")
 endfunction
-function! s:tc.test_e()
-  call add(self.funcalls, "test_e")
-  call self.puts("test_e")
+function! s:tc.e___it_should_be()
+  call add(self.funcalls, "e___it_should_be")
+  call self.puts("e___it_should_be")
   call self.assert(1) | " Not pending.
 endfunction
 function! s:tc.teardown_e()
@@ -108,9 +108,9 @@ function! s:tc.setup_a_e()
   call add(self.funcalls, "setup_a_e")
   call self.puts("setup_a_e")
 endfunction
-function! s:tc.test_a_e()
-  call add(self.funcalls, "test_a_e")
-  call self.puts("test_a_e")
+function! s:tc.a_e___it_should_be()
+  call add(self.funcalls, "a_e___it_should_be")
+  call self.puts("a_e___it_should_be")
   call self.assert(1) | " Not pending.
 endfunction
 function! s:tc.teardown_a_e()
@@ -122,9 +122,9 @@ function! s:tc.setup_e_a()
   call add(self.funcalls, "setup_e_a")
   call self.puts("setup_e_a")
 endfunction
-function! s:tc.test_e_a()
-  call add(self.funcalls, "test_e_a")
-  call self.puts("test_e_a")
+function! s:tc.e_a___it_should_be()
+  call add(self.funcalls, "e_a___it_should_be")
+  call self.puts("e_a___it_should_be")
   call self.assert(1) | " Not pending.
 endfunction
 function! s:tc.teardown_e_a()
@@ -142,9 +142,9 @@ function! s:tc.teardown_foo()
   call self.puts("teardown_foo")
 endfunction
 
-function! s:tc.test_foo()
-  call add(self.funcalls, "test_foo")
-  call self.puts("test_foo")
+function! s:tc.foo___it_should_be()
+  call add(self.funcalls, "foo___it_should_be")
+  call self.puts("foo___it_should_be")
   call self.assert(1) | " Not pending.
 endfunction
 
@@ -158,9 +158,9 @@ function! s:tc.teardown_foo_bar()
   call self.puts("teardown_foo_bar")
 endfunction
 
-function! s:tc.test_foo_bar()
-  call add(self.funcalls, "test_foo_bar")
-  call self.puts("test_foo_bar")
+function! s:tc.foo_bar___it_should_be()
+  call add(self.funcalls, "foo_bar___it_should_be")
+  call self.puts("foo_bar___it_should_be")
   call self.assert(1) | " Not pending.
 endfunction
 
@@ -169,9 +169,9 @@ function! s:tc.setup_foo_bar_baz()
   call self.puts("setup_foo_bar_baz")
 endfunction
 
-function! s:tc.test_foo_bar_baz()
-  call add(self.funcalls, "test_foo_bar_baz")
-  call self.puts("test_foo_bar_baz")
+function! s:tc.foo_bar_baz___it_should_be()
+  call add(self.funcalls, "foo_bar_baz___it_should_be")
+  call self.puts("foo_bar_baz___it_should_be")
   call self.assert(1) | " Not pending.
 endfunction
 
@@ -202,42 +202,42 @@ function! s:tc.test_zetup_and_teardown()
         \
         \ "setup",
         \ "setup_a",
-        \ "test_a",
+        \ "a___it_should_be",
         \ "teardown_a",
         \ "teardown",
         \
         \ "setup",
         \ "setup_a",
         \ "setup_a_e",
-        \ "test_a_e",
+        \ "a_e___it_should_be",
         \ "teardown_a_e",
         \ "teardown_a",
         \ "teardown",
         \
         \ "setup",
         \ "setup_e",
-        \ "test_e",
+        \ "e___it_should_be",
         \ "teardown_e",
         \ "teardown",
         \
         \ "setup",
         \ "setup_e",
         \ "setup_e_a",
-        \ "test_e_a",
+        \ "e_a___it_should_be",
         \ "teardown_e_a",
         \ "teardown_e",
         \ "teardown",
         \
         \ "setup",
         \ "setup_foo",
-        \ "test_foo",
+        \ "foo___it_should_be",
         \ "teardown_foo",
         \ "teardown",
         \
         \ "setup",
         \ "setup_foo",
         \ "setup_foo_bar",
-        \ "test_foo_bar",
+        \ "foo_bar___it_should_be",
         \ "teardown_foo_bar",
         \ "teardown_foo",
         \ "teardown",
@@ -246,7 +246,7 @@ function! s:tc.test_zetup_and_teardown()
         \ "setup_foo",
         \ "setup_foo_bar",
         \ "setup_foo_bar_baz",
-        \ "test_foo_bar_baz",
+        \ "foo_bar_baz___it_should_be",
         \ "teardown_foo_bar_baz",
         \ "teardown_foo_bar",
         \ "teardown_foo",
