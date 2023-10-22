@@ -90,7 +90,7 @@ function! unittest#print_error(msg)
 endfunction
 
 function! s:get_SID()
-  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+    return matchstr(expand('<sfile>'), '<SNR>\d\+_\zeget_SID')
 endfunction
 let s:SID = s:get_SID()
 delfunction s:get_SID
