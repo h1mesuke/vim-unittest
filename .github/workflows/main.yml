@@ -1,18 +1,11 @@
-on:
-  push:
-    branches:
-    - master
-    - devel
+name: Automated tests for Continuous integration
+on: [push]
 jobs:
-  test:
-    runs-on: [ubuntu-latest]
+  setup-environment:
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout Vim-Vlsim"
-          uses: actions/checkout@v4
-      - name: "Checkout Unittest"
-          uses: actions/checkout@v4
-          with: https://github.com/laurentalacoque/vim-unittest
+        uses: actions/checkout@v4
       - name: "Install vim"
         run: apt-get install vim
-
       - run: ls
