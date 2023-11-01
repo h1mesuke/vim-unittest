@@ -17,6 +17,6 @@ jobs:
       - name: "Link to unittest in vim/bundle"
         run: ln -s runtime/vim-unittest ~/.vim/bundle/vim-unittest && ls -l ~/.vim/bundle && ls -l ~/.vim/bundle/vim-unittest && cat ~/.vimrc
       - name: "Tree"
-        run: tree ~/
+        run: tree -d ~/
       - name: "UnitTests"
         run: runtime/vim-unittest/bin/vunit runtime/vim-unittest/test-almost.vim
