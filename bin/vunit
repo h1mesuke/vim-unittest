@@ -124,8 +124,8 @@ if [ $OUTPUT = FILE ]; then
   outfile=`mktemp -t vunit_results.XXXXXXXXXX`
   check_path "$outfile"
   trap - EXIT HUP INT QUIT TERM
-  trap 'rm -f "$outfile"; cd "$tcdir" exit 0' EXIT
-  trap 'rm -f "$outfile"; cd "$tcdir" exit 1' HUP INT QUIT TERM
+  trap 'rm -f "$outfile"; cd "$tcdir"; exit 0;' EXIT
+  trap 'rm -f "$outfile"; cd "$tcdir"; exit 1;' HUP INT QUIT TERM
 
   $VIM -c "UnitTest $tcfile >$outfile" -c "qall!"
 
