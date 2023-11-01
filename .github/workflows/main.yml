@@ -12,6 +12,5 @@ jobs:
           path: runtime/vim-unittest
       - name: "Install vim"
         run: sudo apt-get install vim
-      - run: ls
-      - run: tree
-      - run: pwd
+      - name: "UnitTests"
+        run: runtime/vim-unittest/bin/vunit runtime/vim-unittest/test-almost.vim
