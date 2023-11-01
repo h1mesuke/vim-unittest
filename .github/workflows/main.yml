@@ -7,5 +7,6 @@ jobs:
       - name: "Checkout Vim-Vlsim"
         uses: actions/checkout@v4
       - name: "Install vim"
-        run: apt-get install vim
+        run: sudo apt-get install vim
       - run: ls
+      - run: tree
