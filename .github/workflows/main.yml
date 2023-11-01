@@ -12,5 +12,9 @@ jobs:
           path: runtime/vim-unittest
       - name: "Install vim"
         run: sudo apt-get install vim
+      - name: "Install Pathogen"
+        run: mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim && echo "execute pathogen#infect()" > ~/.vim
+      - name: "Link to unittest in vim/bundle"
+        run: ln -s ~/.vim/bundle/vim-unittest runtime/vim-unittest
       - name: "UnitTests"
         run: runtime/vim-unittest/bin/vunit runtime/vim-unittest/test-almost.vim
