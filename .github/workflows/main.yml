@@ -19,4 +19,4 @@ jobs:
       - name: "Tree"
         run: tree -d ~/
       - name: "UnitTests"
-        run: runtime/vim-unittest/bin/vunit runtime/vim-unittest/test-almost.vim
+        run: runtime/vim-unittest/bin/vunit runtime/vim-unittest/test/test-almost.vim
