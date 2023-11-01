@@ -18,5 +18,7 @@ jobs:
         run: ln -s ~/work/vim-unittest/vim-unittest/runtime/vim-unittest ~/.vim/bundle/vim-unittest && ls -l ~/.vim/bundle && ls -l ~/.vim/bundle/vim-unittest && cat ~/.vimrc
       - name: "Tree"
         run: tree -d ~/
+      - name: "Current dir"
+        run: pwd
       - name: "UnitTests"
         run: runtime/vim-unittest/bin/vunit -c none runtime/vim-unittest/test/test_almost.vim
