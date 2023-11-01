@@ -7,4 +7,12 @@ jobs:
   test:
     runs-on: [ubuntu-latest]
     steps:
-    - run: echo Hello world!
+      - name: "Checkout Vim-Vlsim"
+          uses: actions/checkout@v4
+      - name: "Checkout Unittest"
+          uses: actions/checkout@v4
+          with: https://github.com/laurentalacoque/vim-unittest
+      - name: "Install vim"
+        run: apt-get install vim
+
+      - run: ls
