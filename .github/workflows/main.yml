@@ -5,11 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Create runtime path"
-        run:  "mkdir runtime"
+        run:  mkdir runtime
       - name: "Checkout Vim-Vlsim"
         uses: actions/checkout@v4.1.1
         with:
-          path: runtime
+          path: runtime/vim-unittest
       - name: "Install vim"
         run: sudo apt-get install vim
       - run: ls
