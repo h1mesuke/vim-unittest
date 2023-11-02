@@ -29,7 +29,8 @@
 # }}}
 #=============================================================================
 
-set -o errexit
+# removed because we want to grep the resulting file for test errors and failures
+# set -o errexit
 set -o nounset
 
 NAME=vunit
@@ -116,7 +117,9 @@ tcfile=`basename "$1"`
 check_path "$tcfile"
 
 cwd=`pwd`
-trap 'cd "$cwd"; exit 0' EXIT
+test_has_failed=0
+
+trap 'cd "$cwd"; exit $test_has_failed' EXIT
 trap 'cd "$cwd"; exit 1' HUP INT QUIT TERM
 cd "$tcdir"
 
@@ -124,10 +127,15 @@ if [ $OUTPUT = FILE ]; then
   outfile=`mktemp -t vunit_results.XXXXXXXXXX`
   check_path "$outfile"
   trap - EXIT HUP INT QUIT TERM
-  trap 'rm -f "$outfile"; exit 0;' EXIT
+  trap 'rm -f "$outfile"; exit $test_has_failed;' EXIT
   trap 'rm -f "$outfile"; exit 1;' HUP INT QUIT TERM
 
   $VIM -c "UnitTest $tcfile >$outfile" -c "qall!"
+
+  ls
+
+  grep "0 failures, 0 errors" $outfile
+  test_has_failed=$?
 
   if [ $COLOR = NONE ]; then
     cat "$outfile"
@@ -176,6 +184,7 @@ if [ $OUTPUT = FILE ]; then
       { print }
     '
   fi
+  exit $test_has_failed
 else
   $VIM -c "UnitTest $tcfile" -c 'wincmd o' -c 'normal! z-'
 fi
