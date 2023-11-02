@@ -36,7 +36,7 @@ function! unittest#assertions#__context__()
 endfunction
 
 function! s:get_SID()
-  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_\zeget_SID')
 endfunction
 let s:SID = s:get_SID()
 delfunction s:get_SID
@@ -64,11 +64,11 @@ function! s:Assertions_assert(expr, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !a:expr
-    call self.report_failure(
+    return self.report_failure(
           \ printf("True expected, but was\n%s", self.__string__(a:expr)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert')
@@ -77,11 +77,11 @@ function! s:Assertions_assert_not(expr, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr
-    call self.report_failure(
+    return self.report_failure(
           \ printf("False expected, but was\n%s", self.__string__(a:expr)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not')
@@ -91,21 +91,21 @@ function! s:Assertions_assert_equal(expected, actual, ...) dict
   let hint = (a:0 ? a:1 : "")
   if type(a:expected) == s:TYPE_STR && type(a:actual) == s:TYPE_STR
     if a:expected !=# a:actual
-      call self.report_failure(
+      return self.report_failure(
             \ printf("%s expected, but was\n%s",
             \   self.__string__(a:expected), self.__string__(a:actual)),
             \ hint)
     else
-      call self.report_success()
+      return self.report_success()
     endif
   else
     if a:expected != a:actual
-      call self.report_failure(
+      return self.report_failure(
             \ printf("%s expected, but was\n%s",
             \   self.__string__(a:expected), self.__string__(a:actual)),
             \ hint)
     else
-      call self.report_success()
+      return self.report_success()
     endif
   endif
 endfunction
@@ -116,21 +116,21 @@ function! s:Assertions_assert_not_equal(expected, actual, ...) dict
   let hint = (a:0 ? a:1 : "")
   if type(a:expected) == s:TYPE_STR && type(a:actual) == s:TYPE_STR
     if a:expected ==# a:actual
-      call self.report_failure(
+      return self.report_failure(
             \ printf("%s not expected, but was\n%s",
             \   self.__string__(a:expected), self.__string__(a:actual)),
             \ hint)
     else
-      call self.report_success()
+      return self.report_success()
     endif
   else
     if a:expected == a:actual
-      call self.report_failure(
+      return self.report_failure(
             \ printf("%s not expected, but was\n%s",
             \   self.__string__(a:expected), self.__string__(a:actual)),
             \ hint)
     else
-      call self.report_success()
+      return self.report_success()
     endif
   endif
 endfunction
@@ -140,12 +140,12 @@ function! s:Assertions_assert_equal_c(expected, actual, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected !=? a:actual
-    call self.report_failure(
+    return self.report_failure(
           \ printf("%s expected, but was\n%s",
           \   self.__string__(a:expected), self.__string__(a:actual)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_equal_c')
@@ -155,12 +155,12 @@ function! s:Assertions_assert_not_equal_c(expected, actual, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected ==? a:actual
-    call self.report_failure(
+    return self.report_failure(
           \ printf("%s not expected, but was\n%s",
           \   self.__string__(a:expected), self.__string__(a:actual)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_equal_c')
@@ -170,12 +170,12 @@ function! s:Assertions_assert_equal_C(expected, actual, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected !=# a:actual
-    call self.report_failure(
+    return self.report_failure(
           \ printf("%s expected, but was\n%s",
           \   self.__string__(a:expected), self.__string__(a:actual)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_equal_C')
@@ -185,12 +185,12 @@ function! s:Assertions_assert_not_equal_C(expected, actual, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected ==# a:actual
-    call self.report_failure(
+    return self.report_failure(
           \ printf("%s not expected, but was\n%s",
           \   self.__string__(a:expected), self.__string__(a:actual)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_equal_C')
@@ -200,11 +200,11 @@ function! s:Assertions_assert_exists(expr, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr =~ '^:' ? exists(a:expr) != 2 : !exists(a:expr)
-    call self.report_failure(
+    return self.report_failure(
           \ printf("'%s' is not defined.", a:expr),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_exists')
@@ -214,11 +214,11 @@ function! s:Assertions_assert_not_exists(expr, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expr =~ '^:' ? exists(a:expr) == 2 : exists(a:expr)
-    call self.report_failure(
+    return self.report_failure(
           \ printf("'%s' is defined.", a:expr),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_exists')
@@ -228,11 +228,11 @@ function! s:Assertions_assert_has_key(key, dict, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if !has_key(a:dict, a:key)
-    call self.report_failure(
+    return self.report_failure(
           \ printf("%s doesn't has key '%s'", self.__string__(a:dict), a:key),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_has_key')
@@ -241,11 +241,11 @@ function! s:Assertions_assert_not_has_key(key, dict, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if has_key(a:dict, a:key)
-    call self.report_failure(
+    return self.report_failure(
           \ printf("%s has key '%s'", self.__string__(a:dict), a:key),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_has_key')
@@ -254,12 +254,12 @@ function! s:Assertions_assert_is(expected, actual, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected isnot a:actual
-    call self.report_failure(
+    return self.report_failure(
           \ printf("%s itself expected, but was\n%s",
           \   self.__string__(a:expected), self.__string__(a:actual)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is')
@@ -268,12 +268,12 @@ function! s:Assertions_assert_isnot(expected, actual, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:expected is a:actual
-    call self.report_failure(
+    return self.report_failure(
           \ printf("%s itself not expected, but was\n%s itself.",
           \   self.__string__(a:expected), self.__string__(a:actual)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_isnot')
@@ -283,11 +283,11 @@ function! s:Assertions_assert_is_Number(value, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_NUM
-    call self.report_failure(
+    return self.report_failure(
           \ printf("Number expected, but was\n%s", self.__typestr__(a:value)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Number')
@@ -296,11 +296,11 @@ function! s:Assertions_assert_is_String(value, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_STR
-    call self.report_failure(
+    return self.report_failure(
           \ printf("String expected, but was\n%s", self.__typestr__(a:value)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_String')
@@ -309,11 +309,11 @@ function! s:Assertions_assert_is_Funcref(value, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_FUNC
-    call self.report_failure(
+    return self.report_failure(
           \ printf("Funcref expected, but was\n%s", self.__typestr__(a:value)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Funcref')
@@ -322,11 +322,11 @@ function! s:Assertions_assert_is_List(value, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_LIST
-    call self.report_failure(
+    return self.report_failure(
           \ printf("List expected, but was\n%s", self.__typestr__(a:value)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_List')
@@ -335,11 +335,11 @@ function! s:Assertions_assert_is_Dictionary(value, ...) dict
   call self.count_assertion()
   if type(a:value) != s:TYPE_DICT
     let hint = (a:0 ? a:1 : "")
-    call self.report_failure(
+    return self.report_failure(
           \ printf("Dictionary expected, but was\n%s", self.__typestr__(a:value)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Dictionary')
@@ -349,11 +349,11 @@ function! s:Assertions_assert_is_Float(value, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if type(a:value) != s:TYPE_FLT
-    call self.report_failure(
+    return self.report_failure(
           \ printf("Float expected, but was\n%s", self.__typestr__(a:value)),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_is_Float')
@@ -380,11 +380,11 @@ function! s:Assertions_assert_match(pattern, str, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str !~ a:pattern
-    call self.report_failure(
+    return self.report_failure(
           \ printf("'%s' didn't match pattern /%s/", a:str, a:pattern),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_match')
@@ -393,11 +393,11 @@ function! s:Assertions_assert_not_match(pattern, str, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str =~ a:pattern
-    call self.report_failure(
+    return self.report_failure(
           \ printf("'%s' matched pattern /%s/", a:str, a:pattern),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_match')
@@ -406,11 +406,11 @@ function! s:Assertions_assert_match_c(pattern, str, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str !~? a:pattern
-    call self.report_failure(
+    return self.report_failure(
           \ printf("'%s' didn't match pattern /%s/", a:str, a:pattern),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_match_c')
@@ -420,11 +420,11 @@ function! s:Assertions_assert_not_match_c(pattern, str, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str =~? a:pattern
-    call self.report_failure(
+    return self.report_failure(
           \ printf("'%s' matched pattern /%s/", a:str, a:pattern),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_match_c')
@@ -434,11 +434,11 @@ function! s:Assertions_assert_match_C(pattern, str, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str !~# a:pattern
-    call self.report_failure(
+    return self.report_failure(
           \ printf("'%s' didn't match pattern /%s/", a:str, a:pattern),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_match_C')
@@ -448,11 +448,11 @@ function! s:Assertions_assert_not_match_C(pattern, str, ...) dict
   call self.count_assertion()
   let hint = (a:0 ? a:1 : "")
   if a:str =~# a:pattern
-    call self.report_failure(
+    return self.report_failure(
           \ printf("'%s' matched pattern /%s/", a:str, a:pattern),
           \ hint)
   else
-    call self.report_success()
+    return self.report_success()
   endif
 endfunction
 call s:Assertions.function('assert_not_match_C')
@@ -465,16 +465,16 @@ function! s:Assertions_assert_throw(exception, command, ...) dict
     execute a:command
   catch
     if v:exception !~# a:exception
-      call self.report_failure(
+      return self.report_failure(
             \ printf("Command '%s' didn't throw /%s/, but threw:\n%s",
             \   a:command, a:exception, v:exception),
             \ hint)
     else
-      call self.report_success()
+      return self.report_success()
     endif
     return
   endtry
-  call self.report_failure(
+  return self.report_failure(
         \ empty(a:exception)
         \   ? printf("Command '%s' didn't throw anything.", a:command)
         \   : printf("Command '%s' didn't throw /%s/\nNothing thrown.",
@@ -495,15 +495,30 @@ function! s:Assertions_assert_not_throw(command, ...) dict
   try
     execute a:command
   catch
-    call self.report_failure(
+    return self.report_failure(
           \ printf("Command '%s' threw:\n%s", a:command, v:exception),
           \ hint)
     return
   endtry
-  call self.report_success()
+  return self.report_success()
 endfunction
 call s:Assertions.function('assert_not_throw')
 call s:Assertions.alias('assert_nothing_thrown', 'assert_not_throw')
+
+function! s:Assertions_fail(...) dict
+  call self.count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  return self.report_failure(
+          \ "",
+          \ hint)
+endfunction
+call s:Assertions.function('fail')
+
+function! s:Assertions_pass() dict
+  call self.count_assertion()
+  return self.report_success()
+endfunction
+call s:Assertions.function('pass')
 
 function! s:Assertions___string__(value)
   return unittest#oop#string(a:value)
@@ -521,14 +536,14 @@ call s:Assertions.function('count_assertion')
 
 function! s:Assertions_report_success() dict
   if has_key(self, 'runner')
-    call self.runner.report_success()
+    return self.runner.report_success()
   endif
 endfunction
 call s:Assertions.function('report_success')
 
 function! s:Assertions_report_failure(reason, hint) dict
   if has_key(self, 'runner')
-    call self.runner.report_failure(a:reason, a:hint)
+    return self.runner.report_failure(a:reason, a:hint)
   else
     let msg = substitute(a:reason, "\n", ' ', 'g')
     if !empty(a:hint)
