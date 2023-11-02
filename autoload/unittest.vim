@@ -210,12 +210,14 @@ call s:TestRunner.method('count_assertion')
 
 function! s:TestRunner_report_success() dict
   call self.results.add_success(self.current.testcase, self.current.test)
+  return 1
 endfunction
 call s:TestRunner.method('report_success')
 
 function! s:TestRunner_report_failure(reason, hint) dict
   call self.results.add_failure(self.current.testcase, self.current.test,
         \ a:reason, a:hint)
+  return 0
 endfunction
 call s:TestRunner.method('report_failure')
 
