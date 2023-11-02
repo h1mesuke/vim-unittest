@@ -505,6 +505,21 @@ endfunction
 call s:Assertions.function('assert_not_throw')
 call s:Assertions.alias('assert_nothing_thrown', 'assert_not_throw')
 
+function! s:Assertions_fail(...) dict
+  call self.count_assertion()
+  let hint = (a:0 ? a:1 : "")
+  return self.report_failure(
+          \ "",
+          \ hint)
+endfunction
+call s:Assertions.function('fail')
+
+function! s:Assertions_pass() dict
+  call self.count_assertion()
+  return self.report_success()
+endfunction
+call s:Assertions.function('pass')
+
 function! s:Assertions___string__(value)
   return unittest#oop#string(a:value)
 endfunction

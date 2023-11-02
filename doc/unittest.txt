@@ -393,6 +393,9 @@ ASSERTIONS					*unittest-assertions*
 	given, it would be appended to the failure message to give additional
 	information if the assertion failed.
 
+	NOTE: All assertions return 0 in case of failure and 1 in case of
+	success.
+
 
 	assert( {expr} [, {hint}])		*unittest-assert()*
 
@@ -582,6 +585,29 @@ ASSERTIONS					*unittest-assertions*
 	assert_nothing_thrown( {ex-command} [, {hint}])
 
 		Expects {ex-command} to throw nothing.
+	
+PSEUDO-ASSERTIONS
+	Those pseudo assertions are usefull when you want to implement your
+	own comparison methods.
+						*unittest-fail()*
+	fail([{hint}])
+		Manual fail for the test.
+
+		Example: >
+		if a != b
+		call self.fail("a and b are different")
+		endif
+<
+	
+						*unittest-pass()*
+	pass()
+		Manual pass for the test.
+
+		Example: >
+		if a == b
+		call self.pass()
+		endif
+<
 
 CONTEXT ACCESSORS				*unittest-context-accessors*
 

@@ -224,6 +224,16 @@ function! s:tc.test_assert_return_values()
     endif
 endfunction
 
+function! s:tc.test_pass_fail()
+    call self.fail("PASSED: (Manual fail) Failed is the correct behavior")
+    call self.pass()
+endfunction
+
+function! s:tc.test_pass_fail_returns()
+    call self.assert_equal(0,self.fail("PASSED: (expected Manual fail) Failed is the correct behavior"))
+    call self.assert_equal(0,self.pass(), "PASSED: (actual expected value should be 1)")
+endfunction
+
 function! s:tc.test_error()
   call foo#bar#baz()
 endfunction
